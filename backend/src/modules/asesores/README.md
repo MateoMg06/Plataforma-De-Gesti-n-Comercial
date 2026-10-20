@@ -1,9 +1,14 @@
 # Módulo `asesores`
 
-**Responsable:** Mateo (HU-11, HU-12), Andres (HU-10), Kevin B (HU-13), si el equipo aprueba el cambio
+Este módulo lo comparten dos personas, cada una con su parte:
 
-**Historias:** HU-10 a HU-13
+| Parte | Responsable | Historias |
+|---|---|---|
+| CRUD de asesores y **dueño de la tabla ASESOR** | Andres | HU-10 |
+| Agenda (solo lee VISITA, no tiene tablas propias) | Mateo | HU-11, HU-12 |
 
-**Tablas del modelo:** ASESOR
+HU-13 (reprogramar visita) **no va en este módulo**: es de Kevin B y vive en `seguimiento`.
+
+**Tablas del modelo:** ASESOR (dueño: Andres).
 
 Copia la estructura de `../zonas`: entidad y puerto en `domain/`, casos de uso en `application/`, entidades TypeORM (`*.orm-entity.ts`) y adaptadores en `infrastructure/`, controladores y DTOs en `presentation/`.

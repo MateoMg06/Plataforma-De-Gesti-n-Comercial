@@ -1,0 +1,11 @@
+{
+  "name": "comercial360",
+  "private": true,
+  "description": "Raíz del repo: solo instala Husky para validar ramas y commits",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}

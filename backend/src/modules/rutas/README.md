@@ -1,6 +1,6 @@
 # Módulo `rutas`
 
-**Responsable:** Andres
+**Responsable:** Andres (también el CRUD de asesores, HU-10, en el módulo `asesores`)
 
 **Historias:** HU-14 a HU-17
 

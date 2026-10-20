@@ -63,6 +63,12 @@ docs/modelo-datos.md   quién es dueño de cada tabla y campos que faltan
 
 Antes de tu primer PR lee [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Si usas Claude Code u otro agente de IA
+
+Abre el agente en la raíz del repo. Leerá `CLAUDE.md` / `AGENTS.md` (reglas del proyecto) y te preguntará quién eres para leer tu archivo en `docs/agentes/`. Puedes decírselo de una vez: *"Soy Francisco, voy a trabajar la HU-05"*.
+
+
+
 ## Comandos útiles (backend)
 
 | Comando | Qué hace |

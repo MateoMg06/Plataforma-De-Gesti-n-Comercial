@@ -16,6 +16,11 @@ Mensajes cortos en español, empezando por la historia:
 HU-05: agrega validación de NIT único
 ```
 
+Husky revisa esto solo (`npm install` en la raíz para activarlo):
+
+- `.husky/pre-commit`: no deja hacer commit en `main` ni `develop`, ni en ramas que no sigan `feature/HU-XX-descripcion-corta` (también `feature/HU-INF-XX-...`).
+- `.husky/commit-msg`: el mensaje debe empezar por `HU-XX: ` (o `HU-INF-XX: `). Los mensajes de merge y revert que genera git pasan.
+
 ## Pull requests
 
 - PRs pequeños: idealmente una historia o una parte de ella. Mejor 3 PRs de un día que 1 de tres días.
