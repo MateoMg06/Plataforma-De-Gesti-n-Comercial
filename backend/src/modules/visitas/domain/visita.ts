@@ -9,6 +9,9 @@ export type EstadoVisita =
   | 'no_atendida'
   | 'reprogramada';
 
+// Estados que se pueden registrar al dar el resultado de una visita (HU-19).
+export type EstadoResultado = 'realizada' | 'cancelada' | 'no_atendida';
+
 export class Visita {
   constructor(
     public readonly id: number | null,
@@ -17,6 +20,7 @@ export class Visita {
     public readonly idRuta: number | null,
     public readonly fechaProgramada: Date,
     public readonly estado: EstadoVisita,
+    public readonly fechaReal: Date | null = null,
   ) {
     if (!idCliente || idCliente <= 0) {
       throw new Error('El cliente es obligatorio');
@@ -38,5 +42,25 @@ export class Visita {
     idRuta: number | null = null,
   ): Visita {
     return new Visita(null, idCliente, idAsesor, idRuta, fechaProgramada, 'programada');
+  }
+
+  // HU-19: registra el resultado de la visita. Cambia el estado y fija la fecha real.
+  // Regla: una visita 'realizada' no se puede editar.
+  registrarResultado(fechaReal: Date, estado: EstadoResultado): Visita {
+    if (this.estado === 'realizada') {
+      throw new Error('Una visita realizada no se puede editar');
+    }
+    if (!fechaReal || Number.isNaN(fechaReal.getTime())) {
+      throw new Error('La fecha real es obligatoria');
+    }
+    return new Visita(
+      this.id,
+      this.idCliente,
+      this.idAsesor,
+      this.idRuta,
+      this.fechaProgramada,
+      estado,
+      fechaReal,
+    );
   }
 }

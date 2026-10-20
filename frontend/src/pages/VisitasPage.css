@@ -40,3 +40,30 @@
   font-size: 12px;
   font-weight: 600;
 }
+
+.form-resultado {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 12px;
+}
+
+.fila-resultado {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.fila-resultado label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.acciones-resultado {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

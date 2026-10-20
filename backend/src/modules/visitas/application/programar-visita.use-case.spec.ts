@@ -24,6 +24,16 @@ class VisitaRepositoryEnMemoria implements VisitaRepository {
   async listar() {
     return this.visitas;
   }
+
+  async buscarPorId(id: number) {
+    return this.visitas.find((v) => v.id === id) ?? null;
+  }
+
+  async listarResultadosCatalogo() {
+    return [];
+  }
+
+  async guardarResultadosVisita() {}
 }
 
 // Stub del caso de uso de clientes: simula qué clientes existen sin tocar la base.

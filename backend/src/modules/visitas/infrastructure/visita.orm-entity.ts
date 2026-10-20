@@ -7,8 +7,8 @@ export class VisitaOrmEntity {
   @PrimaryGeneratedColumn({ name: 'id_visita' })
   id: number;
 
-  // Números simples por ahora: las tablas cliente y asesor aún no existen en la
-  // base de datos. Cuando existan, se agregan las claves foráneas en otra migración.
+  // Números simples por ahora: las tablas cliente y asesor no se referencian con
+  // clave foránea desde aquí. La validación de cliente se hace por código (HU-18).
   @Column({ name: 'id_cliente' })
   idCliente: number;
 
@@ -21,6 +21,10 @@ export class VisitaOrmEntity {
   // Fecha y hora: la agenda (HU-11) muestra la hora de cada visita.
   @Column({ name: 'fecha_programada', type: 'timestamp' })
   fechaProgramada: Date;
+
+  // Se llena al registrar el resultado de la visita (HU-19).
+  @Column({ name: 'fecha_real', type: 'timestamp', nullable: true })
+  fechaReal: Date | null;
 
   @Column({ name: 'estado_visita', length: 20 })
   estadoVisita: string;
