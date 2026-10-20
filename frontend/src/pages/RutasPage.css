@@ -4,3 +4,12 @@
 .ruta-form .btn { justify-self: start; }
 .ruta-form .btn:disabled { cursor: wait; opacity: 0.7; }
 .ruta-confirmacion { color: var(--success); }
+.clientes-ruta { border-top: 1px solid var(--border); margin-top: 28px; padding-top: 20px; }
+.clientes-ruta h2 { font-size: 18px; margin: 0 0 16px; }
+.clientes-ruta label { display: grid; gap: 6px; font-weight: 600; }
+.agregar-cliente-form { align-items: end; display: flex; gap: 12px; margin-top: 16px; }
+.agregar-cliente-form label { flex: 1; }
+.clientes-ordenados { padding-left: 24px; }
+.clientes-ordenados li { align-items: center; display: flex; justify-content: space-between; margin: 8px 0; }
+.acciones-orden { display: flex; gap: 6px; }
+.acciones-orden .btn { padding: 4px 10px; }
