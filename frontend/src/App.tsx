@@ -4,6 +4,7 @@ import { menu } from './layout/menu';
 import { LoginPage } from './pages/LoginPage';
 import { PlaceholderPage } from './pages/PlaceholderPage';
 import { ZonasPage } from './pages/ZonasPage';
+import { RutasPage } from './pages/RutasPage';
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
             <Route key={item.path} path={item.path} element={<PlaceholderPage item={item} />} />
           ))}
           <Route path="/configuracion/zonas" element={<ZonasPage />} />
+          <Route path="/rutas" element={<RutasPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
