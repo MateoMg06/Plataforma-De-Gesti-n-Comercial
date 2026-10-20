@@ -1,5 +1,5 @@
 import { Lock, Mail } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import './LoginPage.css';
@@ -17,6 +17,19 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
+
+  // HU-02: si ya hay sesión activa, el login no tiene nada que hacer aquí.
+  // Así se evita volver a la pantalla de login estando dentro (por ejemplo
+  // presionando "Atrás" del navegador): mejor enviamos al usuario al dashboard.
+  useEffect(() => {
+    api<{ session: unknown } | null>('/auth/get-session')
+      .then((datos) => {
+        if (datos?.session) navigate('/dashboard', { replace: true });
+      })
+      .catch(() => {
+        // Sin sesión o sin backend: el login se queda tal cual.
+      });
+  }, [navigate]);
 
   async function enviar(evento: FormEvent) {
     evento.preventDefault();
