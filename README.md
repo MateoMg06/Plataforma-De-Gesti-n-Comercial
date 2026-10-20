@@ -54,10 +54,10 @@ docs/modelo-datos.md   quién es dueño de cada tabla y campos que faltan
 |---|---|---|
 | Kevin V | `auth` + repositorio | HU-01 a HU-04, HU-INF-01 |
 | Francisco | `clientes`, `zonas` + RDS | HU-05 a HU-09, HU-INF-02 |
-| Mateo | `asesores` (agenda) + EC2 | HU-11, HU-12, HU-INF-03 |
-| Andres | `rutas`, `asesores` | HU-10, HU-14 a HU-17 |
+| Mateo | `asesores` (asesores y agenda) + EC2 | HU-10 a HU-13, HU-INF-03 |
+| Andres | `rutas` | HU-14 a HU-17 |
 | Santiago | `visitas` | HU-18 a HU-22 |
-| Kevin B | `seguimiento` | HU-13, HU-23 a HU-26 |
+| Kevin B | `seguimiento` | HU-23 a HU-26 |
 | Daniel | `ventas` + S3 | HU-27 a HU-31, HU-INF-04 |
 | Julian | `dashboard` + Jenkins | HU-32 a HU-35, HU-INF-05 |
 

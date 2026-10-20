@@ -20,7 +20,7 @@ const todos: Rol[] = ['administrador', 'lider', 'asesor'];
 export const menu: MenuItem[] = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, responsable: 'Julian', historias: 'HU-32, HU-35', roles: todos },
   { path: '/rutas', label: 'Planeación de rutas', icon: Route, responsable: 'Andres', historias: 'HU-14 a HU-17', roles: ['administrador', 'lider'] },
-  { path: '/agenda', label: 'Agenda', icon: Calendar, responsable: 'Mateo', historias: 'HU-11, HU-12', roles: todos },
+  { path: '/agenda', label: 'Agenda', icon: Calendar, responsable: 'Mateo', historias: 'HU-11 a HU-13', roles: todos },
   { path: '/mapa', label: 'Mapa de visitas', icon: Map, responsable: 'Santiago', historias: 'HU-20 a HU-22', roles: ['administrador', 'lider'] },
   { path: '/clientes', label: 'Clientes', icon: Users, responsable: 'Francisco', historias: 'HU-05 a HU-07, HU-09', roles: todos },
   { path: '/visitas', label: 'Visitas', icon: ClipboardCheck, responsable: 'Santiago', historias: 'HU-18, HU-19', roles: todos },
@@ -28,5 +28,5 @@ export const menu: MenuItem[] = [
   { path: '/pedidos', label: 'Pedidos', icon: ShoppingCart, responsable: 'Daniel', historias: 'HU-31', roles: todos },
   { path: '/seguimientos', label: 'Seguimientos', icon: BarChart3, responsable: 'Kevin B', historias: 'HU-23 a HU-26', roles: todos },
   { path: '/reportes', label: 'Reportes', icon: LineChart, responsable: 'Julian', historias: 'HU-33, HU-34', roles: ['administrador', 'lider'] },
-  { path: '/configuracion', label: 'Configuración', icon: Settings, responsable: 'Kevin V / Francisco', historias: 'HU-04, HU-08, HU-10', roles: ['administrador'] },
+  { path: '/configuracion', label: 'Configuración', icon: Settings, responsable: 'Kevin V / Francisco / Mateo', historias: 'HU-04, HU-08, HU-10', roles: ['administrador'] },
 ];

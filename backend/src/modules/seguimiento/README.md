@@ -2,7 +2,7 @@
 
 **Responsable:** Kevin B
 
-**Historias:** HU-13, HU-23 a HU-26
+**Historias:** HU-23 a HU-26
 
 **Tablas del modelo:** SEGUIMIENTO, HISTORIAL_CLIENTE (+ bitácora transversal)
 
