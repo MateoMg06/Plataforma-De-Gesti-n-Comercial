@@ -77,6 +77,7 @@ class ClientesEnMemoria implements ClienteRepository {
 function preparar() {
   const repositorio = new ClientesEnMemoria();
   const obtenerZona = new ObtenerZonaUseCase({
+    eliminar: async () => true,
     guardar: async (zona) => zona,
     listar: async () => [new Zona(1, 'Centro')],
     buscarPorNombre: async () => null,

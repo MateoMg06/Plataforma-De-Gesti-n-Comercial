@@ -1,3 +1,5 @@
+import { EditarZonaUseCase } from './application/editar-zona.use-case.js';
+import { EliminarZonaUseCase } from './application/eliminar-zona.use-case.js';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ObtenerZonaUseCase } from './application/obtener-zona.use-case.js';
@@ -13,6 +15,8 @@ import { ZonasController } from './presentation/zonas.controller.js';
   exports: [ObtenerZonaUseCase],
   controllers: [ZonasController],
   providers: [
+    EditarZonaUseCase,
+    EliminarZonaUseCase,
     CrearZonaUseCase,
     ObtenerZonaUseCase,
     ListarZonasUseCase,

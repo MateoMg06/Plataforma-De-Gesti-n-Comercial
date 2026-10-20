@@ -101,5 +101,47 @@ YAML
 En ese caso usar `DB_PORT=5433` en `backend/.env`. Para volver a iniciar el contenedor
 ya creado sin cambiar su puerto: `docker compose start postgres`.
 
-Pendiente para siguientes pasos: CRUD de catálogos (HU-08), cinco clientes de ejemplo
-y listado/edición (HU-06).
+Pendiente para siguientes pasos: cinco clientes de ejemplo y listado/edición (HU-06).
+
+## HU-08: administración de catálogos
+
+En `/configuracion` están los enlaces a Zonas, Tipos de cliente, Potenciales y
+Estados de cliente. Cada pantalla permite crear, listar, editar y eliminar.
+Potencial incluye `orden`: entero entre 0 y 2147483647; se lista por orden y nombre.
+No se exige un orden único, por lo que dos potenciales pueden compartirlo.
+
+Endpoints de cada catálogo:
+
+| Catálogo | Ruta |
+| --- | --- |
+| Zona | `/api/zonas` |
+| Tipo de cliente | `/api/tipos-cliente` |
+| Potencial | `/api/potenciales` |
+| Estado de cliente | `/api/estados-cliente` |
+
+En cada ruta se usa `GET` para listar y `POST` para crear. `PATCH /:id` edita y
+`DELETE /:id` elimina, devolviendo una confirmación JSON. Nombre duplicado o
+catálogo en uso responde 409; ID inexistente, 404; datos inválidos, 400.
+Swagger está disponible en `/api/docs`.
+
+Archivos de cada catálogo dentro de este módulo:
+
+- `domain/tipo-cliente.ts`, `potencial.ts` y `estado-cliente.ts` contienen sus
+  reglas; los correspondientes `*.repository.ts` definen las operaciones necesarias.
+- `application/crear-*.use-case.ts`, `editar-*.use-case.ts`, `listar-*.use-case.ts`
+  y `eliminar-*.use-case.ts` resuelven cada acción por separado.
+- `infrastructure/typeorm-*.repository.ts` implementan esas operaciones y convierten
+  filas en entidades de dominio. Si PostgreSQL impide borrar una referencia en uso,
+  lo notifican al caso de uso para responder con 409.
+- `presentation/*controller.ts` reciben HTTP y los DTO `guardar-*.dto.ts` validan
+  nombre y, para Potencial, orden. `clientes.module.ts` registra estos componentes.
+- Los `*.use-case.spec.ts` prueban el dominio y los casos de uso sin base de datos.
+
+En zonas se agregaron `editar-zona.use-case.ts`, `eliminar-zona.use-case.ts` y sus
+pruebas. Su repositorio usa la misma protección de referencias.
+
+En frontend, `CatalogosPage.tsx` muestra los enlaces; `TiposClientePage.tsx`,
+`PotencialesPage.tsx`, `EstadosClientePage.tsx` y `ZonasPage.tsx` administran cada
+catálogo con `api()`. `App.tsx` conecta las rutas de Configuración.
+Estas pantallas y los controladores son independientes, sin catálogo genérico.
+Las tablas y llaves foráneas existentes sirven para HU-08: no requiere una migración nueva.
