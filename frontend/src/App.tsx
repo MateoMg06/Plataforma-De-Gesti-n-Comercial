@@ -3,6 +3,11 @@ import { AppLayout } from './layout/AppLayout';
 import { menu } from './layout/menu';
 import { LoginPage } from './pages/LoginPage';
 import { PlaceholderPage } from './pages/PlaceholderPage';
+import { CatalogosPage } from './pages/CatalogosPage';
+import { ClientesPage } from './pages/ClientesPage';
+import { EstadosClientePage } from './pages/EstadosClientePage';
+import { PotencialesPage } from './pages/PotencialesPage';
+import { TiposClientePage } from './pages/TiposClientePage';
 import { VisitasPage } from './pages/VisitasPage';
 import { ZonasPage } from './pages/ZonasPage';
 
@@ -17,9 +22,31 @@ export default function App() {
             <Route
               key={item.path}
               path={item.path}
-              element={item.path === '/visitas' ? <VisitasPage /> : <PlaceholderPage item={item} />}
+              element={
+                item.path === '/visitas' ? (
+                  <VisitasPage />
+                ) : item.path === '/clientes' ? (
+                  <ClientesPage />
+                ) : item.path === '/configuracion' ? (
+                  <CatalogosPage />
+                ) : (
+                  <PlaceholderPage item={item} />
+                )
+              }
             />
           ))}
+          <Route
+            path="/configuracion/tipos-cliente"
+            element={<TiposClientePage />}
+          />
+          <Route
+            path="/configuracion/potenciales"
+            element={<PotencialesPage />}
+          />
+          <Route
+            path="/configuracion/estados-cliente"
+            element={<EstadosClientePage />}
+          />
           <Route path="/configuracion/zonas" element={<ZonasPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

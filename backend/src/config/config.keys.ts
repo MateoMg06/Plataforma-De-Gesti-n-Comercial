@@ -1,0 +1,17 @@
+export enum Config {
+    PORT = "PORT",
+    FRONTEND_URL = "FRONTEND_URL",
+
+    DB_HOST = "DB_HOST",
+    DB_PORT = "DB_PORT",
+    DB_USER = "DB_USER",
+    DB_PASSWORD = "DB_PASSWORD",
+    DB_NAME = "DB_NAME",
+    DB_SSL = "DB_SSL",
+
+    AWS_REGION = "AWS_REGION",
+    S3_BUCKET = "S3_BUCKET",
+
+    BETTER_AUTH_SECRET = "BETTER_AUTH_SECRET",
+    BETTER_AUTH_URL = "BETTER_AUTH_URL",
+}
