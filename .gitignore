@@ -1,0 +1,25 @@
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+
+# Secretos: nunca al repo (requisito 3.5)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Multimedia: va en S3, nunca en el repo (requisito 3.3)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.mp4
+*.pdf
+*.zip
+
+.DS_Store
+.idea/
+.vscode/

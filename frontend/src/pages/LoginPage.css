@@ -1,0 +1,14 @@
+.login { display: flex; min-height: 100vh; }
+.login-hero { flex: 1; background: var(--navy-900); color: #fff; padding: 64px; display: flex; flex-direction: column; justify-content: center; }
+.brand-lg { display: flex; align-items: center; gap: 14px; font-size: 40px; font-weight: 800; }
+.login-hero h2 { font-size: 28px; margin: 32px 0 8px; border-top: 3px solid var(--orange-500); padding-top: 24px; width: fit-content; }
+.login-hero p { color: #d6deea; max-width: 420px; line-height: 1.5; }
+.login-form-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.login-form { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 16px; padding: 40px; }
+.login-form h1 { margin: 0; text-align: center; }
+.login-form > .muted { text-align: center; margin: 0; }
+.login-form label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px; }
+.input-icon { position: relative; }
+.input-icon svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+.input-icon .input { padding-left: 40px; font-weight: 400; }
+@media (max-width: 800px) { .login-hero { display: none; } }

@@ -1,0 +1,14 @@
+# Solo para desarrollo local. En AWS se usa RDS (HU-INF-02).
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: comercial
+      POSTGRES_PASSWORD: comercial
+      POSTGRES_DB: comercial360
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

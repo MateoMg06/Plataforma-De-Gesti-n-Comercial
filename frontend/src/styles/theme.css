@@ -1,0 +1,22 @@
+/* Colores tomados de los diseños de Comercial 360. Úsenlos siempre con var(--...). */
+:root {
+  --navy-900: #0b2240;
+  --navy-800: #102b4c;
+  --navy-700: #1a3a5f;
+  --orange-500: #f57c00;
+  --orange-100: #fff1e3;
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --border: #e3e7ee;
+  --text: #13233a;
+  --text-muted: #6b7686;
+  --success: #22a559;
+  --warning: #f5a623;
+  --danger: #e03131;
+  --info: #1c7ed6;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgb(16 43 76 / 0.08);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
