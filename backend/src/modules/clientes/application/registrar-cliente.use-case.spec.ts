@@ -34,6 +34,20 @@ class ClientesEnMemoria implements ClienteRepository {
   potencialExiste = true;
   estadoExiste = true;
 
+  async listar(
+    consulta: import('../domain/cliente.repository.js').ConsultaClientes,
+  ) {
+    return {
+      datos: this.clientes.slice(
+        (consulta.page - 1) * consulta.limit,
+        consulta.page * consulta.limit,
+      ),
+      total: this.clientes.length,
+      page: consulta.page,
+      limit: consulta.limit,
+    };
+  }
+
   async listarTipos() {
     return [];
   }

@@ -16,7 +16,8 @@ export class RespuestaClienteDto extends RegistrarClienteDto {
   @ApiProperty({
     example: true,
     readOnly: true,
-    description: 'Todo cliente se registra activo.',
+    description:
+      'Indica si el cliente está activo. Se registra activo por defecto.',
   })
   activo: boolean;
 }
@@ -56,4 +57,18 @@ export class OpcionesClienteDto {
     example: [{ id: 1, nombre: 'Prospecto' }],
   })
   estados: OpcionClienteDto[];
+}
+
+export class PaginaClientesDto {
+  @ApiProperty({ type: [RespuestaClienteDto] })
+  datos: RespuestaClienteDto[];
+
+  @ApiProperty({ example: 25, type: 'integer' })
+  total: number;
+
+  @ApiProperty({ example: 1, type: 'integer' })
+  page: number;
+
+  @ApiProperty({ example: 10, type: 'integer' })
+  limit: number;
 }

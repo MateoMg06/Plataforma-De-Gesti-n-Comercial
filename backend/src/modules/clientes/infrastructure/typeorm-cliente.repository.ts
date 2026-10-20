@@ -1,8 +1,17 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import {
+  ILike,
+  QueryFailedError,
+  Repository,
+  type FindOptionsWhere,
+} from 'typeorm';
 import { Cliente } from '../domain/cliente.js';
-import type { ClienteRepository } from '../domain/cliente.repository.js';
+import type {
+  ClienteRepository,
+  ConsultaClientes,
+  PaginaClientes,
+} from '../domain/cliente.repository.js';
 import { ClienteOrmEntity } from './cliente.orm-entity.js';
 import { TipoClienteOrmEntity } from './tipo-cliente.orm-entity.js';
 import { PotencialOrmEntity } from './potencial.orm-entity.js';
@@ -20,6 +29,38 @@ export class TypeOrmClienteRepository implements ClienteRepository {
     @InjectRepository(EstadoClienteOrmEntity)
     private readonly estados: Repository<EstadoClienteOrmEntity>,
   ) {}
+
+  async listar(consulta: ConsultaClientes): Promise<PaginaClientes> {
+    const filtros: FindOptionsWhere<ClienteOrmEntity> = {};
+    if (consulta.idZona !== undefined) filtros.idZona = consulta.idZona;
+    if (consulta.idTipoCliente !== undefined)
+      filtros.idTipoCliente = consulta.idTipoCliente;
+    if (consulta.idPotencial !== undefined)
+      filtros.idPotencial = consulta.idPotencial;
+    if (consulta.idEstadoCliente !== undefined)
+      filtros.idEstadoCliente = consulta.idEstadoCliente;
+    // ILike parametriza el texto. Se escapan comodines para buscar texto literal.
+    const texto = consulta.busqueda?.replace(/[\\%_]/g, '\\$&');
+    const where = texto
+      ? [
+          { ...filtros, nit: ILike(`%${texto}%`) },
+          { ...filtros, razonSocial: ILike(`%${texto}%`) },
+          { ...filtros, nombreComercial: ILike(`%${texto}%`) },
+        ]
+      : filtros;
+    const [filas, total] = await this.clientes.findAndCount({
+      where,
+      order: { id: 'DESC' },
+      skip: (consulta.page - 1) * consulta.limit,
+      take: consulta.limit,
+    });
+    return {
+      datos: filas.map((fila) => this.aDominio(fila)),
+      total,
+      page: consulta.page,
+      limit: consulta.limit,
+    };
+  }
 
   listarTipos() {
     return this.tipos.find({ order: { nombre: 'ASC' } });

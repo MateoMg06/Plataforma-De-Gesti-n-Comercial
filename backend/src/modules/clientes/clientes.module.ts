@@ -1,3 +1,6 @@
+import { ListarClientesUseCase } from './application/listar-clientes.use-case.js';
+import { EditarClienteUseCase } from './application/editar-cliente.use-case.js';
+import { CambiarActividadClienteUseCase } from './application/cambiar-actividad-cliente.use-case.js';
 import { CrearEstadoClienteUseCase } from './application/crear-estado-cliente.use-case.js';
 import { EditarEstadoClienteUseCase } from './application/editar-estado-cliente.use-case.js';
 import { EliminarEstadoClienteUseCase } from './application/eliminar-estado-cliente.use-case.js';
@@ -50,6 +53,9 @@ import { ClientesController } from './presentation/clientes.controller.js';
     TiposClienteController,
   ],
   providers: [
+    ListarClientesUseCase,
+    EditarClienteUseCase,
+    CambiarActividadClienteUseCase,
     CrearEstadoClienteUseCase,
     EditarEstadoClienteUseCase,
     EliminarEstadoClienteUseCase,

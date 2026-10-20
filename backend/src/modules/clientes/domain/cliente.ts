@@ -59,6 +59,15 @@ export class Cliente {
     this.longitud = datos.longitud;
   }
 
+  editar(datos: DatosCliente): Cliente {
+    const validados = Cliente.crear(datos);
+    return new Cliente(this.id, validados, this.fechaCreacion, this.activo);
+  }
+
+  cambiarActividad(activo: boolean): Cliente {
+    return new Cliente(this.id, this, this.fechaCreacion, activo);
+  }
+
   static crear(datos: DatosCliente): Cliente {
     const normalizados = { ...datos };
     normalizados.nit = datos.nit.trim();

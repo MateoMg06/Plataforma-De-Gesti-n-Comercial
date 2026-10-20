@@ -101,7 +101,7 @@ YAML
 En ese caso usar `DB_PORT=5433` en `backend/.env`. Para volver a iniciar el contenedor
 ya creado sin cambiar su puerto: `docker compose start postgres`.
 
-Pendiente para siguientes pasos: cinco clientes de ejemplo y listado/edición (HU-06).
+Pendiente para siguientes pasos: cinco clientes de ejemplo.
 
 ## HU-08: administración de catálogos
 
@@ -145,3 +145,50 @@ En frontend, `CatalogosPage.tsx` muestra los enlaces; `TiposClientePage.tsx`,
 catálogo con `api()`. `App.tsx` conecta las rutas de Configuración.
 Estas pantallas y los controladores son independientes, sin catálogo genérico.
 Las tablas y llaves foráneas existentes sirven para HU-08: no requiere una migración nueva.
+
+## HU-06: consultar y editar clientes
+
+`GET /api/clientes` devuelve `{ datos, total, page, limit }`, ordenado por ID
+descendente. Incluye clientes activos e inactivos. Query strings:
+
+- `page`: entero positivo, por defecto 1.
+- `limit`: entero entre 1 y 100, por defecto 10.
+- `busqueda`: coincidencia parcial por NIT, razón social o nombre comercial,
+  sin distinguir mayúsculas. Los caracteres `%` y `_` se buscan como texto literal.
+- `idZona`, `idTipoCliente`, `idPotencial`, `idEstadoCliente`: IDs positivos opcionales;
+  los filtros se combinan entre sí y con la búsqueda.
+
+Ejemplo: `/api/clientes?page=1&limit=10&busqueda=ejemplo&idZona=1`.
+
+`PUT /api/clientes/:id` exige el cuerpo completo del registro. Valida NIT y correo
+únicos, permitiendo los del mismo cliente; comprueba los catálogos y conserva el ID,
+la fecha de creación y la actividad. Devuelve el cliente actualizado.
+
+`PATCH /api/clientes/:id/actividad` recibe `{ "activo": false }` para desactivar o
+`{ "activo": true }` para activar. No elimina al cliente ni cambia sus otros datos.
+La actividad es diferente del catálogo Estado de cliente.
+
+Ambos endpoints devuelven 404 si no existe el cliente. La edición responde 409
+si otro cliente usa el NIT o correo, 400 ante datos inválidos y 404 si no existe
+la zona asignada. Swagger incluye parámetros, cuerpos y respuestas.
+
+Archivos agregados para HU-06:
+
+- `application/listar-clientes.use-case.ts`: valida la paginación y solicita el listado.
+- `application/editar-cliente.use-case.ts`: valida los datos y duplicados antes de guardar.
+- `application/cambiar-actividad-cliente.use-case.ts`: encuentra el cliente y cambia su actividad.
+- `presentation/dto/consultar-clientes.dto.ts`: valida y convierte los parámetros de consulta.
+- `presentation/dto/editar-cliente.dto.ts`: reutiliza las validaciones del registro.
+- `presentation/dto/cambiar-actividad-cliente.dto.ts`: exige un booleano real.
+- `application/consultar-editar-cliente.use-case.spec.ts`: prueba estas reglas sin base de datos.
+
+En `domain/cliente.ts`, `editar()` y `cambiarActividad()` conservan los datos que
+no deben cambiar. El puerto del repositorio define la consulta y la página;
+`infrastructure/typeorm-cliente.repository.ts` aplica filtros, búsqueda y paginación.
+El controlador y `clientes.module.ts` conectan las acciones y su documentación.
+
+`frontend/src/pages/ClientesPage.tsx` ahora muestra listado, filtros y paginación.
+Editar precarga el formulario de HU-05; Cancelar vuelve al registro. Los botones
+Activar/Desactivar actualizan la fila. El listado se refresca después de guardar.
+`ClientesPage.css` permite desplazamiento horizontal de la tabla en pantallas pequeñas.
+No se agregan librerías ni migraciones.
