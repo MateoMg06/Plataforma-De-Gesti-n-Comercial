@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ObtenerZonaUseCase } from './application/obtener-zona.use-case.js';
 import { CrearZonaUseCase } from './application/crear-zona.use-case.js';
 import { ListarZonasUseCase } from './application/listar-zonas.use-case.js';
 import { ZONA_REPOSITORY } from './domain/zona.repository.js';
@@ -9,9 +10,11 @@ import { ZonasController } from './presentation/zonas.controller.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ZonaOrmEntity])],
+  exports: [ObtenerZonaUseCase],
   controllers: [ZonasController],
   providers: [
     CrearZonaUseCase,
+    ObtenerZonaUseCase,
     ListarZonasUseCase,
     // Aquí se conecta el puerto con su adaptador. Cambiar de BD = cambiar esta línea.
     { provide: ZONA_REPOSITORY, useClass: TypeOrmZonaRepository },

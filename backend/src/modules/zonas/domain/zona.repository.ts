@@ -3,6 +3,7 @@ import type { Zona } from './zona.js';
 // Puerto: el dominio define QUÉ necesita; la infraestructura decide CÓMO.
 export interface ZonaRepository {
   guardar(zona: Zona): Promise<Zona>;
+  buscarPorId(id: number): Promise<Zona | null>;
   listar(): Promise<Zona[]>;
   buscarPorNombre(nombre: string): Promise<Zona | null>;
 }

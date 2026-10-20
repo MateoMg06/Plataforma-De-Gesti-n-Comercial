@@ -1,0 +1,19 @@
+.clientes-page fieldset {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 20px 0;
+  padding: 16px;
+  min-width: 0;
+}
+.clientes-page legend { font-weight: 600; }
+.clientes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.clientes-grid label { display: grid; gap: 6px; }
+.clientes-exito { color: var(--success); }
+.clientes-page button:disabled { opacity: 0.6; cursor: wait; }
+@media (max-width: 640px) {
+  .clientes-grid { grid-template-columns: 1fr; }
+}

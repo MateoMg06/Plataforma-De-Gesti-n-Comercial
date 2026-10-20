@@ -13,6 +13,10 @@ class ZonaRepositoryEnMemoria implements ZonaRepository {
     return guardada;
   }
 
+  async buscarPorId(id: number) {
+    return this.zonas.find((zona) => zona.id === id) ?? null;
+  }
+
   async listar() {
     return this.zonas;
   }
@@ -33,7 +37,9 @@ describe('CrearZonaUseCase', () => {
   it('no permite zonas duplicadas', async () => {
     const useCase = new CrearZonaUseCase(new ZonaRepositoryEnMemoria());
     await useCase.ejecutar('Norte');
-    await expect(useCase.ejecutar('Norte')).rejects.toBeInstanceOf(ConflictException);
+    await expect(useCase.ejecutar('Norte')).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 
   it('exige nombre', async () => {

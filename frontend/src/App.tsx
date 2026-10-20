@@ -3,6 +3,7 @@ import { AppLayout } from './layout/AppLayout';
 import { menu } from './layout/menu';
 import { LoginPage } from './pages/LoginPage';
 import { PlaceholderPage } from './pages/PlaceholderPage';
+import { ClientesPage } from './pages/ClientesPage';
 import { ZonasPage } from './pages/ZonasPage';
 
 export default function App() {
@@ -13,7 +14,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           {/* Cada responsable cambia su PlaceholderPage por su página real. */}
           {menu.map((item) => (
-            <Route key={item.path} path={item.path} element={<PlaceholderPage item={item} />} />
+            <Route key={item.path} path={item.path} element={item.path === "/clientes" ? <ClientesPage /> : <PlaceholderPage item={item} />} />
           ))}
           <Route path="/configuracion/zonas" element={<ZonasPage />} />
         </Route>

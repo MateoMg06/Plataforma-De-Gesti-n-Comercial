@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 
 @Injectable()
 export class Bcrypt {

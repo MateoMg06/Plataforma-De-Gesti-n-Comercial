@@ -8,11 +8,22 @@ import { ZonaOrmEntity } from './zona.orm-entity.js';
 // Adaptador: implementa el puerto del dominio usando TypeORM + PostgreSQL.
 @Injectable()
 export class TypeOrmZonaRepository implements ZonaRepository {
-  constructor(@InjectRepository(ZonaOrmEntity) private readonly repo: Repository<ZonaOrmEntity>) {}
+  constructor(
+    @InjectRepository(ZonaOrmEntity)
+    private readonly repo: Repository<ZonaOrmEntity>,
+  ) {}
 
   async guardar(zona: Zona): Promise<Zona> {
-    const fila = await this.repo.save({ id: zona.id ?? undefined, nombre: zona.nombre });
+    const fila = await this.repo.save({
+      id: zona.id ?? undefined,
+      nombre: zona.nombre,
+    });
     return this.aDominio(fila);
+  }
+
+  async buscarPorId(id: number): Promise<Zona | null> {
+    const fila = await this.repo.findOneBy({ id });
+    return fila ? this.aDominio(fila) : null;
   }
 
   async listar(): Promise<Zona[]> {
