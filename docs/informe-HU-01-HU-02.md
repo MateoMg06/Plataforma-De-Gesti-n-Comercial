@@ -69,6 +69,7 @@ responden 401 sin sesión; el frontend redirige a /login al perder la sesión.*
 | `frontend/src/layout/AppLayout.tsx` | Botón **"Cerrar sesión"** en la barra superior: llama `POST /auth/sign-out` y navega a `/login`. |
 | `frontend/src/layout/AppLayout.css` | Estilos del botón (`.logout`). |
 | `frontend/src/pages/LoginPage.tsx` | Al abrir `/login` con sesión activa, redirige al **dashboard** (evita volver al login estando dentro). |
+| `frontend/src/layout/AppLayout.tsx` | El layout (rutas privadas como `/dashboard`) **comprueba la sesión** al abrir: sin sesión manda al login y no pinta nada. |
 
 > El frontend ya redirigía a `/login` al recibir un 401 (lo implementó la HU-01
 > en `client.ts`), así que ese criterio ya estaba cubierto.
@@ -84,6 +85,22 @@ responden 401 sin sesión; el frontend redirige a /login al perder la sesión.*
 | Logout | `200` ✓ y **la fila se borró de la tabla `session`** |
 | `/api/zonas` con la cookie vieja | `401` ✓ |
 | `get-session` después del logout | `null` ✓ |
+
+### Prueba end-to-end con navegador real (Chrome headless)
+
+Además de las pruebas con `curl`, se automatizó un navegador Chrome (headless,
+sin librerías, por el protocolo CDP) para probar el comportamiento del frontend:
+
+| Escenario | Resultado |
+|---|---|
+| Abrir `/dashboard` sin sesión | redirige a `/login` ✓ |
+| Abrir `/configuracion/zonas` sin sesión | redirige a `/login` ✓ |
+| Se muestra el formulario de login | ✓ |
+| Login desde el navegador | `200` ✓ |
+| `/dashboard` con sesión | se queda ✓ |
+| `/login` con sesión | redirige a `/dashboard` ✓ |
+| Logout desde el navegador | `200` ✓ |
+| `/dashboard` tras el logout | redirige a `/login` ✓ |
 
 ### Hallazgo técnico: protección CSRF de BetterAuth
 
