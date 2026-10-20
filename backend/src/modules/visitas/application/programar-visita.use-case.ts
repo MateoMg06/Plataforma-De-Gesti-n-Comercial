@@ -1,11 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ObtenerClienteUseCase } from '../../clientes/application/obtener-cliente.use-case.js';
 import { Visita } from '../domain/visita.js';
 import { VISITA_REPOSITORY, type VisitaRepository } from '../domain/visita.repository.js';
 
 // Caso de uso: una acción del usuario. Orquesta el dominio a través del puerto.
+// Usa el caso de uso de clientes (exportado por Francisco) para validar que el
+// cliente existe: un módulo no toca el repositorio de otro módulo.
 @Injectable()
 export class ProgramarVisitaUseCase {
-  constructor(@Inject(VISITA_REPOSITORY) private readonly visitas: VisitaRepository) {}
+  constructor(
+    @Inject(VISITA_REPOSITORY) private readonly visitas: VisitaRepository,
+    private readonly obtenerCliente: ObtenerClienteUseCase,
+  ) {}
 
   async ejecutar(
     idCliente: number,
@@ -13,6 +19,7 @@ export class ProgramarVisitaUseCase {
     fechaProgramada: Date,
     idRuta: number | null = null,
   ): Promise<Visita> {
+    await this.obtenerCliente.ejecutar(idCliente);
     const visita = Visita.crear(idCliente, idAsesor, fechaProgramada, idRuta);
     return this.visitas.guardar(visita);
   }

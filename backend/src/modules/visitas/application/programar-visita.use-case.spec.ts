@@ -1,3 +1,5 @@
+import { NotFoundException } from '@nestjs/common';
+import { ObtenerClienteUseCase } from '../../clientes/application/obtener-cliente.use-case.js';
 import { Visita } from '../domain/visita.js';
 import type { VisitaRepository } from '../domain/visita.repository.js';
 import { ProgramarVisitaUseCase } from './programar-visita.use-case.js';
@@ -24,11 +26,29 @@ class VisitaRepositoryEnMemoria implements VisitaRepository {
   }
 }
 
+// Stub del caso de uso de clientes: simula qué clientes existen sin tocar la base.
+class ObtenerClienteStub {
+  constructor(private readonly existentes: number[]) {}
+
+  async ejecutar(id: number) {
+    if (!this.existentes.includes(id)) {
+      throw new NotFoundException('El cliente no existe');
+    }
+    return { id };
+  }
+}
+
+const conClientes = (existentes: number[]) =>
+  new ObtenerClienteStub(existentes) as unknown as ObtenerClienteUseCase;
+
 describe('ProgramarVisitaUseCase', () => {
   const fecha = new Date('2026-10-26T09:00:00');
 
   it('crea una visita en estado programada', async () => {
-    const useCase = new ProgramarVisitaUseCase(new VisitaRepositoryEnMemoria());
+    const useCase = new ProgramarVisitaUseCase(
+      new VisitaRepositoryEnMemoria(),
+      conClientes([1, 2]),
+    );
     const visita = await useCase.ejecutar(1, 2, fecha);
     expect(visita.id).toBe(1);
     expect(visita.idCliente).toBe(1);
@@ -38,25 +58,37 @@ describe('ProgramarVisitaUseCase', () => {
   });
 
   it('acepta ruta opcional', async () => {
-    const useCase = new ProgramarVisitaUseCase(new VisitaRepositoryEnMemoria());
+    const useCase = new ProgramarVisitaUseCase(
+      new VisitaRepositoryEnMemoria(),
+      conClientes([1]),
+    );
     const sinRuta = await useCase.ejecutar(1, 2, fecha);
     expect(sinRuta.idRuta).toBeNull();
     const conRuta = await useCase.ejecutar(1, 2, fecha, 5);
     expect(conRuta.idRuta).toBe(5);
   });
 
-  it('exige cliente', async () => {
-    const useCase = new ProgramarVisitaUseCase(new VisitaRepositoryEnMemoria());
-    await expect(useCase.ejecutar(0, 2, fecha)).rejects.toThrow('cliente');
+  it('rechaza un cliente que no existe', async () => {
+    const useCase = new ProgramarVisitaUseCase(
+      new VisitaRepositoryEnMemoria(),
+      conClientes([2]),
+    );
+    await expect(useCase.ejecutar(99, 2, fecha)).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('exige asesor', async () => {
-    const useCase = new ProgramarVisitaUseCase(new VisitaRepositoryEnMemoria());
+    const useCase = new ProgramarVisitaUseCase(
+      new VisitaRepositoryEnMemoria(),
+      conClientes([1]),
+    );
     await expect(useCase.ejecutar(1, 0, fecha)).rejects.toThrow('asesor');
   });
 
   it('exige fecha válida', async () => {
-    const useCase = new ProgramarVisitaUseCase(new VisitaRepositoryEnMemoria());
+    const useCase = new ProgramarVisitaUseCase(
+      new VisitaRepositoryEnMemoria(),
+      conClientes([1]),
+    );
     await expect(useCase.ejecutar(1, 2, new Date('no-es-fecha'))).rejects.toThrow('fecha');
   });
 });

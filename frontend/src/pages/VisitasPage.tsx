@@ -11,22 +11,22 @@ interface Visita {
   estado: string;
 }
 
-// Datos falsos mientras Francisco publica CLIENTE y Mateo publica ASESOR (HU-18).
-const CLIENTES_FALSOS = [
-  { id: 1, nombre: 'Distribuidora El Norte' },
-  { id: 2, nombre: 'Comercial Los Andes' },
-  { id: 3, nombre: 'Almacén La Esquina' },
-];
-const ASESORES_FALSOS = [
+interface Opcion {
+  id: number;
+  nombre: string;
+}
+
+// Asesores y rutas con datos falsos: Mateo (ASESOR) y Andres (RUTA) aún no publican.
+const ASESORES_FALSOS: Opcion[] = [
   { id: 1, nombre: 'Carlos Pérez' },
   { id: 2, nombre: 'María Gómez' },
 ];
-const RUTAS_FALSAS = [
+const RUTAS_FALSAS: Opcion[] = [
   { id: 1, nombre: 'Ruta Norte' },
   { id: 2, nombre: 'Ruta Sur' },
 ];
 
-const nombreDe = (lista: { id: number; nombre: string }[], id: number | null) =>
+const nombreDe = (lista: Opcion[], id: number | null) =>
   id === null ? '—' : (lista.find((x) => x.id === id)?.nombre ?? `#${id}`);
 
 const ESTADO_COLOR: Record<string, string> = {
@@ -35,10 +35,12 @@ const ESTADO_COLOR: Record<string, string> = {
   cancelada: 'var(--danger)',
   no_atendida: 'var(--warning)',
   reprogramada: 'var(--orange-500)',
-}
+};
+
 // Pantalla de HU-18: programar visita y ver las visitas programadas.
 export function VisitasPage() {
   const [visitas, setVisitas] = useState<Visita[]>([]);
+  const [clientes, setClientes] = useState<Opcion[]>([]);
   const [idCliente, setIdCliente] = useState('');
   const [idAsesor, setIdAsesor] = useState('');
   const [idRuta, setIdRuta] = useState('');
@@ -50,6 +52,9 @@ export function VisitasPage() {
 
   useEffect(() => {
     cargar();
+    api<{ datos: { id: number; razonSocial: string }[] }>('/clientes?limit=100')
+      .then((pagina) => setClientes(pagina.datos.map((c) => ({ id: c.id, nombre: c.razonSocial }))))
+      .catch((e) => setError(e.message));
   }, []);
 
   const programar = async (e: FormEvent) => {
@@ -80,14 +85,14 @@ export function VisitasPage() {
   return (
     <div className="card">
       <h1 className="page-title">Visitas</h1>
-      <p className="muted">Programar visita (HU-18). Cliente y asesor con datos falsos hasta que existan sus módulos.</p>
+      <p className="muted">Programar visita (HU-18). Clientes reales; asesores y rutas con datos falsos hasta que existan sus módulos.</p>
 
       <form className="form-visita" onSubmit={programar}>
         <label>
           Cliente
           <select className="input" value={idCliente} onChange={(e) => setIdCliente(e.target.value)} required>
             <option value="">Selecciona un cliente</option>
-            {CLIENTES_FALSOS.map((c) => (
+            {clientes.map((c) => (
               <option key={c.id} value={c.id}>{c.nombre}</option>
             ))}
           </select>
@@ -140,7 +145,7 @@ export function VisitasPage() {
         <tbody>
           {visitas.map((v) => (
             <tr key={v.id}>
-              <td>{nombreDe(CLIENTES_FALSOS, v.idCliente)}</td>
+              <td>{nombreDe(clientes, v.idCliente)}</td>
               <td>{nombreDe(ASESORES_FALSOS, v.idAsesor)}</td>
               <td>{nombreDe(RUTAS_FALSAS, v.idRuta)}</td>
               <td>{new Date(v.fechaProgramada).toLocaleString()}</td>

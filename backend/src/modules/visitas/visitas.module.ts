@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ClientesModule } from '../clientes/clientes.module.js';
 import { ListarVisitasUseCase } from './application/listar-visitas.use-case.js';
 import { ProgramarVisitaUseCase } from './application/programar-visita.use-case.js';
 import { VISITA_REPOSITORY } from './domain/visita.repository.js';
@@ -8,7 +9,8 @@ import { VisitaOrmEntity } from './infrastructure/visita.orm-entity.js';
 import { VisitasController } from './presentation/visitas.controller.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([VisitaOrmEntity])],
+  // ClientesModule exporta ObtenerClienteUseCase para validar clientes al programar.
+  imports: [ClientesModule, TypeOrmModule.forFeature([VisitaOrmEntity])],
   controllers: [VisitasController],
   providers: [
     ProgramarVisitaUseCase,
