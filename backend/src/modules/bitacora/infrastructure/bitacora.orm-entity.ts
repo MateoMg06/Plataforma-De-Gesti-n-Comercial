@@ -1,30 +1,15 @@
-// Entidad TypeORM para la tabla de bitácora.
-// Propiedad de Kevin B según modelo-datos.md.
-// Almacena registros transaccionales de acciones clave del sistema.
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-
-// Los valores de acción deben ser consistentes con el decorator RegistrarEnBitacora
-export enum AccionBitacora {
-  CREAR_CLIENTE = 'crear_cliente',
-  EDITAR_CLIENTE = 'editar_cliente',
-  CREAR_VISITA = 'crear_visita',
-  EDITAR_VISITA = 'editar_visita',
-  CREAR_COTIZACION = 'crear_cotizacion',
-  EDITAR_COTIZACION = 'editar_cotizacion',
-  CREAR_PEDIDO = 'crear_pedido',
-  EDITAR_PEDIDO = 'editar_pedido',
-  REPROGRAMAR_VISITA = 'reprogramar_visita',
-  CREAR_SEGUIMIENTO = 'crear_seguimiento',
-}
-
+// Entidad TypeORM de la tabla "bitacora" (dueña: módulo bitacora).
+// Guarda quién hizo qué y cuándo, para las acciones marcadas con
+// @RegistrarEnBitacora.
 @Entity('bitacora')
 export class BitacoraOrmEntity {
   @PrimaryGeneratedColumn({ name: 'id_bitacora' })
   id: number;
 
-  // Id del usuario de BetterAuth: es texto, no número.
-  @Column({ name: 'usuario_id', type: 'varchar', length: 100 })
+  // Es texto porque así es el id de la tabla "user" de BetterAuth.
+  @Column({ name: 'usuario_id', type: 'text' })
   usuario_id: string;
 
   @Column({ name: 'usuario_nombre', length: 100 })

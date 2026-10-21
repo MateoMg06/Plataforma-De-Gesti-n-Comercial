@@ -1,78 +1,71 @@
-// Interceptor de NestJS que registra automáticamente en la bitácora
-// las acciones marcadas con el decorator @RegistrarEnBitacora.
-// Al finalizar la ejecución de cualquier handler controlado por este interceptor,
-// guarda un registro con: usuario, acción, fecha, módulo y detalles.
-
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  Logger,
+  NestInterceptor,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Observable } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
+import { Repository } from 'typeorm';
+import {
+  BITACORA_ACCION_KEY,
+  type AccionBitacora,
+} from './bitacora.decorator.js';
 import { BitacoraOrmEntity } from './bitacora.orm-entity.js';
 
-// Exportaciones de tipos
-export type AccionBitacora = 
-  | 'crear_cliente' 
-  | 'editar_cliente' 
-  | 'crear_visita' 
-  | 'editar_visita' 
-  | 'crear_cotizacion' 
-  | 'editar_cotizacion' 
-  | 'crear_pedido' 
-  | 'editar_pedido' 
-  | 'reprogramar_visita'
-  | 'crear_seguimiento';
-
-export interface RegistroBitacora {
-  id: number;
-  usuario_id: string;
-  usuario_nombre: string;
-  accion: AccionBitacora;
-  modulo: string;
-  fecha: string;
-  detalle: string;
-  ip?: string;
-}
-
+// Interceptor transversal de la bitácora.
+// Lee el metadato que deja @RegistrarEnBitacora y, si el handler lo tiene,
+// guarda un registro con quién, cuándo y qué se hizo.
 @Injectable()
 export class BitacoraInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(BitacoraInterceptor.name);
+
   constructor(
     private readonly reflector: Reflector,
-    private readonly dataSource: DataSource
+    @InjectRepository(BitacoraOrmEntity)
+    private readonly bitacora: Repository<BitacoraOrmEntity>,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    // Obtener la acción del decorator @RegistrarEnBitacora
-    const accion = this.reflector.get<string>('bitacora_accion', context.getHandler());
-    
-    // Obtener el módulo basándose en la URL de la petición
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const accion = this.reflector.get<AccionBitacora>(
+      BITACORA_ACCION_KEY,
+      context.getHandler(),
+    );
     const request = context.switchToHttp().getRequest();
-    const modulo = this.obtenerModulo(request.url ?? '');
-    
-    // Obtener usuario del contexto de BetterAuth
-    const usuario = this.obtenerUsuario(request);
-    
-    // Obtener dirección IP
-    const ip = request.ip || request.socket?.remoteAddress;
 
     return next.handle().pipe(
-      map((data) => {
-        // Registrar en bitácora después de que el handler se ejecutó
-        if (accion && usuario) {
-          // Si falla el registro no se rompe la respuesta al usuario.
-          this.registrarEnBitacora({
-            accion: accion as AccionBitacora,
-            modulo: modulo,
-            usuario_id: usuario.id,
-            usuario_nombre: usuario.nombre,
-            fecha: new Date().toISOString(),
-            detalle: `${request.method} ${request.url} - ${accion}`,
-            ip: ip,
-          }).catch((error) => console.error('No se pudo registrar en la bitácora', error));
+      mergeMap(async (resultado: unknown) => {
+        if (accion) {
+          await this.registrar(accion, request);
         }
-        return data;
-      })
+        return resultado;
+      }),
     );
+  }
+
+  // Guarda el registro. Si falla, la bitácora no debe tumbar la petición.
+  private async registrar(accion: AccionBitacora, request: any): Promise<void> {
+    const usuario = this.obtenerUsuario(request);
+    if (!usuario) return;
+
+    try {
+      await this.bitacora.save({
+        usuario_id: usuario.id,
+        usuario_nombre: usuario.nombre,
+        accion,
+        modulo: this.obtenerModulo(request.url ?? ''),
+        fecha: new Date(),
+        detalle: `${request.method} ${request.url} - ${accion}`,
+        ip: request.ip ?? null,
+      });
+    } catch (error) {
+      this.logger.warn(
+        `No se pudo registrar la bitácora: ${(error as Error).message}`,
+      );
+    }
   }
 
   private obtenerModulo(url: string): string {
@@ -84,30 +77,10 @@ export class BitacoraInterceptor implements NestInterceptor {
     return 'desconocido';
   }
 
+  // El guard de BetterAuth deja el usuario de la sesión en request.user.
   private obtenerUsuario(request: any): { id: string; nombre: string } | null {
-    // El guard de BetterAuth deja el usuario en request.user.
-    // BetterAuth usa user.name (no nombre) y su id es texto.
     const user = request.user ?? request.session?.user;
-    if (user && user.id && user.name) {
-      return { id: user.id, nombre: user.name };
-    }
-    // Si no hay usuario en el contexto, aún así registramos para tener trazabilidad
-    return null;
-  }
-
-  private async registrarEnBitacora(registro: Omit<RegistroBitacora, 'id'>): Promise<void> {
-    const repo = this.dataSource.getRepository(BitacoraOrmEntity);
-    await repo.save({
-      usuario_id: registro.usuario_id,
-      usuario_nombre: registro.usuario_nombre,
-      accion: registro.accion,
-      modulo: registro.modulo,
-      fecha: new Date(),
-      detalle: registro.detalle,
-      ip: registro.ip,
-    });
+    if (!user?.id) return null;
+    return { id: String(user.id), nombre: user.name ?? user.email ?? String(user.id) };
   }
 }
-
-// Type auxiliar para omitir el campo id del interfaz al guardar
-type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;

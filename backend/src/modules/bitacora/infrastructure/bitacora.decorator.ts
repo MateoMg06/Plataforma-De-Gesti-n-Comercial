@@ -1,14 +1,28 @@
-// Decorador para marcar acciones que deben registrarse en la bitácora.
-// Se usa sobre métodos de controladores.
-// Ejemplo: @RegistrarEnBitacora('crear_cliente')
-// El nombre de la acción es un string que identifica qué tipo de operación se realizó.
-
 import { SetMetadata } from '@nestjs/common';
 
-// Guarda la acción en los metadatos del MÉTODO (no de la clase), que es donde
-// el BitacoraInterceptor la busca con context.getHandler().
-function RegistrarEnBitacora(accion: string) {
-  return SetMetadata('bitacora_accion', accion);
+// Acciones que se pueden registrar en la bitácora.
+// Los valores son los mismos que guarda la columna "accion" de la tabla bitacora.
+export type AccionBitacora =
+  | 'crear_cliente'
+  | 'editar_cliente'
+  | 'crear_visita'
+  | 'editar_visita'
+  | 'crear_cotizacion'
+  | 'editar_cotizacion'
+  | 'crear_pedido'
+  | 'editar_pedido'
+  | 'reprogramar_visita'
+  | 'crear_seguimiento';
+
+// Clave con la que el interceptor lee la acción a registrar.
+export const BITACORA_ACCION_KEY = 'bitacora_accion';
+
+// Marca el método para que el interceptor registre la acción en la bitácora.
+// Ejemplo: @RegistrarEnBitacora('crear_cotizacion')
+// SetMetadata guarda la acción sobre el método; eso es justo lo que el
+// interceptor consulta con Reflector sobre el handler de la petición.
+function RegistrarEnBitacora(accion: AccionBitacora) {
+  return SetMetadata(BITACORA_ACCION_KEY, accion);
 }
 
 export { RegistrarEnBitacora };
