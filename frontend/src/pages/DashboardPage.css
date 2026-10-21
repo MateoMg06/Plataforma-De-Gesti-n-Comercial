@@ -1,0 +1,165 @@
+/* Estilos del dashboard (HU-32). Solo se usan variables de styles/theme.css. */
+
+/* Rejilla de tarjetas KPI: crece desde una columna hasta donde alcance. */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+/* Entrada suave de las tarjetas: solo transform y opacity (GPU),
+   250ms ease-out, y sin movimiento si el sistema pide menos animación. */
+.kpi-card {
+  animation: kpi-entra 0.25s ease-out both;
+}
+.kpi-card:nth-child(2) { animation-delay: 0.04s; }
+.kpi-card:nth-child(3) { animation-delay: 0.08s; }
+.kpi-card:nth-child(4) { animation-delay: 0.12s; }
+.kpi-card:nth-child(5) { animation-delay: 0.16s; }
+
+@keyframes kpi-entra {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kpi-card {
+    animation: none;
+  }
+}
+
+/* Cifra grande de un KPI. */
+.kpi-num {
+  display: block;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--navy-900);
+}
+.kpi-ok { color: var(--success); }
+.kpi-alerta { color: var(--orange-500); }
+.kpi-total { margin-bottom: 12px; }
+
+/* Dos cifras lado a lado (realizadas / programadas). */
+.kpi-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.kpi-stat {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+.kpi-etiqueta {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Listas de filas (cotizaciones, valor por asesor, pedidos). */
+.kpi-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.kpi-lista li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+}
+.kpi-lista strong {
+  color: var(--navy-900);
+  white-space: nowrap;
+}
+
+/* Estados de cotización con los colores del tema. */
+.kpi-estado {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.kpi-estado-borrador {
+  background: color-mix(in srgb, var(--text-muted) 14%, var(--surface));
+  color: var(--text);
+}
+.kpi-estado-enviada {
+  background: color-mix(in srgb, var(--info) 14%, var(--surface));
+  color: color-mix(in srgb, var(--info) 70%, var(--navy-900));
+}
+.kpi-estado-aprobada {
+  background: color-mix(in srgb, var(--success) 16%, var(--surface));
+  color: color-mix(in srgb, var(--success) 65%, var(--navy-900));
+}
+.kpi-estado-rechazada {
+  background: color-mix(in srgb, var(--danger) 14%, var(--surface));
+  color: color-mix(in srgb, var(--danger) 75%, var(--navy-900));
+}
+
+/* Barras horizontales de clientes por potencial. */
+.kpi-barras {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.kpi-barra-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+.kpi-barra-meta strong {
+  color: var(--navy-900);
+}
+.kpi-barra {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  overflow: hidden;
+}
+.kpi-barra-relleno {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--orange-500);
+  transition: width 0.25s ease-out;
+}
+
+/* Etiqueta discreta de datos de muestra. */
+.chip-muestra {
+  margin-left: auto;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.kpi-vacio {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Selector "ver como asesor". */
+.kpi-filtro {
+  min-width: 220px;
+}
+
+.kpi-nota {
+  margin: 16px 0 0;
+  font-size: 13px;
+}
