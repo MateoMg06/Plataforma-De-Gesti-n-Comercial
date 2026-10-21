@@ -7,10 +7,19 @@ import { CrearZonaUseCase } from './crear-zona.use-case.js';
 class ZonaRepositoryEnMemoria implements ZonaRepository {
   private zonas: Zona[] = [];
 
+  async eliminar(id: number) {
+    this.zonas = this.zonas.filter((zona) => zona.id !== id);
+    return true;
+  }
+
   async guardar(zona: Zona) {
     const guardada = new Zona(this.zonas.length + 1, zona.nombre);
     this.zonas.push(guardada);
     return guardada;
+  }
+
+  async buscarPorId(id: number) {
+    return this.zonas.find((zona) => zona.id === id) ?? null;
   }
 
   async listar() {
@@ -33,7 +42,9 @@ describe('CrearZonaUseCase', () => {
   it('no permite zonas duplicadas', async () => {
     const useCase = new CrearZonaUseCase(new ZonaRepositoryEnMemoria());
     await useCase.ejecutar('Norte');
-    await expect(useCase.ejecutar('Norte')).rejects.toBeInstanceOf(ConflictException);
+    await expect(useCase.ejecutar('Norte')).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 
   it('exige nombre', async () => {

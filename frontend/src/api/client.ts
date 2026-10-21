@@ -7,8 +7,11 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     headers: { 'Content-Type': 'application/json', ...options.headers },
     ...options,
   });
-  if (res.status === 401) {
-    window.location.href = '/login'; // HU-02: al perder la sesión se vuelve al login
+  if (res.status === 401 && window.location.pathname !== '/login') {
+    // HU-02: al perder la sesión se vuelve al login.
+    // En /login el 401 significa "credenciales malas" (HU-01), así que ahí no
+    // se redirige: si no, la página se recargaría y se perdería el mensaje de error.
+    window.location.href = '/login';
   }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
