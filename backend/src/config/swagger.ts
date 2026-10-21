@@ -6,8 +6,8 @@ const logger = new Logger('Swagger');
 export const swaggerConfiguration = (app: INestApplication): void => {
 
     const config = new DocumentBuilder()
-        .setTitle('Riwi Gestión')
-        .setDescription('API de autenticación y usuarios para la plataforma de gestión de rutas Riwi Gestión.')
+        .setTitle('Comercial 360')
+        .setDescription('API de gestión comercial para rutas, clientes, visitas, cotizaciones y pedidos.')
         .setVersion('1.0.0')
         .addBearerAuth()
         .addApiKey({ type: 'apiKey', name: 'x-api-key', in: 'header' }, 'API Key')

@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { ClientesModule } from './modules/clientes/clientes.module.js';
 import { VisitasModule } from './modules/visitas/visitas.module.js';
 import { ZonasModule } from './modules/zonas/zonas.module.js';
+import { RutasModule } from './modules/rutas/rutas.module.js';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ZonasModule } from './modules/zonas/zonas.module.js';
     ZonasModule,
     ClientesModule,
     VisitasModule,
+    RutasModule,
     // Cada épica registra aquí su módulo cuando lo cree.
   ],
   controllers: [HealthController],
