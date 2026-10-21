@@ -1,26 +1,90 @@
 @import './styles/theme.css';
 
-* { box-sizing: border-box; }
-body { margin: 0; min-height: 100vh; }
-a { color: inherit; text-decoration: none; }
+/* Estilos comunes de todas las pantallas (basados en los diseños de Comercial 360).
+   Antes de crear una clase nueva en tu página, revisa si ya existe aquí. */
 
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; font-size: 14px; line-height: 1.45; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--orange-100); color: var(--navy-900); }
+:focus-visible { outline: 2px solid var(--orange-500); outline-offset: 2px; }
+h1, h2, h3 { color: var(--navy-900); }
+
+/* ---------- Botones ---------- */
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
   border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   background: var(--surface);
-  border-radius: 8px;
-  padding: 10px 16px;
+  color: var(--text);
   font: inherit;
   font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn:hover { border-color: var(--text-muted); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-primary { background: var(--orange-500); border-color: var(--orange-500); color: var(--on-dark); }
+.btn-primary:hover { background: var(--orange-600); border-color: var(--orange-600); }
+/* Botón con borde naranja ("Agregar cliente" en el diseño de rutas). */
+.btn-outline { border-color: var(--orange-500); color: var(--orange-600); }
+.btn-outline:hover { background: var(--orange-100); border-color: var(--orange-500); }
+.btn-sm { min-height: 32px; padding: 0 12px; font-size: 13px; }
+/* Botón solo con ícono (editar, eliminar, subir, bajar). Siempre con aria-label. */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--navy-700);
   cursor: pointer;
 }
-.btn-primary { background: var(--orange-500); border-color: var(--orange-500); color: #fff; }
+.btn-icon:hover { background: var(--bg); }
+.btn-icon.danger { color: var(--danger); }
+.btn-icon:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ---------- Formularios ---------- */
 .input {
   width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
   font: inherit;
 }
+.input:focus { outline: none; border-color: var(--orange-500); box-shadow: 0 0 0 3px var(--orange-100); }
+.input:disabled { background: var(--bg); }
+/* Un campo: etiqueta arriba y control abajo. */
+.field { display: grid; gap: 6px; align-content: start; font-size: 13px; font-weight: 600; }
+.field .input { font-weight: 400; font-size: 14px; }
+/* Rejilla de 4 columnas como en el diseño de "Registrar visita". */
+.form-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 16px; align-items: end; }
+.form-grid .span-2 { grid-column: span 2; }
+.form-grid .span-all { grid-column: 1 / -1; }
+.form-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+/* Formulario en una sola fila (catálogos). */
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.toolbar .field { flex: 1 1 180px; }
+fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
+@media (max-width: 1000px) { .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .span-2 { grid-column: auto; }
+}
+
+/* ---------- Tarjetas y estructura de página ---------- */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -28,6 +92,106 @@ a { color: inherit; text-decoration: none; }
   box-shadow: var(--shadow);
   padding: 20px;
 }
+/* minmax(0, 1fr): deja que las tablas anchas se encojan y hagan scroll dentro de su tarjeta. */
+.stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+/* Encabezado de página: título a la izquierda, acciones a la derecha. */
+.page-header { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.page-header h1 { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 24px; }
+.page-header h1 svg { color: var(--navy-700); }
+.page-header p { margin: 4px 0 0; color: var(--text-muted); }
+.page-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Miga de pan: "Configuración > Zonas". */
+.breadcrumb { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: var(--text-muted); font-size: 13px; }
+.breadcrumb a:hover { color: var(--orange-600); }
+/* Título de sección dentro de una tarjeta, con ícono. */
+.section-title { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; font-size: 16px; font-weight: 700; }
+.section-title svg { color: var(--navy-700); }
+.section-title .muted { margin-left: auto; font-size: 13px; font-weight: 400; }
 .page-title { margin: 0 0 4px; font-size: 24px; }
 .muted { color: var(--text-muted); }
-.error { color: var(--danger); }
+.link { color: var(--orange-600); font-weight: 600; }
+.link:hover { text-decoration: underline; }
+
+/* ---------- Tablas ---------- */
+.table-wrap { width: 100%; overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; text-align: left; }
+.table th {
+  padding: 10px 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  color: var(--navy-900);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.table tbody tr:hover td { background: color-mix(in srgb, var(--bg) 55%, var(--surface)); }
+.table .acciones { display: flex; gap: 2px; justify-content: flex-end; }
+.table .derecha { text-align: right; }
+.table .vacio { padding: 28px 12px; text-align: center; color: var(--text-muted); }
+.table-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; color: var(--text-muted); }
+
+/* ---------- Etiquetas de estado (pills) ----------
+   Uso: <span className={`pill pill-${estado}`}>. Un solo color por estado en toda la app. */
+.pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 14%, var(--surface));
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pill::first-letter { text-transform: uppercase; }
+.pill-realizada, .pill-activo, .pill-finalizada {
+  background: color-mix(in srgb, var(--success) 16%, var(--surface));
+  color: color-mix(in srgb, var(--success) 65%, var(--navy-900));
+}
+.pill-programada, .pill-activa {
+  background: var(--orange-100);
+  color: color-mix(in srgb, var(--orange-500) 70%, var(--navy-900));
+}
+.pill-reprogramada, .pill-no_atendida {
+  background: color-mix(in srgb, var(--danger) 14%, var(--surface));
+  color: color-mix(in srgb, var(--danger) 75%, var(--navy-900));
+}
+.pill-planeada {
+  background: color-mix(in srgb, var(--info) 14%, var(--surface));
+  color: color-mix(in srgb, var(--info) 70%, var(--navy-900));
+}
+/* cancelada e inactivo usan el gris por defecto. */
+
+/* Círculo numerado (orden de visita, agenda del día). */
+.num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--navy-700);
+  color: var(--on-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+.num-realizada { background: var(--success); }
+.num-programada { background: var(--orange-500); }
+.num-reprogramada, .num-no_atendida { background: var(--danger); }
+.num-cancelada { background: var(--text-muted); }
+
+/* ---------- Avisos ---------- */
+.error, .success {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px solid;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+.error { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 7%, var(--surface)); color: var(--danger); }
+.success {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 9%, var(--surface));
+  color: color-mix(in srgb, var(--success) 65%, var(--navy-900));
+}

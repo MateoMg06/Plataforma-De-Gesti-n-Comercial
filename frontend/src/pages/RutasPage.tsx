@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp, Info, MapPin, Plus, Route, Users } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { api } from '../api/client';
 import './RutasPage.css';
@@ -10,14 +11,31 @@ interface ClienteEnRuta {
 interface Ruta {
   id: number;
   nombre: string;
+  idAsesor: number;
   estado: string;
   fechaInicio: string;
   fechaFin: string;
   clientes: ClienteEnRuta[];
 }
 
+interface Asesor {
+  id: number;
+  nombre: string;
+  estado: string;
+}
+
+interface Cliente {
+  id: number;
+  razonSocial: string;
+  direccion: string;
+  municipio: string;
+}
+
+// Basado en diseno_04 (Creación de rutas). HU-14 y HU-15 (Andres).
 export function RutasPage() {
   const [rutas, setRutas] = useState<Ruta[]>([]);
+  const [asesores, setAsesores] = useState<Asesor[]>([]);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
   const [nombre, setNombre] = useState('');
   const [idAsesor, setIdAsesor] = useState('');
   const [fechaInicio, setFechaInicio] = useState('');
@@ -37,6 +55,13 @@ export function RutasPage() {
 
   useEffect(() => {
     cargarRutas().catch((err) => setError((err as Error).message));
+    // Nombres en vez de IDs: asesores (HU-10) y clientes (HU-05).
+    api<Asesor[]>('/asesores')
+      .then(setAsesores)
+      .catch((err) => setError((err as Error).message));
+    api<{ datos: Cliente[] }>('/clientes?limit=100')
+      .then((pagina) => setClientes(pagina.datos))
+      .catch((err) => setError((err as Error).message));
   }, []);
 
   const crear = async (e: FormEvent) => {
@@ -72,6 +97,7 @@ export function RutasPage() {
     e.preventDefault();
     setError('');
     setMensaje('');
+    setGuardando(true);
     try {
       await api(`/rutas/${idRuta}/clientes`, {
         method: 'POST',
@@ -81,6 +107,8 @@ export function RutasPage() {
       await cargarRutas();
     } catch (err) {
       setError((err as Error).message);
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -102,68 +130,189 @@ export function RutasPage() {
   };
 
   const rutaSeleccionada = rutas.find((ruta) => ruta.id === Number(idRuta));
+  const clienteDe = (id: number) => clientes.find((c) => c.id === id);
+  const asesorDe = (id: number) => asesores.find((a) => a.id === id)?.nombre ?? `Asesor ${id}`;
+  // HU-10: solo los asesores activos pueden recibir rutas nuevas.
+  const asesoresActivos = asesores.filter((a) => a.estado === 'activo');
+  // En la lista para agregar no aparecen los clientes que ya están en la ruta.
+  const clientesDisponibles = clientes.filter(
+    (c) => !rutaSeleccionada?.clientes.some((enRuta) => enRuta.idCliente === c.id),
+  );
 
   return (
-    <section className="card rutas-page">
-      <h1 className="page-title">Planeación de rutas</h1>
-      <p className="muted">Crea una ruta comercial. Las rutas nuevas quedan en estado planeada.</p>
-
-      <form className="ruta-form" onSubmit={crear}>
-        <label>
-          Nombre de la ruta
-          <input className="input" value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={100} required />
-        </label>
-        <label>
-          ID del asesor
-          <input className="input" type="number" min="1" step="1" value={idAsesor} onChange={(e) => setIdAsesor(e.target.value)} required />
-        </label>
-        <label>
-          Fecha de inicio
-          <input className="input" type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required />
-        </label>
-        <label>
-          Fecha de fin
-          <input className="input" type="date" min={fechaInicio || undefined} value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} required />
-        </label>
-        <button className="btn btn-primary" disabled={guardando}>
-          {guardando ? 'Guardando…' : 'Crear ruta'}
-        </button>
-      </form>
-
-      <section className="clientes-ruta">
-        <h2>Clientes y orden de visita</h2>
-        <label>
-          Ruta
-          <select className="input" value={idRuta} onChange={(e) => setIdRuta(e.target.value)}>
-            <option value="">Selecciona una ruta</option>
-            {rutas.map((ruta) => <option key={ruta.id} value={ruta.id}>{ruta.nombre} (ID {ruta.id})</option>)}
-          </select>
-        </label>
-        <form className="agregar-cliente-form" onSubmit={agregarCliente}>
-          <label>
-            ID del cliente
-            <input className="input" type="number" min="1" step="1" value={idCliente} onChange={(e) => setIdCliente(e.target.value)} required disabled={!idRuta} />
-          </label>
-          <button className="btn btn-primary" disabled={!idRuta}>Agregar cliente</button>
-        </form>
-        {rutaSeleccionada && rutaSeleccionada.clientes.length > 0 && (
-          <ol className="clientes-ordenados">
-            {rutaSeleccionada.clientes.map((cliente) => (
-              <li key={cliente.idCliente}>
-                <span>Cliente {cliente.idCliente}</span>
-                <span className="acciones-orden">
-                  <button className="btn" type="button" aria-label={`Subir cliente ${cliente.idCliente}`} disabled={cliente.ordenVisita === 1} onClick={() => moverCliente(cliente, -1)}>↑</button>
-                  <button className="btn" type="button" aria-label={`Bajar cliente ${cliente.idCliente}`} disabled={cliente.ordenVisita === rutaSeleccionada.clientes.length} onClick={() => moverCliente(cliente, 1)}>↓</button>
-                </span>
-              </li>
-            ))}
-          </ol>
-        )}
-        {rutaSeleccionada && rutaSeleccionada.clientes.length === 0 && <p className="muted">Esta ruta aún no tiene clientes.</p>}
-      </section>
+    <div>
+      <div className="page-header">
+        <div>
+          <h1>
+            <Route size={26} /> Planeación de rutas
+          </h1>
+          <p>Crea rutas comerciales y define en qué orden se visitan los clientes.</p>
+        </div>
+      </div>
 
       {error && <p className="error" role="alert">{error}</p>}
-      {mensaje && <p className="ruta-confirmacion" role="status">{mensaje}</p>}
-    </section>
+      {mensaje && <p className="success" role="status">{mensaje}</p>}
+
+      <div className="rutas-layout">
+        <form className="card" onSubmit={crear}>
+          <h2 className="section-title">
+            <Info size={18} /> 1. Información de la ruta
+          </h2>
+          <fieldset className="rutas-form" disabled={guardando}>
+            <label className="field">
+              Nombre de la ruta *
+              <input
+                className="input"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                maxLength={100}
+                placeholder="Ej: RUT-NORTE-001"
+                required
+              />
+            </label>
+            <label className="field">
+              Asesor comercial *
+              <select className="input" value={idAsesor} onChange={(e) => setIdAsesor(e.target.value)} required>
+                <option value="">Selecciona un asesor</option>
+                {asesoresActivos.map((a) => (
+                  <option key={a.id} value={a.id}>{a.nombre}</option>
+                ))}
+              </select>
+            </label>
+            <div className="rutas-fechas">
+              <label className="field">
+                Fecha de inicio *
+                <input className="input" type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required />
+              </label>
+              <label className="field">
+                Fecha de fin *
+                <input
+                  className="input"
+                  type="date"
+                  min={fechaInicio || undefined}
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value)}
+                  required
+                />
+              </label>
+            </div>
+            <button className="btn btn-primary">{guardando ? 'Guardando…' : 'Crear ruta'}</button>
+            <p className="rutas-nota">
+              <Info size={16} /> Las rutas nuevas quedan en estado planeada.
+            </p>
+          </fieldset>
+        </form>
+
+        <section className="card">
+          <div className="rutas-cabecera">
+            <h2 className="section-title">
+              <Users size={18} /> 2. Clientes y orden de visita
+            </h2>
+            <label className="field rutas-selector">
+              Ruta
+              <select className="input" value={idRuta} onChange={(e) => setIdRuta(e.target.value)}>
+                <option value="">Selecciona una ruta</option>
+                {rutas.map((ruta) => (
+                  <option key={ruta.id} value={ruta.id}>{ruta.nombre}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {rutaSeleccionada && (
+            <p className="rutas-resumen">
+              <span className={`pill pill-${rutaSeleccionada.estado}`}>{rutaSeleccionada.estado}</span>
+              <span>Asesor: <strong>{asesorDe(rutaSeleccionada.idAsesor)}</strong></span>
+              <span>Del {rutaSeleccionada.fechaInicio} al {rutaSeleccionada.fechaFin}</span>
+              <span><strong>{rutaSeleccionada.clientes.length}</strong> paradas</span>
+            </p>
+          )}
+
+          <form className="toolbar rutas-agregar" onSubmit={agregarCliente}>
+            <label className="field">
+              Cliente
+              <select
+                className="input"
+                value={idCliente}
+                onChange={(e) => setIdCliente(e.target.value)}
+                required
+                disabled={!idRuta || guardando}
+              >
+                <option value="">Selecciona un cliente</option>
+                {clientesDisponibles.map((c) => (
+                  <option key={c.id} value={c.id}>{c.razonSocial} · {c.municipio}</option>
+                ))}
+              </select>
+            </label>
+            <button className="btn btn-outline" disabled={!idRuta || guardando}>
+              <Plus size={18} /> Agregar cliente
+            </button>
+          </form>
+
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Orden</th>
+                  <th>Cliente</th>
+                  <th>Dirección</th>
+                  <th>Municipio</th>
+                  <th className="derecha">Mover</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rutaSeleccionada?.clientes.map((cliente) => {
+                  const datos = clienteDe(cliente.idCliente);
+                  const nombreCliente = datos?.razonSocial ?? `Cliente ${cliente.idCliente}`;
+                  return (
+                    <tr key={cliente.idCliente}>
+                      <td>
+                        <span className="num num-programada">{cliente.ordenVisita}</span>
+                      </td>
+                      <td><strong>{nombreCliente}</strong></td>
+                      <td>{datos?.direccion ?? '—'}</td>
+                      <td>
+                        {datos ? (
+                          <span className="rutas-municipio"><MapPin size={14} /> {datos.municipio}</span>
+                        ) : '—'}
+                      </td>
+                      <td>
+                        <div className="acciones">
+                          <button
+                            className="btn-icon"
+                            type="button"
+                            aria-label={`Subir ${nombreCliente}`}
+                            disabled={cliente.ordenVisita === 1}
+                            onClick={() => moverCliente(cliente, -1)}
+                          >
+                            <ChevronUp size={18} />
+                          </button>
+                          <button
+                            className="btn-icon"
+                            type="button"
+                            aria-label={`Bajar ${nombreCliente}`}
+                            disabled={cliente.ordenVisita === rutaSeleccionada.clientes.length}
+                            onClick={() => moverCliente(cliente, 1)}
+                          >
+                            <ChevronDown size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {(!rutaSeleccionada || rutaSeleccionada.clientes.length === 0) && (
+                  <tr>
+                    <td colSpan={5} className="vacio">
+                      {rutaSeleccionada ? 'Esta ruta aún no tiene clientes.' : 'Crea o selecciona una ruta.'}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
   );
 }

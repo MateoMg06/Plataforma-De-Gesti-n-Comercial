@@ -1,4 +1,17 @@
+import {
+  Building2,
+  Check,
+  MapPin,
+  Pencil,
+  Power,
+  Search,
+  Tags,
+  UserPlus,
+  Users,
+  X,
+} from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import "./ClientesPage.css";
 
@@ -85,6 +98,16 @@ export function ClientesPage() {
   const [cargandoLista, setCargandoLista] = useState(true);
   const [errorLista, setErrorLista] = useState("");
   const [recarga, setRecarga] = useState(0);
+  // El buscador de la barra superior llega como ?busqueda=texto.
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const texto = searchParams.get("busqueda");
+    if (!texto) return;
+    setFiltros((actuales) => ({ ...actuales, busqueda: texto }));
+    setAplicados((actuales) => ({ ...actuales, busqueda: texto }));
+    setPage(1);
+  }, [searchParams]);
 
   useEffect(() => {
     let vigente = true;
@@ -141,6 +164,11 @@ export function ClientesPage() {
 
   const cambiarActividad = async (cliente: Cliente) => {
     if (guardando) return;
+    if (
+      cliente.activo &&
+      !window.confirm(`¿Desactivar a ${cliente.razonSocial}?`)
+    )
+      return;
     setGuardando(true);
     setError("");
     setExito("");
@@ -230,510 +258,391 @@ export function ClientesPage() {
     opciones.potenciales.length > 0 &&
     opciones.estados.length > 0;
 
-  return (
-    <div className="card clientes-page">
-      <h1 className="page-title">Clientes</h1>
-      <p className="muted">Consulta, edita y administra tus clientes.</p>
-      <form
-        className="clientes-filtros"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setPage(1);
-          setAplicados({ ...filtros });
-        }}
+  // Campo de texto del formulario: etiqueta arriba y control abajo.
+  const campo = (
+    id: keyof typeof datos,
+    etiqueta: string,
+    extra: { type?: string; maxLength?: number; min?: string; max?: string; step?: string } = {},
+  ) => (
+    <label htmlFor={id} className="field">
+      {etiqueta} *
+      <input
+        id={id}
+        className="input"
+        type={extra.type ?? "text"}
+        required
+        maxLength={extra.maxLength}
+        min={extra.min}
+        max={extra.max}
+        step={extra.step}
+        value={datos[id]}
+        onChange={(e) => cambiar(id, e.target.value)}
+      />
+    </label>
+  );
+
+  // Lista desplegable del formulario (zona, tipo, potencial, estado).
+  const lista = (id: keyof typeof datos, etiqueta: string, items: Opcion[]) => (
+    <label htmlFor={id} className="field">
+      {etiqueta} *
+      <select
+        id={id}
+        className="input"
+        required
+        value={datos[id]}
+        onChange={(e) => cambiar(id, e.target.value)}
       >
-        <label htmlFor="buscar-clientes">
-          Buscar por NIT, razón social o nombre comercial
-          <input
-            id="buscar-clientes"
-            className="input"
-            maxLength={200}
-            value={filtros.busqueda}
-            onChange={(e) =>
-              setFiltros({ ...filtros, busqueda: e.target.value })
-            }
-          />
-        </label>
-        <label htmlFor="filtro-idZona">
-          Zona
-          <select
-            id="filtro-idZona"
-            className="input"
-            value={filtros.idZona}
-            onChange={(e) => setFiltros({ ...filtros, idZona: e.target.value })}
-          >
-            <option value="">Todos</option>
-            {zonas.map((opcion) => (
-              <option key={opcion.id} value={opcion.id}>
-                {opcion.nombre}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label htmlFor="filtro-idTipoCliente">
-          Tipo
-          <select
-            id="filtro-idTipoCliente"
-            className="input"
-            value={filtros.idTipoCliente}
-            onChange={(e) =>
-              setFiltros({ ...filtros, idTipoCliente: e.target.value })
-            }
-          >
-            <option value="">Todos</option>
-            {opciones.tipos.map((opcion) => (
-              <option key={opcion.id} value={opcion.id}>
-                {opcion.nombre}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label htmlFor="filtro-idPotencial">
-          Potencial
-          <select
-            id="filtro-idPotencial"
-            className="input"
-            value={filtros.idPotencial}
-            onChange={(e) =>
-              setFiltros({ ...filtros, idPotencial: e.target.value })
-            }
-          >
-            <option value="">Todos</option>
-            {opciones.potenciales.map((opcion) => (
-              <option key={opcion.id} value={opcion.id}>
-                {opcion.nombre}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label htmlFor="filtro-idEstadoCliente">
-          Estado
-          <select
-            id="filtro-idEstadoCliente"
-            className="input"
-            value={filtros.idEstadoCliente}
-            onChange={(e) =>
-              setFiltros({ ...filtros, idEstadoCliente: e.target.value })
-            }
-          >
-            <option value="">Todos</option>
-            {opciones.estados.map((opcion) => (
-              <option key={opcion.id} value={opcion.id}>
-                {opcion.nombre}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button className="btn btn-primary" disabled={guardando}>
-          Buscar
-        </button>
-        <button
-          type="button"
-          className="btn"
-          disabled={guardando}
-          onClick={() => {
-            setFiltros(filtrosVacios);
-            setAplicados({ ...filtrosVacios });
-            setPage(1);
-          }}
-        >
-          Limpiar filtros
-        </button>
-      </form>
-      {errorLista && (
-        <div role="alert">
-          <p className="error">{errorLista}</p>
-          <button
-            className="btn"
-            onClick={() => setRecarga((valor) => valor + 1)}
-          >
-            Reintentar listado
-          </button>
-        </div>
-      )}
-      {cargandoLista ? (
-        <p role="status">Cargando clientes…</p>
-      ) : (
-        !errorLista && (
-          <>
-            <p>{pagina.total} clientes encontrados</p>
-            <div className="clientes-tabla">
-              <table>
-                <thead>
-                  <tr>
-                    <th>NIT</th>
-                    <th>Razón social</th>
-                    <th>Nombre comercial</th>
-                    <th>Zona</th>
-                    <th>Actividad</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pagina.datos.map((cliente) => (
-                    <tr key={cliente.id}>
-                      <td>{cliente.nit}</td>
-                      <td>{cliente.razonSocial}</td>
-                      <td>{cliente.nombreComercial}</td>
-                      <td>
-                        {zonas.find((zona) => zona.id === cliente.idZona)
-                          ?.nombre ?? cliente.idZona}
-                      </td>
-                      <td>{cliente.activo ? "Activo" : "Inactivo"}</td>
-                      <td>
-                        <div className="clientes-acciones">
-                          <button
-                            className="btn"
-                            disabled={guardando}
-                            onClick={() => editar(cliente)}
-                          >
-                            Editar
-                          </button>
-                          <button
-                            className="btn"
-                            disabled={guardando}
-                            onClick={() => void cambiarActividad(cliente)}
-                          >
-                            {cliente.activo ? "Desactivar" : "Activar"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {pagina.datos.length === 0 && (
-                    <tr>
-                      <td colSpan={6}>No hay clientes con estos criterios.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <div className="clientes-paginacion">
-              <button
-                className="btn"
-                disabled={page <= 1 || guardando}
-                onClick={() => setPage((valor) => valor - 1)}
-              >
-                Anterior
-              </button>
-              <span>
-                Página {page} de {Math.max(1, Math.ceil(pagina.total / limit))}
-              </span>
-              <button
-                className="btn"
-                disabled={page * limit >= pagina.total || guardando}
-                onClick={() => setPage((valor) => valor + 1)}
-              >
-                Siguiente
-              </button>
-              <label htmlFor="limite-clientes">
-                Por página
-                <select
-                  id="limite-clientes"
-                  className="input"
-                  value={limit}
-                  disabled={guardando}
-                  onChange={(e) => {
-                    setLimit(Number(e.target.value));
-                    setPage(1);
-                  }}
-                >
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={50}>50</option>
-                </select>
-              </label>
-            </div>
-          </>
-        )
-      )}
-      <h2 id="formulario-cliente" className="page-title">
-        {editando === null ? "Registrar cliente" : "Editar cliente"}
-      </h2>
-      <p className="muted">
-        Completa los datos del cliente y su ubicación. Todos los campos son
-        obligatorios.
-      </p>
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      )}
-      {exito && (
-        <p className="clientes-exito" role="status">
-          {exito}
-        </p>
-      )}
-      {cargando ? (
-        <p role="status">Cargando opciones…</p>
-      ) : !hayOpciones ? (
+        <option value="">Selecciona una opción</option>
+        {items.map((opcion) => (
+          <option key={opcion.id} value={opcion.id}>
+            {opcion.nombre}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+
+  // Filtro de la tabla (zona, tipo, potencial, estado).
+  const filtro = (
+    id: keyof typeof filtros,
+    etiqueta: string,
+    items: Opcion[],
+  ) => (
+    <label htmlFor={`filtro-${id}`} className="field">
+      {etiqueta}
+      <select
+        id={`filtro-${id}`}
+        className="input"
+        value={filtros[id]}
+        onChange={(e) => setFiltros({ ...filtros, [id]: e.target.value })}
+      >
+        <option value="">Todos</option>
+        {items.map((opcion) => (
+          <option key={opcion.id} value={opcion.id}>
+            {opcion.nombre}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+
+  return (
+    <div className="clientes-page">
+      <div className="page-header">
         <div>
-          <p>
-            Faltan opciones de zona, tipo, potencial o estado para registrar
-            clientes.
-          </p>
-          <button className="btn" onClick={() => void cargar()}>
-            Volver a cargar
+          <h1>
+            <Users size={26} /> Clientes
+          </h1>
+          <p>Consulta, edita y administra tus clientes.</p>
+        </div>
+        <div className="page-actions">
+          <button
+            className="btn btn-primary"
+            onClick={() =>
+              document
+                .getElementById("formulario-cliente")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
+          >
+            <UserPlus size={18} /> Nuevo cliente
           </button>
         </div>
-      ) : (
-        <form onSubmit={guardar}>
-          <fieldset disabled={guardando}>
-            <legend>Datos del cliente</legend>
-            <div className="clientes-grid">
-              <label htmlFor="nit">
-                NIT
-                <input
-                  id="nit"
-                  className="input"
-                  type="text"
-                  required
-                  maxLength={30}
-                  value={datos.nit}
-                  onChange={(e) => cambiar("nit", e.target.value)}
-                />
-              </label>
-              <label htmlFor="razonSocial">
-                Razón social
-                <input
-                  id="razonSocial"
-                  className="input"
-                  type="text"
-                  required
-                  maxLength={200}
-                  value={datos.razonSocial}
-                  onChange={(e) => cambiar("razonSocial", e.target.value)}
-                />
-              </label>
-              <label htmlFor="nombreComercial">
-                Nombre comercial
-                <input
-                  id="nombreComercial"
-                  className="input"
-                  type="text"
-                  required
-                  maxLength={200}
-                  value={datos.nombreComercial}
-                  onChange={(e) => cambiar("nombreComercial", e.target.value)}
-                />
-              </label>
-              <label htmlFor="direccion">
-                Dirección
-                <input
-                  id="direccion"
-                  className="input"
-                  type="text"
-                  required
-                  maxLength={250}
-                  value={datos.direccion}
-                  onChange={(e) => cambiar("direccion", e.target.value)}
-                />
-              </label>
-              <label htmlFor="departamento">
-                Departamento
-                <input
-                  id="departamento"
-                  className="input"
-                  type="text"
-                  required
-                  maxLength={100}
-                  value={datos.departamento}
-                  onChange={(e) => cambiar("departamento", e.target.value)}
-                />
-              </label>
-              <label htmlFor="municipio">
-                Municipio
-                <input
-                  id="municipio"
-                  className="input"
-                  type="text"
-                  required
-                  maxLength={100}
-                  value={datos.municipio}
-                  onChange={(e) => cambiar("municipio", e.target.value)}
-                />
-              </label>
-              <label htmlFor="barrio">
-                Barrio
-                <input
-                  id="barrio"
-                  className="input"
-                  type="text"
-                  required
-                  maxLength={100}
-                  value={datos.barrio}
-                  onChange={(e) => cambiar("barrio", e.target.value)}
-                />
-              </label>
-              <label htmlFor="telefono">
-                Teléfono
-                <input
-                  id="telefono"
-                  className="input"
-                  type="tel"
-                  required
-                  maxLength={30}
-                  value={datos.telefono}
-                  onChange={(e) => cambiar("telefono", e.target.value)}
-                />
-              </label>
-              <label htmlFor="email">
-                Correo electrónico
-                <input
-                  id="email"
-                  className="input"
-                  type="email"
-                  required
-                  maxLength={254}
-                  value={datos.email}
-                  onChange={(e) => cambiar("email", e.target.value)}
-                />
-              </label>
+      </div>
+
+      <div className="stack">
+        <section className="card">
+          <form
+            className="toolbar clientes-filtros"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setPage(1);
+              setAplicados({ ...filtros });
+            }}
+          >
+            <label htmlFor="buscar-clientes" className="field clientes-busqueda">
+              Buscar
+              <input
+                id="buscar-clientes"
+                className="input"
+                placeholder="NIT, razón social o nombre comercial"
+                maxLength={200}
+                value={filtros.busqueda}
+                onChange={(e) =>
+                  setFiltros({ ...filtros, busqueda: e.target.value })
+                }
+              />
+            </label>
+            {filtro("idZona", "Zona", zonas)}
+            {filtro("idTipoCliente", "Tipo", opciones.tipos)}
+            {filtro("idPotencial", "Potencial", opciones.potenciales)}
+            {filtro("idEstadoCliente", "Estado", opciones.estados)}
+            <div className="form-actions">
+              <button className="btn btn-primary" disabled={guardando}>
+                <Search size={18} /> Buscar
+              </button>
+              <button
+                type="button"
+                className="btn"
+                disabled={guardando}
+                onClick={() => {
+                  setFiltros(filtrosVacios);
+                  setAplicados({ ...filtrosVacios });
+                  setPage(1);
+                }}
+              >
+                Limpiar
+              </button>
             </div>
-          </fieldset>
-          <fieldset disabled={guardando}>
-            <legend>Clasificación y visitas</legend>
-            <div className="clientes-grid">
-              <label htmlFor="idZona">
-                Zona
-                <select
-                  id="idZona"
-                  className="input"
-                  required
-                  value={datos.idZona}
-                  onChange={(e) => cambiar("idZona", e.target.value)}
-                >
-                  <option value="">Selecciona una opción</option>
-                  {zonas.map((opcion) => (
-                    <option key={opcion.id} value={opcion.id}>
-                      {opcion.nombre}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label htmlFor="idTipoCliente">
-                Tipo de cliente
-                <select
-                  id="idTipoCliente"
-                  className="input"
-                  required
-                  value={datos.idTipoCliente}
-                  onChange={(e) => cambiar("idTipoCliente", e.target.value)}
-                >
-                  <option value="">Selecciona una opción</option>
-                  {opciones.tipos.map((opcion) => (
-                    <option key={opcion.id} value={opcion.id}>
-                      {opcion.nombre}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label htmlFor="idPotencial">
-                Potencial
-                <select
-                  id="idPotencial"
-                  className="input"
-                  required
-                  value={datos.idPotencial}
-                  onChange={(e) => cambiar("idPotencial", e.target.value)}
-                >
-                  <option value="">Selecciona una opción</option>
-                  {opciones.potenciales.map((opcion) => (
-                    <option key={opcion.id} value={opcion.id}>
-                      {opcion.nombre}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label htmlFor="idEstadoCliente">
-                Estado
-                <select
-                  id="idEstadoCliente"
-                  className="input"
-                  required
-                  value={datos.idEstadoCliente}
-                  onChange={(e) => cambiar("idEstadoCliente", e.target.value)}
-                >
-                  <option value="">Selecciona una opción</option>
-                  {opciones.estados.map((opcion) => (
-                    <option key={opcion.id} value={opcion.id}>
-                      {opcion.nombre}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label htmlFor="frecuenciaVisitaDias">
-                Frecuencia de visita (días)
-                <input
-                  id="frecuenciaVisitaDias"
-                  className="input"
-                  type="number"
-                  min="1"
-                  step="1"
-                  required
-                  value={datos.frecuenciaVisitaDias}
-                  onChange={(e) =>
-                    cambiar("frecuenciaVisitaDias", e.target.value)
-                  }
-                />
-              </label>
+          </form>
+
+          {errorLista && (
+            <div role="alert">
+              <p className="error">{errorLista}</p>
+              <button
+                className="btn"
+                onClick={() => setRecarga((valor) => valor + 1)}
+              >
+                Reintentar listado
+              </button>
             </div>
-          </fieldset>
-          <fieldset disabled={guardando}>
-            <legend>Ubicación</legend>
-            <div className="clientes-grid">
-              <label htmlFor="latitud">
-                Latitud
-                <input
-                  id="latitud"
-                  className="input"
-                  type="number"
-                  min="-90"
-                  max="90"
-                  step="any"
-                  required
-                  value={datos.latitud}
-                  onChange={(e) => cambiar("latitud", e.target.value)}
-                />
-              </label>
-              <label htmlFor="longitud">
-                Longitud
-                <input
-                  id="longitud"
-                  className="input"
-                  type="number"
-                  min="-180"
-                  max="180"
-                  step="any"
-                  required
-                  value={datos.longitud}
-                  onChange={(e) => cambiar("longitud", e.target.value)}
-                />
-              </label>
-            </div>
-          </fieldset>
-          <button className="btn btn-primary" disabled={guardando}>
-            {guardando
-              ? "Guardando…"
-              : editando === null
-                ? "Registrar cliente"
-                : "Guardar cambios"}
-          </button>
-          {editando !== null && (
-            <button
-              type="button"
-              className="btn"
-              disabled={guardando}
-              onClick={() => {
-                setEditando(null);
-                setDatos(formularioVacio);
-                setError("");
-              }}
-            >
-              Cancelar edición
-            </button>
           )}
-        </form>
+          {cargandoLista ? (
+            <p role="status" className="muted">
+              Cargando clientes…
+            </p>
+          ) : (
+            !errorLista && (
+              <>
+                <div className="table-wrap">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>NIT</th>
+                        <th>Razón social</th>
+                        <th>Nombre comercial</th>
+                        <th>Municipio</th>
+                        <th>Zona</th>
+                        <th>Estado</th>
+                        <th className="derecha">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pagina.datos.map((cliente) => (
+                        <tr key={cliente.id}>
+                          <td>{cliente.nit}</td>
+                          <td>
+                            <strong>{cliente.razonSocial}</strong>
+                          </td>
+                          <td>{cliente.nombreComercial}</td>
+                          <td>{cliente.municipio}</td>
+                          <td>
+                            {zonas.find((zona) => zona.id === cliente.idZona)
+                              ?.nombre ?? cliente.idZona}
+                          </td>
+                          <td>
+                            <span
+                              className={`pill ${cliente.activo ? "pill-activo" : ""}`}
+                            >
+                              {cliente.activo ? "Activo" : "Inactivo"}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="acciones">
+                              <button
+                                className="btn-icon"
+                                aria-label={`Editar ${cliente.razonSocial}`}
+                                title="Editar"
+                                disabled={guardando}
+                                onClick={() => editar(cliente)}
+                              >
+                                <Pencil size={18} />
+                              </button>
+                              <button
+                                className={`btn-icon ${cliente.activo ? "danger" : ""}`}
+                                aria-label={`${cliente.activo ? "Desactivar" : "Activar"} ${cliente.razonSocial}`}
+                                title={cliente.activo ? "Desactivar" : "Activar"}
+                                disabled={guardando}
+                                onClick={() => void cambiarActividad(cliente)}
+                              >
+                                <Power size={18} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {pagina.datos.length === 0 && (
+                        <tr>
+                          <td colSpan={7} className="vacio">
+                            No hay clientes con estos criterios.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="table-footer">
+                  <span>
+                    {pagina.total} clientes · Página {page} de{" "}
+                    {Math.max(1, Math.ceil(pagina.total / limit))}
+                  </span>
+                  <div className="form-actions">
+                    <label htmlFor="limite-clientes" className="clientes-limite">
+                      Por página
+                      <select
+                        id="limite-clientes"
+                        className="input"
+                        value={limit}
+                        disabled={guardando}
+                        onChange={(e) => {
+                          setLimit(Number(e.target.value));
+                          setPage(1);
+                        }}
+                      >
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                      </select>
+                    </label>
+                    <button
+                      className="btn btn-sm"
+                      disabled={page <= 1 || guardando}
+                      onClick={() => setPage((valor) => valor - 1)}
+                    >
+                      Anterior
+                    </button>
+                    <button
+                      className="btn btn-sm"
+                      disabled={page * limit >= pagina.total || guardando}
+                      onClick={() => setPage((valor) => valor + 1)}
+                    >
+                      Siguiente
+                    </button>
+                  </div>
+                </div>
+              </>
+            )
+          )}
+        </section>
+
+        <section className="card" id="formulario-cliente">
+          <div className="page-header clientes-form-cabecera">
+            <div>
+              <h2 className="section-title">
+                {editando === null ? <UserPlus size={20} /> : <Pencil size={20} />}
+                {editando === null ? "Registrar cliente" : "Editar cliente"}
+              </h2>
+              <p>
+                Completa los datos del cliente y su ubicación. Todos los campos
+                son obligatorios.
+              </p>
+            </div>
+          </div>
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+          {cargando ? (
+            <p role="status" className="muted">
+              Cargando opciones…
+            </p>
+          ) : !hayOpciones ? (
+            <div>
+              <p>
+                Faltan opciones de zona, tipo, potencial o estado para registrar
+                clientes.
+              </p>
+              <button className="btn" onClick={() => void cargar()}>
+                Volver a cargar
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={guardar}>
+              <fieldset className="stack" disabled={guardando}>
+                <div>
+                  <h3 className="section-title clientes-seccion">
+                    <Building2 size={18} /> 1. Datos del cliente
+                  </h3>
+                  <div className="form-grid">
+                    {campo("nit", "NIT", { maxLength: 30 })}
+                    <div className="span-2">
+                      {campo("razonSocial", "Razón social", { maxLength: 200 })}
+                    </div>
+                    {campo("nombreComercial", "Nombre comercial", { maxLength: 200 })}
+                    {campo("telefono", "Teléfono", { type: "tel", maxLength: 30 })}
+                    <div className="span-2">
+                      {campo("email", "Correo electrónico", { type: "email", maxLength: 254 })}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="section-title clientes-seccion">
+                    <MapPin size={18} /> 2. Ubicación
+                  </h3>
+                  <div className="form-grid">
+                    <div className="span-2">
+                      {campo("direccion", "Dirección", { maxLength: 250 })}
+                    </div>
+                    {campo("departamento", "Departamento", { maxLength: 100 })}
+                    {campo("municipio", "Municipio", { maxLength: 100 })}
+                    {campo("barrio", "Barrio", { maxLength: 100 })}
+                    {campo("latitud", "Latitud", { type: "number", min: "-90", max: "90", step: "any" })}
+                    {campo("longitud", "Longitud", { type: "number", min: "-180", max: "180", step: "any" })}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="section-title clientes-seccion">
+                    <Tags size={18} /> 3. Clasificación y visitas
+                  </h3>
+                  <div className="form-grid">
+                    {lista("idZona", "Zona", zonas)}
+                    {lista("idTipoCliente", "Tipo de cliente", opciones.tipos)}
+                    {lista("idPotencial", "Potencial", opciones.potenciales)}
+                    {lista("idEstadoCliente", "Estado", opciones.estados)}
+                    {campo("frecuenciaVisitaDias", "Frecuencia de visita (días)", { type: "number", min: "1", step: "1" })}
+                  </div>
+                </div>
+                <div className="form-actions clientes-botones">
+                  {editando !== null && (
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => {
+                        setEditando(null);
+                        setDatos(formularioVacio);
+                        setError("");
+                      }}
+                    >
+                      Cancelar edición
+                    </button>
+                  )}
+                  <button className="btn btn-primary">
+                    <Check size={18} />
+                    {guardando
+                      ? "Guardando…"
+                      : editando === null
+                        ? "Registrar cliente"
+                        : "Guardar cambios"}
+                  </button>
+                </div>
+              </fieldset>
+            </form>
+          )}
+        </section>
+      </div>
+
+      {/* Aviso flotante: se ve aunque la lista o el formulario estén fuera de pantalla. */}
+      {exito && (
+        <div className="success clientes-aviso" role="status">
+          <Check size={16} /> {exito}
+          <button
+            className="btn-icon"
+            aria-label="Cerrar aviso"
+            onClick={() => setExito("")}
+          >
+            <X size={16} />
+          </button>
+        </div>
       )}
     </div>
   );
