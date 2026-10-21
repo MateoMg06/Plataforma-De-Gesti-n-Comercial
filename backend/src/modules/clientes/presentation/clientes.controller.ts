@@ -1,3 +1,4 @@
+import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { ListarClientesUseCase } from '../application/listar-clientes.use-case.js';
 import { EditarClienteUseCase } from '../application/editar-cliente.use-case.js';
 import { CambiarActividadClienteUseCase } from '../application/cambiar-actividad-cliente.use-case.js';
@@ -55,8 +56,12 @@ export class ClientesController {
   })
   @ApiOkResponse({ type: PaginaClientesDto })
   @ApiBadRequestResponse({ description: 'Parámetros de consulta inválidos.' })
-  listar(@Query() dto: ConsultarClientesDto) {
-    return this.listarClientes.ejecutar(dto);
+  listar(@Query() dto: ConsultarClientesDto, @Session() session: UserSession) {
+    // HU-03: el asesor solo ve sus clientes.
+    return this.listarClientes.ejecutar(dto, {
+      id: session.user.id,
+      role: session.user.role as string,
+    });
   }
 
   @Put(':id')

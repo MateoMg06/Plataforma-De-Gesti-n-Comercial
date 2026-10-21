@@ -31,7 +31,8 @@ import { CONTACTO_CLIENTE_REPOSITORY } from './domain/contacto-cliente.repositor
 import { ContactoClienteOrmEntity } from './infrastructure/contacto-cliente.orm-entity.js';
 import { TypeOrmContactoClienteRepository } from './infrastructure/typeorm-contacto-cliente.repository.js';
 import { ContactosClienteController } from './presentation/contactos-cliente.controller.js';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
+import { VisitasModule } from '../visitas/visitas.module.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ZonasModule } from '../zonas/zonas.module.js';
 import { RegistrarClienteUseCase } from './application/registrar-cliente.use-case.js';
@@ -47,6 +48,9 @@ import { ClientesController } from './presentation/clientes.controller.js';
 @Module({
   imports: [
     ZonasModule,
+    // HU-03: clientes necesita las visitas para saber cuáles clientes son de un asesor,
+    // y visitas necesita clientes para validar el cliente. forwardRef resuelve ese ciclo.
+    forwardRef(() => VisitasModule),
     TypeOrmModule.forFeature([
       ClienteOrmEntity,
       TipoClienteOrmEntity,

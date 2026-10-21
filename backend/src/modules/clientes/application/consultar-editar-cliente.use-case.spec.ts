@@ -10,6 +10,7 @@ import { Zona } from '../../zonas/domain/zona.js';
 import { EditarClienteUseCase } from './editar-cliente.use-case.js';
 import { ListarClientesUseCase } from './listar-clientes.use-case.js';
 import { CambiarActividadClienteUseCase } from './cambiar-actividad-cliente.use-case.js';
+import type { ListarVisitasUseCase } from '../../visitas/application/listar-visitas.use-case.js';
 
 const datos: DatosCliente = {
   nit: '900123456-7',
@@ -164,10 +165,19 @@ describe('CambiarActividadClienteUseCase', () => {
   });
 });
 
+// Visitas falsas: el asesor del usuario u-ana tiene visitas con los clientes 1 y 3.
+const listarVisitas = {
+  ejecutar: vi.fn(async (usuario?: { id: string }) =>
+    usuario?.id === 'u-ana'
+      ? [{ idCliente: 1 }, { idCliente: 3 }, { idCliente: 1 }]
+      : [],
+  ),
+} as unknown as ListarVisitasUseCase;
+
 describe('ListarClientesUseCase', () => {
   it('recorta la búsqueda y conserva filtros y paginación', async () => {
     const { repositorio } = preparar();
-    await new ListarClientesUseCase(repositorio).ejecutar({
+    await new ListarClientesUseCase(repositorio, listarVisitas).ejecutar({
       page: 2,
       limit: 20,
       busqueda: ' Ejemplo ',
@@ -193,11 +203,48 @@ describe('ListarClientesUseCase', () => {
     { page: 1, limit: 0 },
     { page: 1, limit: 101 },
     { page: 1, limit: 1.5 },
-  ])('rechaza paginación inválida %j', (consulta) => {
+  ])('rechaza paginación inválida %j', async (consulta) => {
     const { repositorio } = preparar();
-    expect(() =>
-      new ListarClientesUseCase(repositorio).ejecutar(consulta),
-    ).toThrow(BadRequestException);
+    await expect(
+      new ListarClientesUseCase(repositorio, listarVisitas).ejecutar(consulta),
+    ).rejects.toThrow(BadRequestException);
     expect(repositorio.listar).not.toHaveBeenCalled();
+  });
+
+  it('HU-03: el asesor solo ve los clientes de sus visitas', async () => {
+    const { repositorio } = preparar();
+    await new ListarClientesUseCase(repositorio, listarVisitas).ejecutar(
+      { page: 1, limit: 10 },
+      { id: 'u-ana', role: 'asesor' },
+    );
+    expect(repositorio.listar).toHaveBeenCalledWith({
+      page: 1,
+      limit: 10,
+      busqueda: undefined,
+      ids: [1, 3],
+    });
+  });
+
+  it('HU-03: un asesor sin visitas no ve clientes', async () => {
+    const { repositorio } = preparar();
+    const pagina = await new ListarClientesUseCase(
+      repositorio,
+      listarVisitas,
+    ).ejecutar({ page: 1, limit: 10 }, { id: 'u-sin-visitas', role: 'asesor' });
+    expect(pagina.total).toBe(0);
+    expect(repositorio.listar).not.toHaveBeenCalled();
+  });
+
+  it('HU-03: administrador y líder ven todos los clientes', async () => {
+    const { repositorio } = preparar();
+    await new ListarClientesUseCase(repositorio, listarVisitas).ejecutar(
+      { page: 1, limit: 10 },
+      { id: 'u-admin', role: 'administrador' },
+    );
+    expect(repositorio.listar).toHaveBeenCalledWith({
+      page: 1,
+      limit: 10,
+      busqueda: undefined,
+    });
   });
 });
