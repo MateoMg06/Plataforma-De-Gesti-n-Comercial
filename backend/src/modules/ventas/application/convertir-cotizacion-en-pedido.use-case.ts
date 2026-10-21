@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CotizacionEstado } from '../../../common/enums/domain.enums.js';
 import { Cotizacion } from '../domain/cotizacion.js';
 import { COTIZACION_REPOSITORY, type CotizacionRepository } from '../domain/cotizacion.repository.js';
@@ -17,6 +17,10 @@ export class ConvertirCotizacionEnPedidoUseCase {
     if (!cotizacion) throw new NotFoundException('Cotización no encontrada');
     if (cotizacion.estado !== CotizacionEstado.APROBADA) {
       throw new BadRequestException('Solo se puede convertir una cotización aprobada');
+    }
+    // Una cotización genera un solo pedido. Necesita consultar la base, por eso va aquí.
+    if (await this.pedidoRepo.buscarPorCotizacion(idCotizacion)) {
+      throw new ConflictException('Esta cotización ya se convirtió en pedido');
     }
     const numero = await this.pedidoRepo.obtenerSiguienteNumero();
     const pedido = Pedido.crear(numero, cotizacion);

@@ -27,6 +27,12 @@ export class TypeOrmPedidoRepository implements PedidoRepository {
     return new Pedido(fila.id, fila.numero, fila.idCotizacion, fila.idCliente, Number(fila.valor), fila.estado, fila.fecha);
   }
 
+  async buscarPorCotizacion(idCotizacion: number): Promise<Pedido | null> {
+    const fila = await this.repo.findOneBy({ idCotizacion });
+    if (!fila) return null;
+    return new Pedido(fila.id, fila.numero, fila.idCotizacion, fila.idCliente, Number(fila.valor), fila.estado, fila.fecha);
+  }
+
   async listar(filtros?: FiltrosPedido): Promise<Pedido[]> {
     const qb = this.repo.createQueryBuilder('p');
     if (filtros?.idCliente) qb.andWhere('p.idCliente = :idCliente', { idCliente: filtros.idCliente });
