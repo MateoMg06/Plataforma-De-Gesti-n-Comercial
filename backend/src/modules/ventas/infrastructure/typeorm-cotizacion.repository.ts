@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CotizacionEstado } from '../../../common/enums/domain.enums.js';
 import { Cotizacion, CotizacionDetalle } from '../domain/cotizacion.js';
 import type { CotizacionRepository } from '../domain/cotizacion.repository.js';
 import { CotizacionOrmEntity } from './cotizacion.orm-entity.js';
@@ -16,6 +17,7 @@ export class TypeOrmCotizacionRepository implements CotizacionRepository {
   ) {}
 
   async guardar(cotizacion: Cotizacion): Promise<Cotizacion> {
+    // Con id es una actualización (por ejemplo, un cambio de estado).
     if (cotizacion.id) {
       await this.repo.update(cotizacion.id, {
         estado: cotizacion.estado,
@@ -28,10 +30,11 @@ export class TypeOrmCotizacionRepository implements CotizacionRepository {
         fila!.idCliente,
         fila!.idAsesor,
         fila!.fecha,
-        fila!.estado,
+        fila!.estado as CotizacionEstado,
         cotizacion.detalles,
       );
     }
+
     const fila = await this.repo.save({
       numero: cotizacion.numero,
       idCliente: cotizacion.idCliente,
@@ -56,8 +59,8 @@ export class TypeOrmCotizacionRepository implements CotizacionRepository {
       fila.idCliente,
       fila.idAsesor,
       fila.fecha,
-      fila.estado,
-      cotizacion.detalles.map((d) => d),
+      fila.estado as CotizacionEstado,
+      cotizacion.detalles,
     );
   }
 
@@ -71,8 +74,17 @@ export class TypeOrmCotizacionRepository implements CotizacionRepository {
       fila.idCliente,
       fila.idAsesor,
       fila.fecha,
-      fila.estado,
-      detalles.map((d) => new CotizacionDetalle(d.id, d.producto, d.cantidad, Number(d.precio), Number(d.subtotal))),
+      fila.estado as CotizacionEstado,
+      detalles.map(
+        (d) =>
+          new CotizacionDetalle(
+            d.id,
+            d.producto,
+            d.cantidad,
+            Number(d.precio),
+            Number(d.subtotal),
+          ),
+      ),
     );
   }
 

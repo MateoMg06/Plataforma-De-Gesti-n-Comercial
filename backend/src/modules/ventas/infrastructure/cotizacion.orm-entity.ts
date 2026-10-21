@@ -23,6 +23,6 @@ export class CotizacionOrmEntity {
   @Column({ length: 20 })
   estado: string;
 
-  @Column({ name: 'documento_key', nullable: true })
+  @Column({ name: 'documento_key', type: 'varchar', length: 255, nullable: true })
   documentoKey: string | null;
 }

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientesModule } from '../clientes/clientes.module.js';
 import { AsesoresModule } from '../asesores/asesores.module.js';
+import { BitacoraModule } from '../bitacora/bitacora.module.js';
 import { CotizacionOrmEntity } from './infrastructure/cotizacion.orm-entity.js';
 import { CotizacionDetalleOrmEntity } from './infrastructure/cotizacion-detalle.orm-entity.js';
 import { TypeOrmCotizacionRepository } from './infrastructure/typeorm-cotizacion.repository.js';
@@ -16,6 +17,9 @@ import { CotizacionesController } from './presentation/cotizaciones.controller.j
   imports: [
     ClientesModule,
     AsesoresModule,
+    // La bitácora es transversal: el interceptor global registra las
+    // acciones que el controlador marca con @RegistrarEnBitacora.
+    BitacoraModule,
     TypeOrmModule.forFeature([CotizacionOrmEntity, CotizacionDetalleOrmEntity]),
   ],
   controllers: [CotizacionesController],
