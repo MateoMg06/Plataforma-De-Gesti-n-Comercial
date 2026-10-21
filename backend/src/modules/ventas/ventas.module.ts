@@ -43,5 +43,7 @@ import { PedidosController } from './presentation/pedidos.controller.js';
     { provide: COTIZACION_REPOSITORY, useClass: TypeOrmCotizacionRepository },
     { provide: PEDIDO_REPOSITORY, useClass: TypeOrmPedidoRepository },
   ],
+  // HU-32: el dashboard lee cotizaciones y pedidos con estos casos de uso.
+  exports: [ListarCotizacionesUseCase, ListarPedidosUseCase],
 })
 export class VentasModule {}

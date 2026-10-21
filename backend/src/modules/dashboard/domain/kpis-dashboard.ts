@@ -6,8 +6,7 @@
 export type FilaVisita = { idAsesor: number; estado: string };
 export type FilaCotizacion = { idAsesor: number; estado: string; valor: number };
 export type FilaPedido = { idAsesor: number };
-// idAsesor hoy solo existe en los datos falsos: los clientes reales se
-// filtrarán por las rutas del asesor cuando rutas exporte su caso de uso.
+// idAsesor: el asesor de la visita más reciente del cliente (sin visitas, no tiene).
 export type FilaCliente = { idPotencial: number; idAsesor?: number };
 export type DatoNombre = { id: number; nombre: string };
 
@@ -65,7 +64,7 @@ export class KpisDashboard {
     const cotizaciones = KpisDashboard.filtrar(datos.cotizaciones, idAsesor);
     const pedidos = KpisDashboard.filtrar(datos.pedidos, idAsesor);
 
-    // Los clientes solo se filtran si traen idAsesor (datos falsos de muestra).
+    // El asesor solo ve los clientes que él atiende (los de sus visitas).
     const clientes =
       idAsesor === null
         ? datos.clientes
