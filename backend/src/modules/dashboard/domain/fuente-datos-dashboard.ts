@@ -5,10 +5,9 @@ import type {
   FilaPedido,
 } from './kpis-dashboard.js';
 
-// Puerto por el que el dashboard pide los datos que todavía no puede leer
-// de otros módulos (ventas, clientes y pedidos). Mientras esos módulos no
-// exporten sus casos de uso de lectura, lo implementa el adaptador
-// infrastructure/fuente-datos-fake.ts con datos de muestra.
+// Puerto por el que el dashboard pide los datos de ventas y clientes.
+// Lo implementa infrastructure/fuente-datos-real.ts con los casos de uso
+// que exportan esos módulos. En las pruebas se usa uno en memoria.
 export interface FuenteDatosDashboard {
   listarCotizaciones(): Promise<FilaCotizacion[]>;
   listarPedidos(): Promise<FilaPedido[]>;

@@ -52,8 +52,14 @@ export function DashboardPage() {
   const [idAsesor, setIdAsesor] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(true);
+  // HU-32: el asesor ve solo lo suyo (lo decide el backend con su sesión),
+  // así que a él no se le muestra el selector de asesor.
+  const [rol, setRol] = useState("");
 
   useEffect(() => {
+    api<{ user: { role: string } } | null>("/auth/get-session")
+      .then((datos) => setRol(datos?.user.role ?? ""))
+      .catch(() => setRol(""));
     // El selector de asesor se alimenta de los asesores reales (GET /asesores).
     api<Asesor[]>("/asesores")
       .then(setAsesores)
@@ -81,10 +87,26 @@ export function DashboardPage() {
 
   const estados: { etiqueta: string; valor: number; clase: string }[] = kpis
     ? [
-        { etiqueta: "Borrador", valor: kpis.cotizacionesPorEstado.borrador, clase: "borrador" },
-        { etiqueta: "Enviada", valor: kpis.cotizacionesPorEstado.enviada, clase: "enviada" },
-        { etiqueta: "Aprobada", valor: kpis.cotizacionesPorEstado.aprobada, clase: "aprobada" },
-        { etiqueta: "Rechazada", valor: kpis.cotizacionesPorEstado.rechazada, clase: "rechazada" },
+        {
+          etiqueta: "Borrador",
+          valor: kpis.cotizacionesPorEstado.borrador,
+          clase: "borrador",
+        },
+        {
+          etiqueta: "Enviada",
+          valor: kpis.cotizacionesPorEstado.enviada,
+          clase: "enviada",
+        },
+        {
+          etiqueta: "Aprobada",
+          valor: kpis.cotizacionesPorEstado.aprobada,
+          clase: "aprobada",
+        },
+        {
+          etiqueta: "Rechazada",
+          valor: kpis.cotizacionesPorEstado.rechazada,
+          clase: "rechazada",
+        },
       ]
     : [];
 
@@ -100,25 +122,29 @@ export function DashboardPage() {
             pantalla.
           </p>
         </div>
-        <div className="page-actions">
-          <label className="field kpi-filtro">
-            Ver como asesor
-            <select
-              className="input"
-              value={idAsesor ?? ""}
-              onChange={(e) =>
-                setIdAsesor(e.target.value === "" ? null : Number(e.target.value))
-              }
-            >
-              <option value="">Todos (administrador / líder)</option>
-              {asesores.map((asesor) => (
-                <option key={asesor.id} value={asesor.id}>
-                  {asesor.nombre}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+        {rol !== "asesor" && (
+          <div className="page-actions">
+            <label className="field kpi-filtro">
+              Ver como asesor
+              <select
+                className="input"
+                value={idAsesor ?? ""}
+                onChange={(e) =>
+                  setIdAsesor(
+                    e.target.value === "" ? null : Number(e.target.value),
+                  )
+                }
+              >
+                <option value="">Todos (administrador / líder)</option>
+                {asesores.map((asesor) => (
+                  <option key={asesor.id} value={asesor.id}>
+                    {asesor.nombre}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        )}
       </div>
 
       {error && <p className="error">{error}</p>}
@@ -138,11 +164,15 @@ export function DashboardPage() {
               </h2>
               <div className="kpi-stats">
                 <div className="kpi-stat">
-                  <span className="kpi-num kpi-ok">{kpis.visitas.realizadas}</span>
+                  <span className="kpi-num kpi-ok">
+                    {kpis.visitas.realizadas}
+                  </span>
                   <span className="kpi-etiqueta">Realizadas</span>
                 </div>
                 <div className="kpi-stat">
-                  <span className="kpi-num kpi-alerta">{kpis.visitas.programadas}</span>
+                  <span className="kpi-num kpi-alerta">
+                    {kpis.visitas.programadas}
+                  </span>
                   <span className="kpi-etiqueta">Programadas</span>
                 </div>
               </div>
@@ -151,7 +181,6 @@ export function DashboardPage() {
             <section className="kpi-card card">
               <h2 className="section-title">
                 <FileText size={18} /> Cotizaciones por estado
-                <span className="chip-muestra">muestra</span>
               </h2>
               <ul className="kpi-lista">
                 {estados.map((estado) => (
@@ -168,9 +197,10 @@ export function DashboardPage() {
             <section className="kpi-card card">
               <h2 className="section-title">
                 <TrendingUp size={18} /> Valor cotizado
-                <span className="chip-muestra">muestra</span>
               </h2>
-              <span className="kpi-num kpi-total">{pesos(totalValorCotizado)}</span>
+              <span className="kpi-num kpi-total">
+                {pesos(totalValorCotizado)}
+              </span>
               <ul className="kpi-lista">
                 {kpis.valorCotizadoPorAsesor.length === 0 && (
                   <li className="muted">Sin cotizaciones para mostrar.</li>
@@ -187,7 +217,6 @@ export function DashboardPage() {
             <section className="kpi-card card">
               <h2 className="section-title">
                 <Users size={18} /> Clientes por potencial
-                <span className="chip-muestra">muestra</span>
               </h2>
               <ul className="kpi-barras">
                 {kpis.clientesPorPotencial.map((fila) => (
@@ -199,7 +228,9 @@ export function DashboardPage() {
                     <span className="kpi-barra">
                       <span
                         className="kpi-barra-relleno"
-                        style={{ width: `${(fila.clientes / maxClientes) * 100}%` }}
+                        style={{
+                          width: `${(fila.clientes / maxClientes) * 100}%`,
+                        }}
                       />
                     </span>
                   </li>
@@ -212,10 +243,7 @@ export function DashboardPage() {
                 <Package size={18} /> Pedidos por asesor
               </h2>
               {kpis.pedidosPorAsesor.length === 0 ? (
-                <p className="kpi-vacio muted">
-                  Aún no hay pedidos. La tabla PEDIDO está pendiente (dueño:
-                  Daniel).
-                </p>
+                <p className="kpi-vacio muted">Aún no hay pedidos.</p>
               ) : (
                 <ul className="kpi-lista">
                   {kpis.pedidosPorAsesor.map((fila) => (
@@ -231,11 +259,8 @@ export function DashboardPage() {
 
           <p className="kpi-nota muted">
             {kpis.idAsesorFiltrado === null
-              ? "Vista de administrador: todos los indicadores. "
-              : "Vista de asesor: solo sus indicadores. "}
-            Cotizaciones, valor cotizado y clientes por potencial usan datos de
-            muestra; se conectan a los módulos de ventas y clientes cuando
-            exporten sus casos de uso.
+              ? "Vista general: todos los asesores."
+              : "Vista de asesor: solo sus indicadores."}
           </p>
         </>
       )}

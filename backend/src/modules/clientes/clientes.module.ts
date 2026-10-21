@@ -105,6 +105,7 @@ import { ClientesController } from './presentation/clientes.controller.js';
       useClass: TypeOrmContactoClienteRepository,
     },
   ],
-  exports: [ObtenerClienteUseCase],
+  // ListarClientes y ListarPotenciales: los usa el dashboard (HU-32).
+  exports: [ObtenerClienteUseCase, ListarClientesUseCase, ListarPotencialesUseCase],
 })
 export class ClientesModule {}
