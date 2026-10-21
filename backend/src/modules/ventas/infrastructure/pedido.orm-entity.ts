@@ -19,4 +19,7 @@ export class PedidoOrmEntity {
 
   @Column({ length: 20 })
   estado: string;
+
+  @Column({ type: 'timestamp' })
+  fecha: Date;
 }

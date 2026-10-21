@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pedido } from '../domain/pedido.js';
-import type { PedidoRepository } from '../domain/pedido.repository.js';
+import type { PedidoRepository, FiltrosPedido } from '../domain/pedido.repository.js';
 import { PedidoOrmEntity } from './pedido.orm-entity.js';
 
 @Injectable()
@@ -16,14 +16,25 @@ export class TypeOrmPedidoRepository implements PedidoRepository {
       idCliente: pedido.idCliente,
       valor: pedido.valor,
       estado: pedido.estado,
+      fecha: pedido.fecha,
     });
-    return new Pedido(fila.id, fila.numero, fila.idCotizacion, fila.idCliente, Number(fila.valor), fila.estado);
+    return new Pedido(fila.id, fila.numero, fila.idCotizacion, fila.idCliente, Number(fila.valor), fila.estado, fila.fecha);
   }
 
   async buscarPorId(id: number): Promise<Pedido | null> {
     const fila = await this.repo.findOneBy({ id });
     if (!fila) return null;
-    return new Pedido(fila.id, fila.numero, fila.idCotizacion, fila.idCliente, Number(fila.valor), fila.estado);
+    return new Pedido(fila.id, fila.numero, fila.idCotizacion, fila.idCliente, Number(fila.valor), fila.estado, fila.fecha);
+  }
+
+  async listar(filtros?: FiltrosPedido): Promise<Pedido[]> {
+    const qb = this.repo.createQueryBuilder('p');
+    if (filtros?.idCliente) qb.andWhere('p.idCliente = :idCliente', { idCliente: filtros.idCliente });
+    if (filtros?.estado) qb.andWhere('p.estado = :estado', { estado: filtros.estado });
+    if (filtros?.desde) qb.andWhere('p.fecha >= :desde', { desde: filtros.desde });
+    if (filtros?.hasta) qb.andWhere('p.fecha <= :hasta', { hasta: filtros.hasta });
+    const filas = await qb.getMany();
+    return filas.map((f) => new Pedido(f.id, f.numero, f.idCotizacion, f.idCliente, Number(f.valor), f.estado, f.fecha));
   }
 
   async obtenerSiguienteNumero(): Promise<number> {

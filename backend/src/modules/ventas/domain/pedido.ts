@@ -8,6 +8,7 @@ export class Pedido {
     public readonly idCliente: number,
     public readonly valor: number,
     public readonly estado: string,
+    public readonly fecha: Date = new Date(),
   ) {
     if (idCotizacion <= 0) throw new Error('La cotización es obligatoria');
     if (idCliente <= 0) throw new Error('El cliente es obligatorio');
@@ -15,7 +16,7 @@ export class Pedido {
   }
 
   static crear(numero: number, cotizacion: Cotizacion): Pedido {
-    return new Pedido(null, numero, cotizacion.id!, cotizacion.idCliente, cotizacion.total, 'pendiente');
+    return new Pedido(null, numero, cotizacion.id!, cotizacion.idCliente, cotizacion.total, 'pendiente', new Date());
   }
 
   toJSON() {
@@ -26,6 +27,7 @@ export class Pedido {
       idCliente: this.idCliente,
       valor: this.valor,
       estado: this.estado,
+      fecha: this.fecha,
     };
   }
 }

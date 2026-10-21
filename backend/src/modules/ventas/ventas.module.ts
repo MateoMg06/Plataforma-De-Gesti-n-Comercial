@@ -15,7 +15,10 @@ import { EnviarCotizacionUseCase } from './application/enviar-cotizacion.use-cas
 import { AprobarCotizacionUseCase } from './application/aprobar-cotizacion.use-case.js';
 import { RechazarCotizacionUseCase } from './application/rechazar-cotizacion.use-case.js';
 import { ConvertirCotizacionEnPedidoUseCase } from './application/convertir-cotizacion-en-pedido.use-case.js';
+import { ListarPedidosUseCase } from './application/listar-pedidos.use-case.js';
+import { ObtenerPedidoUseCase } from './application/obtener-pedido.use-case.js';
 import { CotizacionesController } from './presentation/cotizaciones.controller.js';
+import { PedidosController } from './presentation/pedidos.controller.js';
 
 @Module({
   imports: [
@@ -26,13 +29,15 @@ import { CotizacionesController } from './presentation/cotizaciones.controller.j
     BitacoraModule,
     TypeOrmModule.forFeature([CotizacionOrmEntity, CotizacionDetalleOrmEntity, PedidoOrmEntity]),
   ],
-  controllers: [CotizacionesController],
+  controllers: [CotizacionesController, PedidosController],
   providers: [
     CrearCotizacionUseCase,
     EnviarCotizacionUseCase,
     AprobarCotizacionUseCase,
     RechazarCotizacionUseCase,
     ConvertirCotizacionEnPedidoUseCase,
+    ListarPedidosUseCase,
+    ObtenerPedidoUseCase,
     { provide: COTIZACION_REPOSITORY, useClass: TypeOrmCotizacionRepository },
     { provide: PEDIDO_REPOSITORY, useClass: TypeOrmPedidoRepository },
   ],
