@@ -40,6 +40,6 @@ export class BitacoraOrmEntity {
   @Column({ name: 'detalle', length: 255 })
   detalle: string;
 
-  @Column({ name: 'ip', length: 45, nullable: true })
+  @Column({ name: 'ip', type: 'varchar', length: 45, nullable: true })
   ip: string | null;
 }

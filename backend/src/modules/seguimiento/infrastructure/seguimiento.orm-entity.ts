@@ -23,9 +23,9 @@ export class SeguimientoOrmEntity {
   @Column({ name: 'completado', default: false })
   completado: boolean;
 
-  @Column({ name: 'fecha_completado', default: null })
+  @Column({ name: 'fecha_completado', type: 'timestamptz', nullable: true, default: null })
   fecha_completado: string | null;
 
-  @Column({ name: 'completado_por', default: null })
+  @Column({ name: 'completado_por', type: 'varchar', nullable: true, default: null })
   completado_por: string | null;
 }
