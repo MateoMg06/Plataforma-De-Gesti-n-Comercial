@@ -8,7 +8,9 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { ActivarRutaUseCase } from '../application/activar-ruta.use-case.js';
 import { AgregarClienteRutaUseCase } from '../application/agregar-cliente-ruta.use-case.js';
+import { FinalizarRutaUseCase } from '../application/finalizar-ruta.use-case.js';
 import { CrearRutaUseCase } from '../application/crear-ruta.use-case.js';
 import { ListarRutasUseCase } from '../application/listar-rutas.use-case.js';
 import { ReordenarClienteRutaUseCase } from '../application/reordenar-cliente-ruta.use-case.js';
@@ -24,6 +26,8 @@ export class RutasController {
     private readonly listarRutas: ListarRutasUseCase,
     private readonly agregarCliente: AgregarClienteRutaUseCase,
     private readonly reordenarCliente: ReordenarClienteRutaUseCase,
+    private readonly activarRuta: ActivarRutaUseCase,
+    private readonly finalizarRuta: FinalizarRutaUseCase,
   ) {}
 
   @Get()
@@ -124,5 +128,23 @@ export class RutasController {
     @Body() dto: ReordenarClienteRutaDto,
   ) {
     return this.reordenarCliente.ejecutar(idRuta, idCliente, dto.orden_visita);
+  }
+
+  @Patch(':id/activar')
+  @ApiOperation({ summary: 'HU-16: activar la ruta y generar sus visitas' })
+  @ApiParam({ name: 'id', description: 'ID de la ruta', example: 1, type: Number })
+  @ApiBadRequestResponse({ description: 'La ruta no está planeada o no tiene clientes' })
+  @ApiNotFoundResponse({ description: 'No existe la ruta indicada' })
+  activar(@Param('id', ParseIntPipe) idRuta: number) {
+    return this.activarRuta.ejecutar(idRuta);
+  }
+
+  @Patch(':id/finalizar')
+  @ApiOperation({ summary: 'HU-16: finalizar la ruta (ya no admite cambios)' })
+  @ApiParam({ name: 'id', description: 'ID de la ruta', example: 1, type: Number })
+  @ApiBadRequestResponse({ description: 'La ruta no está activa' })
+  @ApiNotFoundResponse({ description: 'No existe la ruta indicada' })
+  finalizar(@Param('id', ParseIntPipe) idRuta: number) {
+    return this.finalizarRuta.ejecutar(idRuta);
   }
 }

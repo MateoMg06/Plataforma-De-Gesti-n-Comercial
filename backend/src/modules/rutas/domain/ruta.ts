@@ -43,6 +43,7 @@ export class Ruta {
   }
 
   agregarCliente(idCliente: number): void {
+    this.validarQueAdmiteCambios();
     if (!Number.isInteger(idCliente) || idCliente <= 0) {
       throw new Error('El cliente no es válido');
     }
@@ -53,6 +54,7 @@ export class Ruta {
   }
 
   reordenarCliente(idCliente: number, nuevoOrden: number): void {
+    this.validarQueAdmiteCambios();
     if (!Number.isInteger(nuevoOrden) || nuevoOrden < 1 || nuevoOrden > this.clientes.length) {
       throw new Error('El orden de visita no es válido');
     }
@@ -64,6 +66,44 @@ export class Ruta {
     this.clientes.forEach((item, indice) => {
       item.ordenVisita = indice + 1;
     });
+  }
+
+  // HU-16: planeada → activa. Solo se activa una ruta planeada con clientes.
+  activar(): Ruta {
+    if (this.estado !== 'planeada') {
+      throw new Error('Solo se puede activar una ruta planeada');
+    }
+    if (this.clientes.length === 0) {
+      throw new Error('La ruta necesita al menos un cliente para activarse');
+    }
+    return this.conEstado('activa');
+  }
+
+  // HU-16: activa → finalizada.
+  finalizar(): Ruta {
+    if (this.estado !== 'activa') {
+      throw new Error('Solo se puede finalizar una ruta activa');
+    }
+    return this.conEstado('finalizada');
+  }
+
+  // HU-16: una ruta finalizada no admite cambios.
+  private validarQueAdmiteCambios(): void {
+    if (this.estado === 'finalizada') {
+      throw new Error('Una ruta finalizada no admite cambios');
+    }
+  }
+
+  private conEstado(estado: 'activa' | 'finalizada'): Ruta {
+    return new Ruta(
+      this.id,
+      this.nombre,
+      this.idAsesor,
+      this.fechaInicio,
+      this.fechaFin,
+      estado,
+      this.clientes,
+    );
   }
 
   private esFechaValida(fecha: string): boolean {
