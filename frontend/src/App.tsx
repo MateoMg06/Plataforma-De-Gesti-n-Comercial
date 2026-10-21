@@ -34,6 +34,8 @@ export default function App() {
                   <CatalogosPage />
                 ) : item.path === '/agenda' ? (
                   <AgendaPage />
+                ) : item.path === '/rutas' ? (
+                  <RutasPage />
                 ) : (
                   <PlaceholderPage item={item} />
                 )
@@ -54,7 +56,6 @@ export default function App() {
           />
           <Route path="/configuracion/zonas" element={<ZonasPage />} />
           <Route path="/configuracion/asesores" element={<AsesoresPage />} />
-          <Route path="/rutas" element={<RutasPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

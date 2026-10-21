@@ -43,9 +43,14 @@ export function LoginPage() {
       });
       navigate('/dashboard');
     } catch (e) {
-      // Mensaje del backend ("Invalid email or password"). Nunca se muestra
-      // la contraseña ni datos internos.
-      setError(e instanceof Error ? e.message : 'No se pudo iniciar sesión');
+      // BetterAuth responde en inglés ("Invalid email or password"): se traduce.
+      // Nunca se muestra la contraseña ni datos internos.
+      const mensaje = e instanceof Error ? e.message : '';
+      setError(
+        /invalid email or password/i.test(mensaje)
+          ? 'Correo o contraseña incorrectos'
+          : mensaje || 'No se pudo iniciar sesión',
+      );
     } finally {
       setCargando(false);
     }

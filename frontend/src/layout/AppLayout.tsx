@@ -5,22 +5,26 @@ import { api } from '../api/client';
 import { menu, type Rol } from './menu';
 import './AppLayout.css';
 
-// TODO HU-03 (Kevin V): tomar el usuario y su rol de la sesión de BetterAuth.
-const usuario = { nombre: 'Usuario Demo', rol: 'administrador' as Rol };
+// TODO HU-03 (Kevin V): tomar el rol de la sesión de BetterAuth.
+const rol: Rol = 'administrador';
 
 export function AppLayout() {
   const navigate = useNavigate();
   const [cerrando, setCerrando] = useState(false);
+  // El nombre sí viene de la sesión: así se ve quién inició sesión.
+  const [nombre, setNombre] = useState('');
   // HU-02: el layout es la parte PRIVADA de la app. Mientras comprueba la
   // sesión no se pinta nada; si no hay sesión, se vuelve al login.
   const [sesionValida, setSesionValida] = useState(false);
-  const items = menu.filter((item) => item.roles.includes(usuario.rol));
+  const items = menu.filter((item) => item.roles.includes(rol));
 
   useEffect(() => {
-    api<{ session: unknown } | null>('/auth/get-session')
+    api<{ session: unknown; user: { name: string } } | null>('/auth/get-session')
       .then((datos) => {
-        if (datos?.session) setSesionValida(true);
-        else navigate('/login', { replace: true });
+        if (datos?.session) {
+          setNombre(datos.user.name);
+          setSesionValida(true);
+        } else navigate('/login', { replace: true });
       })
       .catch(() => {
         // Sin backend o con error: más seguro quedarse fuera.
@@ -65,8 +69,8 @@ export function AppLayout() {
           <div className="topbar-right">
             <Bell size={20} />
             <div>
-              <strong>{usuario.nombre}</strong>
-              <div className="muted">{usuario.rol}</div>
+              <strong>{nombre}</strong>
+              <div className="muted">Administrador</div>
             </div>
             <button className="btn logout" onClick={cerrarSesion} disabled={cerrando}>
               <LogOut size={18} />
