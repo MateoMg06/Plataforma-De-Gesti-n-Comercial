@@ -12,6 +12,7 @@ import { VentasModule } from './modules/ventas/ventas.module.js';
 import { ZonasModule } from './modules/zonas/zonas.module.js';
 import { SeguimientoModule } from './modules/seguimiento/seguimiento.module.js';
 import { BitacoraModule } from './modules/bitacora/bitacora.module.js';
+import { DashboardModule } from './modules/dashboard/dashboard.module.js';
 
 @Module({
   imports: [
@@ -27,6 +28,8 @@ import { BitacoraModule } from './modules/bitacora/bitacora.module.js';
     VentasModule,
     SeguimientoModule,
     BitacoraModule,
+    // HU-32 (Julian): dashboard de KPIs, solo lectura.
+    DashboardModule,
     // Cada épica registra aquí su módulo cuando lo cree.
   ],
   controllers: [HealthController],

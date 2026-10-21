@@ -13,6 +13,7 @@ import { ZonasPage } from './pages/ZonasPage';
 import { RutasPage } from './pages/RutasPage';
 import { AsesoresPage } from './pages/AsesoresPage';
 import { AgendaPage } from './pages/AgendaPage';
+import { DashboardPage } from './pages/DashboardPage';
 
 export default function App() {
   return (
@@ -26,7 +27,9 @@ export default function App() {
               key={item.path}
               path={item.path}
               element={
-                item.path === '/visitas' ? (
+                item.path === '/dashboard' ? (
+                  <DashboardPage />
+                ) : item.path === '/visitas' ? (
                   <VisitasPage />
                 ) : item.path === '/clientes' ? (
                   <ClientesPage />
