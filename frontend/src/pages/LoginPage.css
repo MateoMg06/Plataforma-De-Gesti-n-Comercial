@@ -11,4 +11,6 @@
 .input-icon { position: relative; }
 .input-icon svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
 .input-icon .input { padding-left: 40px; font-weight: 400; }
+.login-error { background: color-mix(in srgb, var(--danger) 8%, var(--surface)); border: 1px solid var(--danger); color: var(--danger); border-radius: var(--radius); padding: 10px 12px; font-size: 14px; font-weight: 600; }
+button[disabled] { opacity: 0.6; cursor: not-allowed; }
 @media (max-width: 800px) { .login-hero { display: none; } }
