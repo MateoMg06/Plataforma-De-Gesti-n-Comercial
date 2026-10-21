@@ -7,6 +7,9 @@ import { CotizacionDetalleOrmEntity } from './infrastructure/cotizacion-detalle.
 import { TypeOrmCotizacionRepository } from './infrastructure/typeorm-cotizacion.repository.js';
 import { COTIZACION_REPOSITORY } from './domain/cotizacion.repository.js';
 import { CrearCotizacionUseCase } from './application/crear-cotizacion.use-case.js';
+import { EnviarCotizacionUseCase } from './application/enviar-cotizacion.use-case.js';
+import { AprobarCotizacionUseCase } from './application/aprobar-cotizacion.use-case.js';
+import { RechazarCotizacionUseCase } from './application/rechazar-cotizacion.use-case.js';
 import { CotizacionesController } from './presentation/cotizaciones.controller.js';
 
 @Module({
@@ -18,6 +21,9 @@ import { CotizacionesController } from './presentation/cotizaciones.controller.j
   controllers: [CotizacionesController],
   providers: [
     CrearCotizacionUseCase,
+    EnviarCotizacionUseCase,
+    AprobarCotizacionUseCase,
+    RechazarCotizacionUseCase,
     { provide: COTIZACION_REPOSITORY, useClass: TypeOrmCotizacionRepository },
   ],
 })

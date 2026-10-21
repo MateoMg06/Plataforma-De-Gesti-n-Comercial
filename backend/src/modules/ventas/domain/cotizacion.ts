@@ -38,6 +38,21 @@ export class Cotizacion {
     this.detalles = detalles;
   }
 
+  enviar(): Cotizacion {
+    if (this.estado !== 'borrador') throw new Error('Solo se puede enviar una cotización en borrador');
+    return new Cotizacion(this.id, this.numero, this.idCliente, this.idAsesor, this.fecha, 'enviada', this.detalles);
+  }
+
+  aprobar(): Cotizacion {
+    if (this.estado !== 'enviada') throw new Error('Solo se puede aprobar una cotización enviada');
+    return new Cotizacion(this.id, this.numero, this.idCliente, this.idAsesor, this.fecha, 'aprobada', this.detalles);
+  }
+
+  rechazar(): Cotizacion {
+    if (this.estado !== 'enviada') throw new Error('Solo se puede rechazar una cotización enviada');
+    return new Cotizacion(this.id, this.numero, this.idCliente, this.idAsesor, this.fecha, 'rechazada', this.detalles);
+  }
+
   get total(): number {
     return this.detalles.reduce((acc, d) => acc + d.subtotal, 0);
   }
