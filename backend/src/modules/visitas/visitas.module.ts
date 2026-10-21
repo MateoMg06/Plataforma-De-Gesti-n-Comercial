@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AsesoresModule } from '../asesores/asesores.module.js';
 import { ClientesModule } from '../clientes/clientes.module.js';
@@ -18,7 +18,7 @@ import { VisitasController } from './presentation/visitas.controller.js';
   // ClientesModule y AsesoresModule exportan los casos de uso para validar
   // que el cliente y el asesor existen al programar.
   imports: [
-    ClientesModule,
+    forwardRef(() => ClientesModule),
     AsesoresModule,
     TypeOrmModule.forFeature([VisitaOrmEntity, ResultadoVisitaOrmEntity, VisitaResultadoOrmEntity]),
   ],
