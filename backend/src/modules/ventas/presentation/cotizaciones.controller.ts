@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { ConvertirCotizacionEnPedidoUseCase } from '../application/convertir-cotizacion-en-pedido.use-case.js';
 import { CrearCotizacionUseCase } from '../application/crear-cotizacion.use-case.js';
 import { ListarCotizacionesUseCase } from '../application/listar-cotizaciones.use-case.js';
 import { EnviarCotizacionUseCase } from '../application/enviar-cotizacion.use-case.js';
@@ -15,6 +16,7 @@ export class CotizacionesController {
     private readonly enviarCotizacion: EnviarCotizacionUseCase,
     private readonly aprobarCotizacion: AprobarCotizacionUseCase,
     private readonly rechazarCotizacion: RechazarCotizacionUseCase,
+    private readonly convertirEnPedido: ConvertirCotizacionEnPedidoUseCase,
   ) {}
 
   @Get()
@@ -44,5 +46,11 @@ export class CotizacionesController {
   @RegistrarEnBitacora('editar_cotizacion')
   rechazar(@Param('id', ParseIntPipe) id: number) {
     return this.rechazarCotizacion.ejecutar(id);
+  }
+
+  @Post(':id/convertir-pedido')
+  @RegistrarEnBitacora('crear_pedido')
+  convertir(@Param('id', ParseIntPipe) id: number) {
+    return this.convertirEnPedido.ejecutar(id);
   }
 }
