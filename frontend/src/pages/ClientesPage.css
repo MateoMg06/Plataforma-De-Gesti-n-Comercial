@@ -1,0 +1,73 @@
+.clientes-page fieldset {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 20px 0;
+  padding: 16px;
+  min-width: 0;
+}
+.clientes-page legend {
+  font-weight: 600;
+}
+.clientes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.clientes-grid label {
+  display: grid;
+  gap: 6px;
+}
+.clientes-exito {
+  color: var(--success);
+}
+.clientes-page button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+@media (max-width: 640px) {
+  .clientes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.clientes-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin: 20px 0;
+}
+.clientes-filtros label {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 160px;
+}
+.clientes-tabla {
+  width: 100%;
+  overflow-x: auto;
+}
+.clientes-tabla table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.clientes-tabla th,
+.clientes-tabla td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.clientes-acciones,
+.clientes-paginacion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.clientes-paginacion {
+  margin: 20px 0 32px;
+}
+.clientes-paginacion label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
