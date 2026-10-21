@@ -23,6 +23,14 @@ import { TiposClienteController } from './presentation/tipos-cliente.controller.
 import { TIPO_CLIENTE_REPOSITORY } from './domain/tipo-cliente.repository.js';
 import { TypeOrmTipoClienteRepository } from './infrastructure/typeorm-tipo-cliente.repository.js';
 import { ListarOpcionesClienteUseCase } from './application/listar-opciones-cliente.use-case.js';
+import { CrearContactoUseCase } from './application/crear-contacto.use-case.js';
+import { EditarContactoUseCase } from './application/editar-contacto.use-case.js';
+import { EliminarContactoUseCase } from './application/eliminar-contacto.use-case.js';
+import { ListarContactosUseCase } from './application/listar-contactos.use-case.js';
+import { CONTACTO_CLIENTE_REPOSITORY } from './domain/contacto-cliente.repository.js';
+import { ContactoClienteOrmEntity } from './infrastructure/contacto-cliente.orm-entity.js';
+import { TypeOrmContactoClienteRepository } from './infrastructure/typeorm-contacto-cliente.repository.js';
+import { ContactosClienteController } from './presentation/contactos-cliente.controller.js';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ZonasModule } from '../zonas/zonas.module.js';
@@ -44,6 +52,7 @@ import { ClientesController } from './presentation/clientes.controller.js';
       TipoClienteOrmEntity,
       PotencialOrmEntity,
       EstadoClienteOrmEntity,
+      ContactoClienteOrmEntity,
     ]),
   ],
   controllers: [
@@ -51,6 +60,7 @@ import { ClientesController } from './presentation/clientes.controller.js';
     PotencialesController,
     ClientesController,
     TiposClienteController,
+    ContactosClienteController,
   ],
   providers: [
     ListarClientesUseCase,
@@ -81,6 +91,15 @@ import { ClientesController } from './presentation/clientes.controller.js';
     RegistrarClienteUseCase,
     ObtenerClienteUseCase,
     { provide: CLIENTE_REPOSITORY, useClass: TypeOrmClienteRepository },
+    // HU-07: contactos del cliente.
+    ListarContactosUseCase,
+    CrearContactoUseCase,
+    EditarContactoUseCase,
+    EliminarContactoUseCase,
+    {
+      provide: CONTACTO_CLIENTE_REPOSITORY,
+      useClass: TypeOrmContactoClienteRepository,
+    },
   ],
   exports: [ObtenerClienteUseCase],
 })
