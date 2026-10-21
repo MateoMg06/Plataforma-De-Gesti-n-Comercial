@@ -27,6 +27,10 @@ class CotizacionRepositoryEnMemoria implements CotizacionRepository {
     return this.cotizaciones.find((c) => c.id === id) ?? null;
   }
 
+  async listar() {
+    return this.cotizaciones;
+  }
+
   async obtenerSiguienteNumero() {
     this.ultimoNumero += 1;
     return this.ultimoNumero;

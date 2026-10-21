@@ -1,5 +1,6 @@
-import { Body, Controller, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { CrearCotizacionUseCase } from '../application/crear-cotizacion.use-case.js';
+import { ListarCotizacionesUseCase } from '../application/listar-cotizaciones.use-case.js';
 import { EnviarCotizacionUseCase } from '../application/enviar-cotizacion.use-case.js';
 import { AprobarCotizacionUseCase } from '../application/aprobar-cotizacion.use-case.js';
 import { RechazarCotizacionUseCase } from '../application/rechazar-cotizacion.use-case.js';
@@ -10,10 +11,16 @@ import { CrearCotizacionDto } from './dto/crear-cotizacion.dto.js';
 export class CotizacionesController {
   constructor(
     private readonly crearCotizacion: CrearCotizacionUseCase,
+    private readonly listarCotizaciones: ListarCotizacionesUseCase,
     private readonly enviarCotizacion: EnviarCotizacionUseCase,
     private readonly aprobarCotizacion: AprobarCotizacionUseCase,
     private readonly rechazarCotizacion: RechazarCotizacionUseCase,
   ) {}
+
+  @Get()
+  listar() {
+    return this.listarCotizaciones.ejecutar();
+  }
 
   @Post()
   @RegistrarEnBitacora('crear_cotizacion')
