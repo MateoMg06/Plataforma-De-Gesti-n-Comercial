@@ -22,16 +22,6 @@ interface ItemResultado {
   observacion: string;
 }
 
-// Asesores y rutas con datos falsos: Mateo (ASESOR) y Andres (RUTA) aún no publican.
-const ASESORES_FALSOS: Opcion[] = [
-  { id: 1, nombre: 'Carlos Pérez' },
-  { id: 2, nombre: 'María Gómez' },
-];
-const RUTAS_FALSAS: Opcion[] = [
-  { id: 1, nombre: 'Ruta Norte' },
-  { id: 2, nombre: 'Ruta Sur' },
-];
-
 const nombreDe = (lista: Opcion[], id: number | null) =>
   id === null ? '—' : (lista.find((x) => x.id === id)?.nombre ?? `#${id}`);
 
@@ -47,6 +37,8 @@ const ESTADO_COLOR: Record<string, string> = {
 export function VisitasPage() {
   const [visitas, setVisitas] = useState<Visita[]>([]);
   const [clientes, setClientes] = useState<Opcion[]>([]);
+  const [asesores, setAsesores] = useState<Opcion[]>([]);
+  const [rutas, setRutas] = useState<Opcion[]>([]);
   const [catalogo, setCatalogo] = useState<Opcion[]>([]);
   const [idCliente, setIdCliente] = useState('');
   const [idAsesor, setIdAsesor] = useState('');
@@ -67,6 +59,13 @@ export function VisitasPage() {
     cargar();
     api<{ datos: { id: number; razonSocial: string }[] }>('/clientes?limit=100')
       .then((pagina) => setClientes(pagina.datos.map((c) => ({ id: c.id, nombre: c.razonSocial }))))
+      .catch((e) => setError(e.message));
+    // Asesores (HU-10) y rutas (HU-14) ya existen: se usan los datos reales.
+    api<Opcion[]>('/asesores')
+      .then(setAsesores)
+      .catch((e) => setError(e.message));
+    api<Opcion[]>('/rutas')
+      .then(setRutas)
       .catch((e) => setError(e.message));
     api<Opcion[]>('/resultados-visita')
       .then(setCatalogo)
@@ -139,8 +138,7 @@ export function VisitasPage() {
     <div className="card">
       <h1 className="page-title">Visitas</h1>
       <p className="muted">
-        Programar visita (HU-18) y registrar su resultado (HU-19). Clientes reales; asesores y rutas
-        con datos falsos hasta que existan sus módulos.
+        Programa visitas a tus clientes y registra el resultado cuando las realices.
       </p>
 
       <form className="form-visita" onSubmit={programar}>
@@ -157,7 +155,7 @@ export function VisitasPage() {
           Asesor
           <select className="input" value={idAsesor} onChange={(e) => setIdAsesor(e.target.value)} required>
             <option value="">Selecciona un asesor</option>
-            {ASESORES_FALSOS.map((a) => (
+            {asesores.map((a) => (
               <option key={a.id} value={a.id}>{a.nombre}</option>
             ))}
           </select>
@@ -166,7 +164,7 @@ export function VisitasPage() {
           Ruta (opcional)
           <select className="input" value={idRuta} onChange={(e) => setIdRuta(e.target.value)}>
             <option value="">Sin ruta</option>
-            {RUTAS_FALSAS.map((r) => (
+            {rutas.map((r) => (
               <option key={r.id} value={r.id}>{r.nombre}</option>
             ))}
           </select>
@@ -204,13 +202,13 @@ export function VisitasPage() {
           {visitas.map((v) => (
             <tr key={v.id}>
               <td>{nombreDe(clientes, v.idCliente)}</td>
-              <td>{nombreDe(ASESORES_FALSOS, v.idAsesor)}</td>
-              <td>{nombreDe(RUTAS_FALSAS, v.idRuta)}</td>
-              <td>{new Date(v.fechaProgramada).toLocaleString()}</td>
-              <td>{v.fechaReal ? new Date(v.fechaReal).toLocaleString() : '—'}</td>
+              <td>{nombreDe(asesores, v.idAsesor)}</td>
+              <td>{nombreDe(rutas, v.idRuta)}</td>
+              <td>{new Date(v.fechaProgramada).toLocaleString('es-CO')}</td>
+              <td>{v.fechaReal ? new Date(v.fechaReal).toLocaleString('es-CO') : '—'}</td>
               <td>
                 <span className="badge-estado" style={{ background: ESTADO_COLOR[v.estado] ?? 'var(--text-muted)' }}>
-                  {v.estado}
+                  {v.estado.replace('_', ' ')}
                 </span>
               </td>
               <td>
