@@ -20,6 +20,9 @@ export function CatalogosPage() {
         <li>
           <Link to="/configuracion/estados-cliente">Estados de cliente</Link>
         </li>
+        <li>
+          <Link to="/configuracion/asesores">Asesores</Link>
+        </li>
       </ul>
     </div>
   );

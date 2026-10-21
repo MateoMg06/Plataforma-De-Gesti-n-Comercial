@@ -11,6 +11,7 @@ import { TiposClientePage } from './pages/TiposClientePage';
 import { VisitasPage } from './pages/VisitasPage';
 import { ZonasPage } from './pages/ZonasPage';
 import { RutasPage } from './pages/RutasPage';
+import { AsesoresPage } from './pages/AsesoresPage';
 
 export default function App() {
   return (
@@ -49,6 +50,7 @@ export default function App() {
             element={<EstadosClientePage />}
           />
           <Route path="/configuracion/zonas" element={<ZonasPage />} />
+          <Route path="/configuracion/asesores" element={<AsesoresPage />} />
           <Route path="/rutas" element={<RutasPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
