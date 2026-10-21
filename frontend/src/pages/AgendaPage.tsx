@@ -1,3 +1,4 @@
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "../api/client";
 import "./AgendaPage.css";
@@ -106,72 +107,120 @@ export function AgendaPage() {
       .filter((v) => mismoDia(v.fecha, dia))
       .sort((a, b) => a.fecha.getTime() - b.fecha.getTime());
 
-  return (
-    <div className="card">
-      <h1 className="page-title">Agenda comercial</h1>
-      <p className="muted">Visitas de todos los asesores.</p>
+  // Panel "Agenda del día" del diseño: las visitas de hoy en orden de hora.
+  const deHoy = visitasDelDia(hoy);
 
-      <div className="agenda-barra">
-        <div className="agenda-nav">
-          <button className="btn" onClick={() => mover(-1)}>
-            ← Anterior
-          </button>
-          <button className="btn" onClick={() => setReferencia(new Date())}>
-            Hoy
-          </button>
-          <button className="btn" onClick={() => mover(1)}>
-            Siguiente →
-          </button>
+  return (
+    <div>
+      <div className="page-header">
+        <div>
+          <h1>
+            <Calendar size={26} /> Agenda comercial
+          </h1>
+          <p>Visitas de todos los asesores.</p>
         </div>
-        <strong className="agenda-titulo">{titulo}</strong>
-        <div className="agenda-nav">
-          <button
-            className={`btn ${vista === "semana" ? "btn-primary" : ""}`}
-            onClick={() => setVista("semana")}
-          >
-            Semana
-          </button>
-          <button
-            className={`btn ${vista === "mes" ? "btn-primary" : ""}`}
-            onClick={() => setVista("mes")}
-          >
-            Mes
-          </button>
+        <div className="page-actions">
+          <div className="agenda-vistas" role="group" aria-label="Vista">
+            <button
+              className={`btn ${vista === "semana" ? "btn-primary" : ""}`}
+              onClick={() => setVista("semana")}
+            >
+              Semana
+            </button>
+            <button
+              className={`btn ${vista === "mes" ? "btn-primary" : ""}`}
+              onClick={() => setVista("mes")}
+            >
+              Mes
+            </button>
+          </div>
         </div>
       </div>
 
       {error && <p className="error">{error}</p>}
 
-      <div className={`agenda-grid agenda-${vista}`}>
-        {DIAS.map((d) => (
-          <div key={d} className="agenda-cabecera">
-            {d}
+      <div className="agenda-layout">
+        <section className="card">
+          <div className="agenda-barra">
+            <strong className="agenda-titulo">{titulo}</strong>
+            <div className="agenda-nav">
+              <button className="btn-icon" aria-label="Anterior" onClick={() => mover(-1)}>
+                <ChevronLeft size={20} />
+              </button>
+              <button className="btn btn-sm" onClick={() => setReferencia(new Date())}>
+                Hoy
+              </button>
+              <button className="btn-icon" aria-label="Siguiente" onClick={() => mover(1)}>
+                <ChevronRight size={20} />
+              </button>
+            </div>
           </div>
-        ))}
-        {dias.map((dia) => (
-          <div
-            key={dia.toISOString()}
-            className={[
-              "agenda-dia",
-              mismoDia(dia, hoy) ? "agenda-hoy" : "",
-              vista === "mes" && dia.getMonth() !== referencia.getMonth()
-                ? "agenda-fuera"
-                : "",
-            ].join(" ")}
-          >
-            <div className="agenda-numero">{dia.getDate()}</div>
-            {visitasDelDia(dia).map((v) => (
-              <div key={v.id} className={`agenda-evento estado-${v.estado}`}>
-                <div>
-                  <strong>{hora(v.fecha)}</strong> ·{" "}
-                  {clientes[v.idCliente] ?? `Cliente ${v.idCliente}`}
+          <div className="table-wrap">
+            <div className={`agenda-grid agenda-${vista}`}>
+              {DIAS.map((d) => (
+                <div key={d} className="agenda-cabecera">
+                  {d}
                 </div>
-                <div>{asesores[v.idAsesor] ?? `Asesor ${v.idAsesor}`}</div>
-                <div className="agenda-estado">{v.estado.replace("_", " ")}</div>
-              </div>
-            ))}
+              ))}
+              {dias.map((dia) => (
+                <div
+                  key={dia.toISOString()}
+                  className={[
+                    "agenda-dia",
+                    mismoDia(dia, hoy) ? "agenda-hoy" : "",
+                    vista === "mes" && dia.getMonth() !== referencia.getMonth()
+                      ? "agenda-fuera"
+                      : "",
+                  ].join(" ")}
+                >
+                  <div className="agenda-numero">{dia.getDate()}</div>
+                  {visitasDelDia(dia).map((v) => (
+                    <div key={v.id} className={`agenda-evento evento-${v.estado}`}>
+                      <strong>{hora(v.fecha)}</strong>
+                      <span>{clientes[v.idCliente] ?? `Cliente ${v.idCliente}`}</span>
+                      <span className="agenda-asesor">
+                        {asesores[v.idAsesor] ?? `Asesor ${v.idAsesor}`}
+                      </span>
+                      <span className={`pill pill-${v.estado}`}>
+                        {v.estado.replace("_", " ")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
-        ))}
+        </section>
+
+        <aside className="card agenda-hoy-panel">
+          <h2 className="section-title">
+            Agenda del día
+            <span className="agenda-fecha-hoy">
+              {hoy.toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long" })}
+            </span>
+          </h2>
+          {deHoy.length === 0 ? (
+            <p className="muted">No hay visitas programadas para hoy.</p>
+          ) : (
+            <ol className="agenda-lista">
+              {deHoy.map((v, i) => (
+                <li key={v.id}>
+                  <span className={`num num-${v.estado}`}>{i + 1}</span>
+                  <span className="agenda-lista-hora">{hora(v.fecha)}</span>
+                  <span className="agenda-lista-datos">
+                    <strong>{clientes[v.idCliente] ?? `Cliente ${v.idCliente}`}</strong>
+                    <span className="muted">
+                      {asesores[v.idAsesor] ?? `Asesor ${v.idAsesor}`}
+                    </span>
+                  </span>
+                  <span className={`pill pill-${v.estado}`}>
+                    {v.estado.replace("_", " ")}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </aside>
       </div>
     </div>
   );

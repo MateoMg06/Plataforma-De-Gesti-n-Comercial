@@ -3,6 +3,7 @@
   --navy-900: #0b2240;
   --navy-800: #102b4c;
   --navy-700: #1a3a5f;
+  --orange-600: #e06c00;
   --orange-500: #f57c00;
   --orange-100: #fff1e3;
   --bg: #f4f6f9;
@@ -10,13 +11,18 @@
   --border: #e3e7ee;
   --text: #13233a;
   --text-muted: #6b7686;
+  /* Texto sobre fondos azul marino (menú lateral, login, pie de página). */
+  --on-dark: #ffffff;
+  --on-dark-muted: #c9d4e3;
   --success: #22a559;
   --warning: #f5a623;
   --danger: #e03131;
   --info: #1c7ed6;
-  --radius: 10px;
+  --radius: 12px;
+  --radius-sm: 8px;
   --shadow: 0 1px 3px rgb(16 43 76 / 0.08);
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --shadow-lg: 0 8px 24px rgb(16 43 76 / 0.12);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: var(--text);
   background: var(--bg);
 }

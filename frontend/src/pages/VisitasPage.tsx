@@ -1,3 +1,4 @@
+import { CalendarPlus, Check, ClipboardCheck, ClipboardList, List, Plus } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { api } from '../api/client';
 import './VisitasPage.css';
@@ -22,16 +23,12 @@ interface ItemResultado {
   observacion: string;
 }
 
+// Fecha y hora cortas: 21 oct 2026, 10:30 a. m.
+const fechaCorta = (texto: string) =>
+  new Date(texto).toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
+
 const nombreDe = (lista: Opcion[], id: number | null) =>
   id === null ? '—' : (lista.find((x) => x.id === id)?.nombre ?? `#${id}`);
-
-const ESTADO_COLOR: Record<string, string> = {
-  programada: 'var(--info)',
-  realizada: 'var(--success)',
-  cancelada: 'var(--danger)',
-  no_atendida: 'var(--warning)',
-  reprogramada: 'var(--orange-500)',
-};
 
 // Pantalla de HU-18 y HU-19: programar visitas y registrar sus resultados.
 export function VisitasPage() {
@@ -46,6 +43,8 @@ export function VisitasPage() {
   const [fecha, setFecha] = useState('');
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState('');
+  // Evita enviar dos veces el mismo formulario.
+  const [guardando, setGuardando] = useState(false);
 
   // Estado del formulario de resultado (HU-19)
   const [visitaSel, setVisitaSel] = useState<Visita | null>(null);
@@ -72,10 +71,16 @@ export function VisitasPage() {
       .catch((e) => setError(e.message));
   }, []);
 
+  // Al abrir el formulario de resultado, se lleva la pantalla hasta él.
+  useEffect(() => {
+    if (visitaSel) document.getElementById('form-resultado')?.scrollIntoView({ behavior: 'smooth' });
+  }, [visitaSel]);
+
   const programar = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setMensaje('');
+    setGuardando(true);
     try {
       await api('/visitas', {
         method: 'POST',
@@ -94,6 +99,8 @@ export function VisitasPage() {
       cargar();
     } catch (err) {
       setError((err as Error).message);
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -115,6 +122,7 @@ export function VisitasPage() {
     if (!visitaSel) return;
     setError('');
     setMensaje('');
+    setGuardando(true);
     try {
       await api(`/visitas/${visitaSel.id}/resultados`, {
         method: 'POST',
@@ -131,173 +139,209 @@ export function VisitasPage() {
       cargar();
     } catch (err) {
       setError((err as Error).message);
+    } finally {
+      setGuardando(false);
     }
   };
 
   return (
-    <div className="card">
-      <h1 className="page-title">Visitas</h1>
-      <p className="muted">
-        Programa visitas a tus clientes y registra el resultado cuando las realices.
-      </p>
+    <div>
+      <div className="page-header">
+        <div>
+          <h1>
+            <ClipboardCheck size={26} /> Visitas
+          </h1>
+          <p>Programa visitas a tus clientes y registra el resultado cuando las realices.</p>
+        </div>
+      </div>
 
-      <form className="form-visita" onSubmit={programar}>
-        <label>
-          Cliente
-          <select className="input" value={idCliente} onChange={(e) => setIdCliente(e.target.value)} required>
-            <option value="">Selecciona un cliente</option>
-            {clientes.map((c) => (
-              <option key={c.id} value={c.id}>{c.nombre}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Asesor
-          <select className="input" value={idAsesor} onChange={(e) => setIdAsesor(e.target.value)} required>
-            <option value="">Selecciona un asesor</option>
-            {asesores.map((a) => (
-              <option key={a.id} value={a.id}>{a.nombre}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Ruta (opcional)
-          <select className="input" value={idRuta} onChange={(e) => setIdRuta(e.target.value)}>
-            <option value="">Sin ruta</option>
-            {rutas.map((r) => (
-              <option key={r.id} value={r.id}>{r.nombre}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Fecha y hora
-          <input
-            className="input"
-            type="datetime-local"
-            value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
-            required
-          />
-        </label>
-        <button className="btn btn-primary">Programar visita</button>
-      </form>
+      {mensaje && <p className="success" role="status">{mensaje}</p>}
+      {error && <p className="error" role="alert">{error}</p>}
 
-      {mensaje && <p style={{ color: 'var(--success)' }}>{mensaje}</p>}
-      {error && <p className="error">{error}</p>}
-
-      <h2>Visitas programadas</h2>
-      <table className="tabla-visitas">
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Asesor</th>
-            <th>Ruta</th>
-            <th>Fecha programada</th>
-            <th>Fecha real</th>
-            <th>Estado</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {visitas.map((v) => (
-            <tr key={v.id}>
-              <td>{nombreDe(clientes, v.idCliente)}</td>
-              <td>{nombreDe(asesores, v.idAsesor)}</td>
-              <td>{nombreDe(rutas, v.idRuta)}</td>
-              <td>{new Date(v.fechaProgramada).toLocaleString('es-CO')}</td>
-              <td>{v.fechaReal ? new Date(v.fechaReal).toLocaleString('es-CO') : '—'}</td>
-              <td>
-                <span className="badge-estado" style={{ background: ESTADO_COLOR[v.estado] ?? 'var(--text-muted)' }}>
-                  {v.estado.replace('_', ' ')}
-                </span>
-              </td>
-              <td>
-                {v.estado !== 'realizada' && (
-                  <button className="btn" type="button" onClick={() => abrirResultado(v)}>
-                    Resultado
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
-          {visitas.length === 0 && (
-            <tr>
-              <td colSpan={7} className="muted">Aún no hay visitas programadas</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-
-      {visitaSel && (
-        <form className="form-resultado" onSubmit={guardarResultado}>
-          <h2>Registrar resultado de la visita #{visitaSel.id}</h2>
-          <div className="fila-resultado">
-            <label>
-              Fecha real
+      <div className="stack">
+        <form className="card" onSubmit={programar}>
+          <h2 className="section-title">
+            <CalendarPlus size={18} /> 1. Programar visita
+          </h2>
+          <fieldset className="form-grid" disabled={guardando}>
+            <label className="field">
+              Cliente *
+              <select className="input" value={idCliente} onChange={(e) => setIdCliente(e.target.value)} required>
+                <option value="">Selecciona un cliente</option>
+                {clientes.map((c) => (
+                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              Asesor *
+              <select className="input" value={idAsesor} onChange={(e) => setIdAsesor(e.target.value)} required>
+                <option value="">Selecciona un asesor</option>
+                {asesores.map((a) => (
+                  <option key={a.id} value={a.id}>{a.nombre}</option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              Ruta
+              <select className="input" value={idRuta} onChange={(e) => setIdRuta(e.target.value)}>
+                <option value="">Sin ruta</option>
+                {rutas.map((r) => (
+                  <option key={r.id} value={r.id}>{r.nombre}</option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              Fecha y hora *
               <input
                 className="input"
                 type="datetime-local"
-                value={fechaReal}
-                onChange={(e) => setFechaReal(e.target.value)}
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
                 required
               />
             </label>
-            <label>
-              Estado
-              <select
-                className="input"
-                value={estadoResultado}
-                onChange={(e) => setEstadoResultado(e.target.value)}
-              >
-                <option value="realizada">Realizada</option>
-                <option value="cancelada">Cancelada</option>
-                <option value="no_atendida">No atendida</option>
-              </select>
-            </label>
-          </div>
-
-          <h3>Resultados del catálogo (opcional, varios)</h3>
-          {items.map((it, i) => (
-            <div className="fila-resultado" key={i}>
-              <label>
-                Resultado
-                <select
-                  className="input"
-                  value={it.idResultado}
-                  onChange={(e) => cambiarItem(i, 'idResultado', e.target.value)}
-                >
-                  <option value="">Sin resultado</option>
-                  {catalogo.map((r) => (
-                    <option key={r.id} value={r.id}>{r.nombre}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Observación
-                <input
-                  className="input"
-                  value={it.observacion}
-                  onChange={(e) => cambiarItem(i, 'observacion', e.target.value)}
-                  placeholder="Observación del resultado"
-                />
-              </label>
+            <div className="form-actions span-all">
+              <button className="btn btn-primary">
+                <Check size={18} /> {guardando ? 'Guardando…' : 'Programar visita'}
+              </button>
             </div>
-          ))}
-          <div className="acciones-resultado">
-            <button
-              className="btn"
-              type="button"
-              onClick={() => setItems([...items, { idResultado: '', observacion: '' }])}
-            >
-              Agregar otro resultado
-            </button>
-            <button className="btn btn-primary">Guardar resultado</button>
-            <button className="btn" type="button" onClick={() => setVisitaSel(null)}>
-              Cancelar
-            </button>
-          </div>
+          </fieldset>
         </form>
-      )}
+
+        <section className="card">
+          <h2 className="section-title">
+            <List size={18} /> Visitas programadas
+            <span className="muted">{visitas.length} en total</span>
+          </h2>
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Asesor</th>
+                  <th>Ruta</th>
+                  <th>Fecha programada</th>
+                  <th>Fecha real</th>
+                  <th>Estado</th>
+                  <th className="derecha">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visitas.map((v) => (
+                  <tr key={v.id}>
+                    <td><strong>{nombreDe(clientes, v.idCliente)}</strong></td>
+                    <td>{nombreDe(asesores, v.idAsesor)}</td>
+                    <td>{nombreDe(rutas, v.idRuta)}</td>
+                    <td>{fechaCorta(v.fechaProgramada)}</td>
+                    <td>{v.fechaReal ? fechaCorta(v.fechaReal) : '—'}</td>
+                    <td>
+                      <span className={`pill pill-${v.estado}`}>{v.estado.replace('_', ' ')}</span>
+                    </td>
+                    <td>
+                      <div className="acciones">
+                        {v.estado !== 'realizada' && (
+                          <button className="btn btn-sm btn-outline" type="button" onClick={() => abrirResultado(v)}>
+                            Registrar resultado
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {visitas.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="vacio">Aún no hay visitas programadas.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {visitaSel && (
+          <form id="form-resultado" className="card" onSubmit={guardarResultado}>
+            <h2 className="section-title">
+              <ClipboardList size={18} /> 2. Resultado de la visita
+              <span className="muted">
+                {nombreDe(clientes, visitaSel.idCliente)} ·{' '}
+                {fechaCorta(visitaSel.fechaProgramada)}
+              </span>
+            </h2>
+            <fieldset className="stack" disabled={guardando}>
+              <div className="form-grid">
+                <label className="field">
+                  Fecha real *
+                  <input
+                    className="input"
+                    type="datetime-local"
+                    value={fechaReal}
+                    onChange={(e) => setFechaReal(e.target.value)}
+                    required
+                  />
+                </label>
+                <label className="field">
+                  Estado de la visita *
+                  <select
+                    className="input"
+                    value={estadoResultado}
+                    onChange={(e) => setEstadoResultado(e.target.value)}
+                  >
+                    <option value="realizada">Realizada</option>
+                    <option value="cancelada">Cancelada</option>
+                    <option value="no_atendida">No atendida</option>
+                  </select>
+                </label>
+              </div>
+
+              <h3 className="subtitulo-visita">Resultados (opcional, puedes agregar varios)</h3>
+              {items.map((it, i) => (
+                <div className="form-grid" key={i}>
+                  <label className="field">
+                    Resultado
+                    <select
+                      className="input"
+                      value={it.idResultado}
+                      onChange={(e) => cambiarItem(i, 'idResultado', e.target.value)}
+                    >
+                      <option value="">Sin resultado</option>
+                      {catalogo.map((r) => (
+                        <option key={r.id} value={r.id}>{r.nombre}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="field span-2">
+                    Observación
+                    <input
+                      className="input"
+                      value={it.observacion}
+                      onChange={(e) => cambiarItem(i, 'observacion', e.target.value)}
+                      placeholder="Ej: Cliente interesado, pide cotización"
+                    />
+                  </label>
+                </div>
+              ))}
+              <div className="form-actions">
+                <button
+                  className="btn btn-outline"
+                  type="button"
+                  onClick={() => setItems([...items, { idResultado: '', observacion: '' }])}
+                >
+                  <Plus size={18} /> Agregar otro resultado
+                </button>
+                <span className="form-actions-derecha">
+                  <button className="btn" type="button" onClick={() => setVisitaSel(null)}>
+                    Cancelar
+                  </button>
+                  <button className="btn btn-primary">
+                    <Check size={18} /> {guardando ? 'Guardando…' : 'Guardar resultado'}
+                  </button>
+                </span>
+              </div>
+            </fieldset>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
