@@ -18,6 +18,7 @@ cd backend
 cp .env.example .env
 npm install
 npm run migration:run
+npm run seed          # datos de prueba (ver abajo)
 npm run start:dev
 
 # 3. Frontend (http://localhost:5173), en otra terminal
@@ -28,6 +29,41 @@ npm run dev
 ```
 
 Para comprobar que todo funciona: abre http://localhost:3000/api/health y luego, en el frontend, **Configuración → Ver ejemplo: catálogo de zonas**. Si puedes agregar una zona, la cadena frontend → backend → PostgreSQL está bien.
+
+## Datos de prueba (seed)
+
+`npm run seed` (en `backend/`) carga datos para la demo:
+
+- 6 usuarios con rol.
+- Catálogos: zonas, tipos, potenciales y estados.
+- 4 asesores, uno de ellos inactivo.
+- 10 clientes con coordenadas reales y su contacto principal.
+- 2 rutas.
+- 10 visitas con fechas **relativas a hoy**, para que la agenda siempre tenga visitas.
+- Seguimientos, 3 cotizaciones y un pedido.
+
+Se puede correr varias veces: lo que ya existe no se vuelve a crear.
+
+Todos los usuarios tienen la contraseña de prueba **`Demo2026!`**. Es solo para desarrollo y demo; nunca la uses en producción.
+
+| Usuario | Rol | Qué ve |
+|---|---|---|
+| `admin@comercial360.co` | administrador | Todo, incluida Configuración |
+| `lider@comercial360.co` | lider | Todo menos Configuración |
+| `laura@comercial360.co` | asesor | Solo sus 4 visitas, sus clientes y su ruta activa |
+| `carlos@comercial360.co` | asesor | Solo sus visitas y clientes |
+| `sofia@comercial360.co` | asesor | Nada: es un asesor sin visitas |
+| `juan@comercial360.co` | asesor | "Mi agenda" le avisa que no tiene asesor vinculado |
+
+Si el usuario ya existía en tu base, el seed solo le asigna el rol y conserva su contraseña.
+
+**Empezar de cero** (borra todos los datos locales):
+
+```bash
+docker compose down -v
+docker compose up -d
+cd backend && npm run migration:run && npm run seed
+```
 
 ## Estructura
 
@@ -77,3 +113,4 @@ Abre el agente en la raíz del repo. Leerá `CLAUDE.md` / `AGENTS.md` (reglas de
 | `npm test` | Pruebas unitarias |
 | `npm run migration:generate -- src/database/migrations/Nombre` | Crea una migración a partir de tus entidades |
 | `npm run migration:run` | Aplica las migraciones pendientes |
+| `npm run seed` | Carga los datos de prueba (se puede correr varias veces) |
