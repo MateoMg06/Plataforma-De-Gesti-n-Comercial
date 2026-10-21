@@ -32,6 +32,21 @@ export class Asesor {
     );
   }
 
+  // Devuelve un asesor nuevo con los datos cambiados; el estado se conserva.
+  actualizar(nombre: string, correo: string, telefono: string): Asesor {
+    return new Asesor(
+      this.id,
+      nombre.trim(),
+      correo.trim().toLowerCase(),
+      telefono.trim(),
+      this.estado,
+    );
+  }
+
+  cambiarEstado(estado: AsesorEstado): Asesor {
+    return new Asesor(this.id, this.nombre, this.correo, this.telefono, estado);
+  }
+
   // HU-10: los asesores inactivos no reciben rutas nuevas.
   puedeRecibirRutas(): boolean {
     return this.estado === AsesorEstado.ACTIVO;

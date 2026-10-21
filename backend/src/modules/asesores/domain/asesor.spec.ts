@@ -34,4 +34,31 @@ describe('Asesor', () => {
       'obligatorio',
     );
   });
+
+  it('exige correo y teléfono', () => {
+    expect(() => Asesor.crear('Ana', ' ', '3001234567')).toThrow('correo');
+    expect(() => Asesor.crear('Ana', 'ana@correo.com', ' ')).toThrow(
+      'teléfono',
+    );
+  });
+
+  it('al actualizar conserva el id y el estado', () => {
+    const asesor = new Asesor(
+      1,
+      'Ana',
+      'ana@correo.com',
+      '3001234567',
+      AsesorEstado.INACTIVO,
+    );
+    const actualizado = asesor.actualizar('Ana María', 'ANA@correo.com', '311');
+    expect(actualizado.id).toBe(1);
+    expect(actualizado.correo).toBe('ana@correo.com');
+    expect(actualizado.estado).toBe(AsesorEstado.INACTIVO);
+  });
+
+  it('al inactivarlo deja de recibir rutas', () => {
+    const asesor = Asesor.crear('Ana', 'ana@correo.com', '3001234567');
+    const inactivo = asesor.cambiarEstado(AsesorEstado.INACTIVO);
+    expect(inactivo.puedeRecibirRutas()).toBe(false);
+  });
 });
