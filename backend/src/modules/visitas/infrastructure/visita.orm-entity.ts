@@ -15,7 +15,7 @@ export class VisitaOrmEntity {
   @Column({ name: 'id_asesor' })
   idAsesor: number;
 
-  @Column({ name: 'id_ruta', nullable: true })
+  @Column({ name: 'id_ruta', type: 'integer', nullable: true })
   idRuta: number | null;
 
   // Fecha y hora: la agenda (HU-11) muestra la hora de cada visita.
