@@ -73,3 +73,55 @@ Ese endpoint se restringe o se esconde en la **HU-04** (administración de usuar
 - `BETTER_AUTH_URL` — `http://localhost:3000`.
 - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` — las mismas del backend.
 - `FRONTEND_URL` — `http://localhost:5173`. Necesario para CORS y cookies.
+
+---
+
+## HU-03 · Roles y permisos
+
+Hay **una sola** forma de proteger por rol: el `@Roles()` de la integración oficial
+`@thallesp/nestjs-better-auth`. No hay guard propio.
+
+### Cómo proteger un endpoint
+
+```ts
+import { Roles } from '@thallesp/nestjs-better-auth';
+
+@Roles(['administrador'])            // o ['administrador', 'lider']
+@Post()
+crear(@Body() dto: CrearZonaDto) { /* ... */ }
+```
+
+No hay que registrar nada en tu módulo: el `AuthGuard` de la librería ya es global.
+
+| Lo que pasa | Respuesta |
+|---|---|
+| Sin sesión | `401` |
+| Con sesión, pero el rol no está en la lista | `403` |
+| El usuario no tiene rol | `403`. La librería niega el acceso (`if (!role) return false`) |
+| El endpoint no tiene `@Roles()` | Pasa cualquiera con sesión |
+
+### De dónde sale el rol
+
+- La columna `role` de la tabla `user` (migración `AgregarRolUsuario`). Sus valores son `administrador`, `lider` y `asesor`, y por defecto es `asesor`.
+- En `infrastructure/auth.ts` se declara con `additionalFields` e `input: false`, para que **nadie pueda elegir su rol al registrarse**.
+- Llega a la sesión como **`user.role`**, no como `rol`. El frontend lo lee de `GET /api/auth/get-session` para filtrar el menú.
+- Para asignar roles en local: `npm run seed` (ver el README principal).
+
+### Que el asesor vea solo lo suyo
+
+Lee el usuario de la sesión en el controlador y pásalo al caso de uso:
+
+```ts
+import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
+
+@Get()
+listar(@Session() session: UserSession) {
+  return this.listarVisitas.ejecutar({ id: session.user.id, role: session.user.role as string });
+}
+```
+
+En el caso de uso, si `role === 'asesor'`, busca su asesor con `ObtenerAsesorPorUsuarioUseCase` (lo exporta el módulo asesores, por la columna `id_usuario`) y filtra. Así lo hacen visitas, rutas, clientes y el dashboard.
+
+> **Ojo:** no uses un `@Roles` propio con otra clave de metadata (`'roles'`). Nadie lo
+> revisaría y el endpoint quedaría **abierto sin avisar**. Por eso se borró
+> `common/decorators/roles.decorator.ts`.
