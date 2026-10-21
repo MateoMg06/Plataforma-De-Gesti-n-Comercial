@@ -12,6 +12,7 @@ import { VisitasPage } from './pages/VisitasPage';
 import { ZonasPage } from './pages/ZonasPage';
 import { RutasPage } from './pages/RutasPage';
 import { AsesoresPage } from './pages/AsesoresPage';
+import { AgendaPage } from './pages/AgendaPage';
 
 export default function App() {
   return (
@@ -31,6 +32,8 @@ export default function App() {
                   <ClientesPage />
                 ) : item.path === '/configuracion' ? (
                   <CatalogosPage />
+                ) : item.path === '/agenda' ? (
+                  <AgendaPage />
                 ) : (
                   <PlaceholderPage item={item} />
                 )
