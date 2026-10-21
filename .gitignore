@@ -27,3 +27,5 @@ coverage/
 # Herramientas locales de IA (skills de Claude e informes de impeccable)
 .claude/
 .impeccable/
+.agents/
+skills-lock.json
