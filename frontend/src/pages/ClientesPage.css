@@ -21,3 +21,9 @@
   box-shadow: var(--shadow-lg);
 }
 .clientes-aviso .btn-icon { width: 24px; height: 24px; color: inherit; font-size: 18px; }
+
+/* HU-07: contactos del cliente */
+.contactos { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+.contactos-lista { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; }
+.contactos-lista li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.contactos-principal { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; min-height: 32px; }

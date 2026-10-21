@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
+import { ContactosCliente } from "./ContactosCliente";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import "./ClientesPage.css";
@@ -628,6 +629,8 @@ export function ClientesPage() {
               </fieldset>
             </form>
           )}
+          {/* HU-07: los contactos se gestionan al editar un cliente ya registrado. */}
+          {editando !== null && <ContactosCliente idCliente={editando} />}
         </section>
       </div>
 
