@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { Cotizacion, CotizacionDetalle } from '../domain/cotizacion.js';
+import { Cotizacion } from '../domain/cotizacion.js';
 import type { CotizacionRepository } from '../domain/cotizacion.repository.js';
 import { CrearCotizacionUseCase } from './crear-cotizacion.use-case.js';
 
