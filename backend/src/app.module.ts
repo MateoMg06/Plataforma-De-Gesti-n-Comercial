@@ -6,10 +6,12 @@ import { HealthController } from './shared/presentation/health.controller.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { ClientesModule } from './modules/clientes/clientes.module.js';
 import { VisitasModule } from './modules/visitas/visitas.module.js';
-import { ZonasModule } from './modules/zonas/zonas.module.js';
 import { RutasModule } from './modules/rutas/rutas.module.js';
 import { AsesoresModule } from './modules/asesores/asesores.module.js';
 import { VentasModule } from './modules/ventas/ventas.module.js';
+import { ZonasModule } from './modules/zonas/zonas.module.js';
+import { SeguimientoModule } from './modules/seguimiento/seguimiento.module.js';
+import { BitacoraModule } from './modules/bitacora/bitacora.module.js';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { VentasModule } from './modules/ventas/ventas.module.js';
     RutasModule,
     AsesoresModule,
     VentasModule,
+    SeguimientoModule,
+    BitacoraModule,
     // Cada épica registra aquí su módulo cuando lo cree.
   ],
   controllers: [HealthController],
