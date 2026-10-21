@@ -129,7 +129,9 @@ async function crearClientes() {
       [
         c.nit, c.razon, c.comercial, c.dir, c.mun, c.barrio,
         `604${c.nit.slice(5, 12).replace('-', '')}`,
-        `compras@${c.comercial.toLowerCase().replace(/[^a-z]/g, '')}.co`,
+        // Dominio propio del seed: así no choca con clientes que alguien ya cargó a mano
+        // (el correo del cliente también es único).
+        `compras.${c.comercial.toLowerCase().replace(/[^a-z]/g, '')}@demo.comercial360.co`,
         await idPorNombre('zona', 'id_zona', c.zona),
         await idPorNombre('tipo_cliente', 'id_tipo_cliente', c.tipo),
         await idPorNombre('potencial', 'id_potencial', c.pot),
@@ -143,7 +145,7 @@ async function crearClientes() {
       await db.query(
         `INSERT INTO contacto_cliente (id_cliente, nombre, cargo, telefono, celular, email, es_principal)
          VALUES ($1, $2, 'Jefe de Compras', '6044440000', '3100000000', $3, true)`,
-        [cliente!.id, `Contacto ${c.comercial}`, `jefe.compras@${c.comercial.toLowerCase().replace(/[^a-z]/g, '')}.co`],
+        [cliente!.id, `Contacto ${c.comercial}`, `jefe.${c.comercial.toLowerCase().replace(/[^a-z]/g, '')}@demo.comercial360.co`],
       );
     }
   }
