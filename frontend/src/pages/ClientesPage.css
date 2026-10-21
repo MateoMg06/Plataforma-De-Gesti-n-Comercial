@@ -1,0 +1,23 @@
+/* La mayoría de estilos vienen de index.css (.toolbar, .table, .form-grid, .pill). */
+.clientes-filtros { margin-bottom: 16px; }
+.clientes-busqueda { flex: 2 1 280px; }
+.clientes-limite { display: flex; align-items: center; gap: 8px; }
+.clientes-limite .input { width: auto; min-height: 32px; padding: 4px 8px; }
+.clientes-form-cabecera { margin-bottom: 16px; }
+.clientes-form-cabecera .section-title { margin: 0; font-size: 18px; }
+.clientes-seccion { padding-bottom: 10px; border-bottom: 1px solid var(--border); font-size: 15px; }
+.clientes-botones { justify-content: flex-end; }
+
+/* Aviso flotante abajo a la derecha. */
+.clientes-aviso {
+  position: fixed;
+  right: 24px;
+  bottom: 72px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  box-shadow: var(--shadow-lg);
+}
+.clientes-aviso .btn-icon { width: 24px; height: 24px; color: inherit; font-size: 18px; }

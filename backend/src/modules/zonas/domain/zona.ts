@@ -8,6 +8,13 @@ export class Zona {
     if (!nombre || nombre.trim().length === 0) {
       throw new Error('El nombre de la zona es obligatorio');
     }
+    if (nombre.length > 100) {
+      throw new Error('El nombre admite máximo 100 caracteres');
+    }
+  }
+
+  renombrar(nombre: string): Zona {
+    return new Zona(this.id, nombre.trim());
   }
 
   static crear(nombre: string): Zona {

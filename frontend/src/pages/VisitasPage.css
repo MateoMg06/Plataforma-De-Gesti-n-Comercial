@@ -1,0 +1,3 @@
+/* La mayoría de estilos vienen de index.css (.form-grid, .table, .pill). */
+.subtitulo-visita { margin: 4px 0 -4px; font-size: 14px; }
+.form-actions-derecha { display: flex; gap: 8px; margin-left: auto; }

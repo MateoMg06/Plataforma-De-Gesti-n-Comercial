@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import type { DataSourceOptions } from 'typeorm';
 
 // Una sola fuente de configuración para la app y para el CLI de migraciones.
@@ -12,8 +13,9 @@ export function databaseConfig(): DataSourceOptions {
     database: process.env.DB_NAME ?? 'comercial360',
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
     // Rutas a archivos .js: la app y las migraciones siempre corren desde dist/ ya compilado.
-    entities: [new URL('../modules/**/infrastructure/*.orm-entity.js', import.meta.url).pathname],
-    migrations: [new URL('../database/migrations/*.js', import.meta.url).pathname],
+    // fileURLToPath (y no .pathname) para que la ruta también funcione en Windows.
+    entities: [fileURLToPath(new URL('../modules/**/infrastructure/*.orm-entity.js', import.meta.url))],
+    migrations: [fileURLToPath(new URL('../database/migrations/*.js', import.meta.url))],
     // Nunca true: el esquema solo cambia con migraciones versionadas (HU-INF-02).
     synchronize: false,
   };

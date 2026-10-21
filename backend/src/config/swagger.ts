@@ -1,0 +1,20 @@
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { INestApplication, Logger } from "@nestjs/common";
+
+const logger = new Logger('Swagger');
+
+export const swaggerConfiguration = (app: INestApplication): void => {
+
+    const config = new DocumentBuilder()
+        .setTitle('Comercial 360')
+        .setDescription('API de gestión comercial para rutas, clientes, visitas, cotizaciones y pedidos.')
+        .setVersion('1.0.0')
+        .addBearerAuth()
+        .addApiKey({ type: 'apiKey', name: 'x-api-key', in: 'header' }, 'API Key')
+        .build()
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document)
+
+    logger.log(`Docs available at http://localhost:${(app as any).getHttpServer()?.address()?.port ?? 3000}/api/docs`)
+}
