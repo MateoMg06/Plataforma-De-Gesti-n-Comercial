@@ -40,6 +40,11 @@ export class TypeOrmAsesorRepository implements AsesorRepository {
     return fila ? this.aDominio(fila) : null;
   }
 
+  async buscarPorIdUsuario(idUsuario: string): Promise<Asesor | null> {
+    const fila = await this.repo.findOne({ where: { idUsuario } });
+    return fila ? this.aDominio(fila) : null;
+  }
+
   private aDominio(fila: AsesorOrmEntity): Asesor {
     return new Asesor(
       fila.id,

@@ -59,6 +59,7 @@ export default function App() {
           />
           <Route path="/configuracion/zonas" element={<ZonasPage />} />
           <Route path="/configuracion/asesores" element={<AsesoresPage />} />
+          <Route path="/agenda/mia" element={<AgendaPage mia />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
