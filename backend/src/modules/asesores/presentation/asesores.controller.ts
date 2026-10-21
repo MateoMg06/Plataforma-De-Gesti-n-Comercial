@@ -8,6 +8,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { Roles } from '@thallesp/nestjs-better-auth';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -26,6 +27,7 @@ import { CrearAsesorDto } from './dto/crear-asesor.dto.js';
 // Presentación: recibe HTTP, valida con el DTO y delega en los casos de uso.
 // Sin lógica de negocio aquí.
 // Cuando HU-03 esté lista, agregar @Roles('administrador').
+// HU-03: crear, editar y borrar es solo para administrador (Configuración).
 @ApiTags('Asesores')
 @Controller('asesores')
 export class AsesoresController {
@@ -50,6 +52,7 @@ export class AsesoresController {
     return this.obtenerAsesor.ejecutar(id);
   }
 
+  @Roles(['administrador'])
   @Post()
   @ApiOperation({ summary: 'Registrar un asesor (queda activo)' })
   @ApiBadRequestResponse({ description: 'Datos inválidos.' })
@@ -58,6 +61,7 @@ export class AsesoresController {
     return this.registrarAsesor.ejecutar(dto.nombre, dto.correo, dto.telefono);
   }
 
+  @Roles(['administrador'])
   @Put(':id')
   @ApiOperation({ summary: 'Editar nombre, correo y teléfono' })
   @ApiNotFoundResponse({ description: 'El asesor no existe.' })
@@ -74,6 +78,7 @@ export class AsesoresController {
     );
   }
 
+  @Roles(['administrador'])
   @Patch(':id/estado')
   @ApiOperation({ summary: 'Activar o inactivar un asesor' })
   @ApiNotFoundResponse({ description: 'El asesor no existe.' })

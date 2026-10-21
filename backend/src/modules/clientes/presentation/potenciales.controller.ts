@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { Roles } from '@thallesp/nestjs-better-auth';
 import {
   ApiTags,
   ApiOperation,
@@ -21,6 +22,7 @@ import { EliminarPotencialUseCase } from '../application/eliminar-potencial.use-
 import { ListarPotencialesUseCase } from '../application/listar-potenciales.use-case.js';
 import { GuardarPotencialDto } from './dto/guardar-potencial.dto.js';
 
+// HU-03: crear, editar y borrar es solo para administrador (Configuración).
 @ApiTags('Potenciales')
 @Controller('potenciales')
 export class PotencialesController {
@@ -40,6 +42,7 @@ export class PotencialesController {
     return this.listarOpciones.ejecutar();
   }
 
+  @Roles(['administrador'])
   @Post()
   @ApiOperation({ summary: 'Crear potencial' })
   @ApiBadRequestResponse({ description: 'Datos inválidos.' })
@@ -48,6 +51,7 @@ export class PotencialesController {
     return this.crearOpcion.ejecutar(dto.nombre, dto.orden);
   }
 
+  @Roles(['administrador'])
   @Patch(':id')
   @ApiOperation({ summary: 'Editar potencial' })
   @ApiBadRequestResponse({ description: 'Datos inválidos.' })
@@ -60,6 +64,7 @@ export class PotencialesController {
     return this.editarOpcion.ejecutar(id, dto.nombre, dto.orden);
   }
 
+  @Roles(['administrador'])
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar potencial sin referencias' })
   @ApiNotFoundResponse({ description: 'La opción no existe.' })

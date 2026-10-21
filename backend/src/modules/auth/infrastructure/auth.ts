@@ -21,6 +21,14 @@ export const auth = betterAuth({
   }),
   // HU-01: solo correo y contraseña. El login con Microsoft es opcional y va al final.
   emailAndPassword: { enabled: true },
+  // HU-03: rol del usuario (administrador, lider o asesor). Es un campo extra
+  // oficial de BetterAuth: viaja en la sesión como user.role y lo lee el
+  // decorador @Roles(). input: false impide que alguien elija su rol al registrarse.
+  user: {
+    additionalFields: {
+      role: { type: 'string', defaultValue: 'asesor', input: false },
+    },
+  },
   // Secreto de cifrado y URL base: salen del .env, nunca del código.
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',

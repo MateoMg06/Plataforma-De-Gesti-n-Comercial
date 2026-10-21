@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { Roles } from '@thallesp/nestjs-better-auth';
 import {
   ApiTags,
   ApiOperation,
@@ -21,6 +22,7 @@ import { EliminarTipoClienteUseCase } from '../application/eliminar-tipo-cliente
 import { ListarTiposClienteUseCase } from '../application/listar-tipos-cliente.use-case.js';
 import { GuardarTipoClienteDto } from './dto/guardar-tipo-cliente.dto.js';
 
+// HU-03: crear, editar y borrar es solo para administrador (Configuración).
 @ApiTags('TiposCliente')
 @Controller('tipos-cliente')
 export class TiposClienteController {
@@ -40,6 +42,7 @@ export class TiposClienteController {
     return this.listarOpciones.ejecutar();
   }
 
+  @Roles(['administrador'])
   @Post()
   @ApiOperation({ summary: 'Crear tipo de cliente' })
   @ApiBadRequestResponse({ description: 'Datos inválidos.' })
@@ -48,6 +51,7 @@ export class TiposClienteController {
     return this.crearOpcion.ejecutar(dto.nombre);
   }
 
+  @Roles(['administrador'])
   @Patch(':id')
   @ApiOperation({ summary: 'Editar tipo de cliente' })
   @ApiBadRequestResponse({ description: 'Datos inválidos.' })
@@ -60,6 +64,7 @@ export class TiposClienteController {
     return this.editarOpcion.ejecutar(id, dto.nombre);
   }
 
+  @Roles(['administrador'])
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar tipo de cliente sin referencias' })
   @ApiNotFoundResponse({ description: 'La opción no existe.' })

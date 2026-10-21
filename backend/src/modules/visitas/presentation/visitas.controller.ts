@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { ListarVisitasUseCase } from '../application/listar-visitas.use-case.js';
 import { ProgramarVisitaUseCase } from '../application/programar-visita.use-case.js';
 import { RegistrarResultadoVisitaUseCase } from '../application/registrar-resultado-visita.use-case.js';
@@ -17,9 +18,10 @@ export class VisitasController {
     private readonly registrarResultado: RegistrarResultadoVisitaUseCase,
   ) {}
 
+  // HU-03: con rol asesor solo devuelve sus visitas.
   @Get()
-  listar() {
-    return this.listarVisitas.ejecutar();
+  listar(@Session() session: UserSession) {
+    return this.listarVisitas.ejecutar({ id: session.user.id, role: session.user.role as string });
   }
 
   @Post()
