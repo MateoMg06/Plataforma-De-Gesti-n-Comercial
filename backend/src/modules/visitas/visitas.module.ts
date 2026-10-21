@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AsesoresModule } from '../asesores/asesores.module.js';
 import { ClientesModule } from '../clientes/clientes.module.js';
 import { ListarResultadosCatalogoUseCase } from './application/listar-resultados-catalogo.use-case.js';
 import { ListarVisitasUseCase } from './application/listar-visitas.use-case.js';
@@ -14,9 +15,11 @@ import { ResultadosVisitaController } from './presentation/resultados-visita.con
 import { VisitasController } from './presentation/visitas.controller.js';
 
 @Module({
-  // ClientesModule exporta ObtenerClienteUseCase para validar clientes al programar.
+  // ClientesModule y AsesoresModule exportan los casos de uso para validar
+  // que el cliente y el asesor existen al programar.
   imports: [
     ClientesModule,
+    AsesoresModule,
     TypeOrmModule.forFeature([VisitaOrmEntity, ResultadoVisitaOrmEntity, VisitaResultadoOrmEntity]),
   ],
   controllers: [VisitasController, ResultadosVisitaController],
