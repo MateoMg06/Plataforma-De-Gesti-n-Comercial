@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pedido } from '../domain/pedido.js';
 import type { PedidoRepository, FiltrosPedido } from '../domain/pedido.repository.js';
+import { CotizacionOrmEntity } from './cotizacion.orm-entity.js';
 import { PedidoOrmEntity } from './pedido.orm-entity.js';
 
 @Injectable()
@@ -34,7 +35,13 @@ export class TypeOrmPedidoRepository implements PedidoRepository {
   }
 
   async listar(filtros?: FiltrosPedido): Promise<Pedido[]> {
-    const qb = this.repo.createQueryBuilder('p');
+    const qb = this.repo.createQueryBuilder('p').orderBy('p.fecha', 'DESC');
+    // HU-31: el pedido no guarda el asesor; se filtra por el de su cotización.
+    if (filtros?.idAsesor) {
+      qb.innerJoin(CotizacionOrmEntity, 'c', 'c.id = p.idCotizacion').andWhere('c.idAsesor = :idAsesor', {
+        idAsesor: filtros.idAsesor,
+      });
+    }
     if (filtros?.idCliente) qb.andWhere('p.idCliente = :idCliente', { idCliente: filtros.idCliente });
     if (filtros?.estado) qb.andWhere('p.estado = :estado', { estado: filtros.estado });
     if (filtros?.desde) qb.andWhere('p.fecha >= :desde', { desde: filtros.desde });

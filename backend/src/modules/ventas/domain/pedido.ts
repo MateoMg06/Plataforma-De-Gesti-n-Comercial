@@ -1,3 +1,4 @@
+import { PedidoEstado } from '../../../common/enums/domain.enums.js';
 import type { Cotizacion } from './cotizacion.js';
 
 export class Pedido {
@@ -16,7 +17,7 @@ export class Pedido {
   }
 
   static crear(numero: number, cotizacion: Cotizacion): Pedido {
-    return new Pedido(null, numero, cotizacion.id!, cotizacion.idCliente, cotizacion.total, 'pendiente', new Date());
+    return new Pedido(null, numero, cotizacion.id!, cotizacion.idCliente, cotizacion.total, PedidoEstado.PENDIENTE, new Date());
   }
 
   toJSON() {

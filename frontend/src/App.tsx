@@ -17,6 +17,7 @@ import { SeguimientosPage } from './pages/SeguimientosPage';
 import { CotizacionesPage } from './pages/CotizacionesPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { MapaPage } from './pages/MapaPage';
+import { PedidosPage } from './pages/PedidosPage';
 
 export default function App() {
   return (
@@ -48,6 +49,8 @@ export default function App() {
                   <CotizacionesPage />
                 ) : item.path === '/mapa' ? (
                   <MapaPage />
+                ) : item.path === '/pedidos' ? (
+                  <PedidosPage />
                 ) : (
                   <PlaceholderPage item={item} />
                 )
