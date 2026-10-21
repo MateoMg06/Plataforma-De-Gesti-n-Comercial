@@ -88,6 +88,13 @@ export class TypeOrmCotizacionRepository implements CotizacionRepository {
     );
   }
 
+  // Todas las cotizaciones con su detalle, la más reciente primero.
+  async listar(): Promise<Cotizacion[]> {
+    const filas = await this.repo.find({ order: { numero: 'DESC' } });
+    const cotizaciones = await Promise.all(filas.map((fila) => this.buscarPorId(fila.id)));
+    return cotizaciones.filter((c): c is Cotizacion => c !== null);
+  }
+
   async obtenerSiguienteNumero(): Promise<number> {
     const max = await this.repo
       .createQueryBuilder('c')
