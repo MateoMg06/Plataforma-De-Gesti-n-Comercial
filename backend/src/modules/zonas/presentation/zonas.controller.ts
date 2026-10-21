@@ -59,12 +59,17 @@ export class ZonasController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Listar zonas', description: 'Ordenadas por nombre.' })
+  @ApiOkResponse({ schema: { example: [{ id: 1, nombre: 'Norte' }] } })
   listar() {
     return this.listarZonas.ejecutar();
   }
 
   @Roles(['administrador'])
   @Post()
+  @ApiOperation({ summary: 'Crear zona' })
+  @ApiBadRequestResponse({ description: 'Nombre inválido.' })
+  @ApiConflictResponse({ description: 'Nombre duplicado.' })
   crear(@Body() dto: CrearZonaDto) {
     return this.crearZona.ejecutar(dto.nombre);
   }

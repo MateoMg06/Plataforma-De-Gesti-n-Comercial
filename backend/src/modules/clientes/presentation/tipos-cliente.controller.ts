@@ -23,7 +23,7 @@ import { ListarTiposClienteUseCase } from '../application/listar-tipos-cliente.u
 import { GuardarTipoClienteDto } from './dto/guardar-tipo-cliente.dto.js';
 
 // HU-03: crear, editar y borrar es solo para administrador (Configuración).
-@ApiTags('TiposCliente')
+@ApiTags('Tipos de cliente')
 @Controller('tipos-cliente')
 export class TiposClienteController {
   constructor(

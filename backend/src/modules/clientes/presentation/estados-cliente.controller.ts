@@ -23,7 +23,7 @@ import { ListarEstadosClienteUseCase } from '../application/listar-estados-clien
 import { GuardarEstadoClienteDto } from './dto/guardar-estado-cliente.dto.js';
 
 // HU-03: crear, editar y borrar es solo para administrador (Configuración).
-@ApiTags('EstadosCliente')
+@ApiTags('Estados de cliente')
 @Controller('estados-cliente')
 export class EstadosClienteController {
   constructor(
