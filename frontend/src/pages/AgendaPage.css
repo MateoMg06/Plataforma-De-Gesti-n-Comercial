@@ -1,0 +1,56 @@
+.agenda-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px 0;
+}
+.agenda-nav { display: flex; gap: 8px; }
+.agenda-titulo { text-transform: capitalize; }
+
+/* 7 columnas, de lunes a domingo. */
+.agenda-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+.agenda-cabecera {
+  padding: 8px;
+  font-weight: 600;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.agenda-dia {
+  padding: 6px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.agenda-semana .agenda-dia { min-height: 320px; }
+.agenda-mes .agenda-dia { min-height: 110px; }
+.agenda-numero { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.agenda-hoy { background: var(--orange-100); }
+.agenda-hoy .agenda-numero { color: var(--orange-500); font-weight: 700; }
+.agenda-fuera { background: var(--bg); }
+.agenda-fuera .agenda-numero { opacity: 0.5; }
+
+/* Cada evento lleva el color de su estado en el borde. */
+.agenda-evento {
+  font-size: 12px;
+  line-height: 1.35;
+  padding: 4px 6px;
+  margin-bottom: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--info);
+  border-radius: 6px;
+}
+.agenda-estado { color: var(--text-muted); text-transform: capitalize; }
+.estado-programada { border-left-color: var(--info); }
+.estado-realizada { border-left-color: var(--success); }
+.estado-reprogramada { border-left-color: var(--warning); }
+.estado-cancelada,
+.estado-no_atendida { border-left-color: var(--danger); }
