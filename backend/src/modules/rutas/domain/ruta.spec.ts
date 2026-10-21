@@ -49,4 +49,37 @@ describe('Ruta', () => {
     expect(() => ruta.reordenarCliente(20, 1)).toThrow('El cliente no pertenece a esta ruta');
     expect(() => ruta.reordenarCliente(10, 2)).toThrow('El orden de visita no es válido');
   });
+
+  // HU-16: ciclo de vida planeada → activa → finalizada.
+  it('activa una ruta planeada con clientes y luego la finaliza', () => {
+    const ruta = crearRuta();
+    ruta.agregarCliente(10);
+
+    const activa = ruta.activar();
+    expect(activa.estado).toBe('activa');
+
+    const finalizada = activa.finalizar();
+    expect(finalizada.estado).toBe('finalizada');
+  });
+
+  it('no activa una ruta sin clientes ni una que no esté planeada', () => {
+    expect(() => crearRuta().activar()).toThrow('al menos un cliente');
+
+    const ruta = crearRuta();
+    ruta.agregarCliente(10);
+    expect(() => ruta.activar().activar()).toThrow('Solo se puede activar una ruta planeada');
+  });
+
+  it('solo finaliza una ruta activa', () => {
+    expect(() => crearRuta().finalizar()).toThrow('Solo se puede finalizar una ruta activa');
+  });
+
+  it('una ruta finalizada no admite cambios', () => {
+    const ruta = crearRuta();
+    ruta.agregarCliente(10);
+    const finalizada = ruta.activar().finalizar();
+
+    expect(() => finalizada.agregarCliente(20)).toThrow('no admite cambios');
+    expect(() => finalizada.reordenarCliente(10, 1)).toThrow('no admite cambios');
+  });
 });
