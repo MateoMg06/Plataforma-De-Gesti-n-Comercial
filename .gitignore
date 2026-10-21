@@ -23,3 +23,7 @@ coverage/
 .DS_Store
 .idea/
 .vscode/
+
+# Herramientas locales de IA (skills de Claude e informes de impeccable)
+.claude/
+.impeccable/
