@@ -44,6 +44,19 @@ import { PotencialOrmEntity } from './infrastructure/potencial.orm-entity.js';
 import { EstadoClienteOrmEntity } from './infrastructure/estado-cliente.orm-entity.js';
 import { TypeOrmClienteRepository } from './infrastructure/typeorm-cliente.repository.js';
 import { ClientesController } from './presentation/clientes.controller.js';
+import { ListarPortafoliosUseCase } from './application/listar-portafolios.use-case.js';
+import { CrearPortafolioUseCase } from './application/crear-portafolio.use-case.js';
+import { EditarPortafolioUseCase } from './application/editar-portafolio.use-case.js';
+import { EliminarPortafolioUseCase } from './application/eliminar-portafolio.use-case.js';
+import { ListarPortafolioClienteUseCase } from './application/listar-portafolio-cliente.use-case.js';
+import { AgregarPortafolioClienteUseCase } from './application/agregar-portafolio-cliente.use-case.js';
+import { RetirarPortafolioClienteUseCase } from './application/retirar-portafolio-cliente.use-case.js';
+import { PORTAFOLIO_REPOSITORY } from './domain/portafolio.repository.js';
+import { PortafolioOrmEntity } from './infrastructure/portafolio.orm-entity.js';
+import { ClientePortafolioOrmEntity } from './infrastructure/cliente-portafolio.orm-entity.js';
+import { TypeOrmPortafolioRepository } from './infrastructure/typeorm-portafolio.repository.js';
+import { PortafoliosController } from './presentation/portafolios.controller.js';
+import { PortafolioClienteController } from './presentation/portafolio-cliente.controller.js';
 
 @Module({
   imports: [
@@ -57,6 +70,8 @@ import { ClientesController } from './presentation/clientes.controller.js';
       PotencialOrmEntity,
       EstadoClienteOrmEntity,
       ContactoClienteOrmEntity,
+      PortafolioOrmEntity,
+      ClientePortafolioOrmEntity,
     ]),
   ],
   controllers: [
@@ -65,6 +80,8 @@ import { ClientesController } from './presentation/clientes.controller.js';
     ClientesController,
     TiposClienteController,
     ContactosClienteController,
+    PortafoliosController,
+    PortafolioClienteController,
   ],
   providers: [
     ListarClientesUseCase,
@@ -104,6 +121,15 @@ import { ClientesController } from './presentation/clientes.controller.js';
       provide: CONTACTO_CLIENTE_REPOSITORY,
       useClass: TypeOrmContactoClienteRepository,
     },
+    // HU-09: portafolio y su relación con el cliente.
+    ListarPortafoliosUseCase,
+    CrearPortafolioUseCase,
+    EditarPortafolioUseCase,
+    EliminarPortafolioUseCase,
+    ListarPortafolioClienteUseCase,
+    AgregarPortafolioClienteUseCase,
+    RetirarPortafolioClienteUseCase,
+    { provide: PORTAFOLIO_REPOSITORY, useClass: TypeOrmPortafolioRepository },
   ],
   // ListarClientes y ListarPotenciales: los usa el dashboard (HU-32).
   exports: [ObtenerClienteUseCase, ListarClientesUseCase, ListarPotencialesUseCase],

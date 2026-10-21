@@ -18,6 +18,7 @@ import { CotizacionesPage } from './pages/CotizacionesPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { MapaPage } from './pages/MapaPage';
 import { PedidosPage } from './pages/PedidosPage';
+import { PortafolioPage } from './pages/PortafolioPage';
 
 export default function App() {
   return (
@@ -70,6 +71,7 @@ export default function App() {
             element={<EstadosClientePage />}
           />
           <Route path="/configuracion/zonas" element={<ZonasPage />} />
+          <Route path="/configuracion/portafolio" element={<PortafolioPage />} />
           <Route path="/configuracion/asesores" element={<AsesoresPage />} />
           <Route path="/agenda/mia" element={<AgendaPage mia />} />
         </Route>

@@ -1,4 +1,5 @@
 import {
+  Briefcase,
   ChevronRight,
   CircleCheck,
   MapPinned,
@@ -23,6 +24,7 @@ const catalogos: Opcion[] = [
   { ruta: "/configuracion/tipos-cliente", titulo: "Tipos de cliente", detalle: "Industrial, distribuidor, retail…", icono: Tags },
   { ruta: "/configuracion/potenciales", titulo: "Potenciales", detalle: "Qué tan valioso es cada cliente.", icono: TrendingUp },
   { ruta: "/configuracion/estados-cliente", titulo: "Estados de cliente", detalle: "En qué etapa está la relación.", icono: CircleCheck },
+  { ruta: "/configuracion/portafolio", titulo: "Portafolio", detalle: "Líneas de productos o servicios.", icono: Briefcase },
 ];
 
 const equipo: Opcion[] = [

@@ -240,12 +240,37 @@ async function crearCotizacionesYPedido() {
   }
 }
 
+// Portafolio (HU-09) y qué clientes tienen cada línea.
+async function crearPortafolio() {
+  const lineas = [
+    { nombre: 'Equipos de soldadura', descripcion: 'Soldadoras, electrodos y accesorios', clientes: ['900100004-4', '900100003-3'] },
+    { nombre: 'Seguridad industrial', descripcion: 'Elementos de protección personal', clientes: ['900100004-4', '900100006-6'] },
+    { nombre: 'Herramienta eléctrica', descripcion: 'Taladros, pulidoras y brocas', clientes: ['900100001-1', '900100002-2'] },
+    { nombre: 'Tornillería y fijación', descripcion: 'Tornillos, anclajes y remaches', clientes: ['900100002-2', '900100008-8'] },
+  ];
+  for (const l of lineas) {
+    await db.query(
+      `INSERT INTO portafolio (nombre, descripcion) VALUES ($1, $2) ON CONFLICT (nombre) DO NOTHING`,
+      [l.nombre, l.descripcion],
+    );
+    const portafolio = await idPorNombre('portafolio', 'id_portafolio', l.nombre);
+    for (const nit of l.clientes) {
+      // La llave primaria (cliente, portafolio) evita duplicados al correr el seed otra vez.
+      await db.query(
+        `INSERT INTO cliente_portafolio (id_cliente, id_portafolio) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+        [await idCliente(nit), portafolio],
+      );
+    }
+  }
+}
+
 async function main() {
   await db.initialize();
   await crearUsuarios();
   await crearCatalogos();
   await crearAsesores();
   await crearClientes();
+  await crearPortafolio();
   await crearRutasYVisitas();
   await crearCotizacionesYPedido();
   console.log('Seed listo. Usuarios de prueba (contraseña Demo2026!):');
