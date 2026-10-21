@@ -73,3 +73,81 @@ Ese endpoint se restringe o se esconde en la **HU-04** (administración de usuar
 - `BETTER_AUTH_URL` — `http://localhost:3000`.
 - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` — las mismas del backend.
 - `FRONTEND_URL` — `http://localhost:5173`. Necesario para CORS y cookies.
+
+---
+
+## Estado: HU-03 · Roles y permisos (lista)
+
+### Cómo proteger un endpoint tuyo (lo que necesitas, en 3 líneas)
+
+Importa el decorador y el enum, y pon `@Roles(...)` encima del método:
+
+```ts
+import { Roles } from '../../../common/decorators/roles.decorator.js';
+import { UserRole } from '../../../common/enums/domain.enums.js';
+
+@Get()
+@Roles(UserRole.ADMINISTRADOR, UserRole.LIDER)
+listar() { /* ... */ }
+```
+
+Eso es todo. **No hay que registrar nada en tu módulo**: el `RolesGuard` es global
+y ya corre en toda la aplicación (se registra en `auth.module.ts`).
+
+| Lo que pasa | Respuesta |
+|---|---|
+| Sin sesión y la ruta tiene `@Roles()` | `401 Unauthorized` |
+| Con sesión, pero el rol no está en la lista | `403 Forbidden` |
+| La ruta **no** tiene `@Roles()` | Pasa cualquiera con sesión (como antes) |
+
+### Saber quién es el usuario de la sesión
+
+Si tu caso de uso necesita el usuario actual (por ejemplo, para que el asesor
+solo vea lo suyo), importa `ObtenerUsuarioActualUseCase`, que este módulo exporta:
+
+```ts
+// en tu modulo.ts:  imports: [AuthModule]
+this.usuarioActual.ejecutar(request.session.user) // -> Usuario { id, nombre, correo, rol, activo }
+```
+
+El controlador obtiene la sesión de la petición con `@Req()`:
+
+```ts
+@Get()
+listar(@Req() req) {
+  const usuario = this.usuarioActual.ejecutar(req.session.user);
+  return this.listarVisitas.ejecutar(usuario);
+}
+```
+
+`Usuario` tiene dos métodos de negocio que ahorran preguntas:
+
+- `puedeAccederA([UserRole.ADMINISTRADOR])` — `false` si el usuario está desactivado.
+- `esAsesor()` — para saber si hay que filtrar por sus propios datos.
+
+### Qué hay hoy
+
+| Archivo | Para qué sirve |
+|---|---|
+| `domain/usuario.ts` | Entidad de dominio: el rol y las reglas (`puedeAccederA`, `esAsesor`). TypeScript puro. |
+| `application/obtener-usuario-actual.use-case.ts` | Convierte la sesión de BetterAuth en un `Usuario` del negocio. |
+| `../../common/decorators/roles.decorator.ts` | El decorador `@Roles(...)`. |
+| `../../common/guards/roles.guard.ts` | El guard global que hace cumplir `@Roles()`. |
+
+### Detalles técnicos importantes (para la sustentación)
+
+- **El `RolesGuard` es global** (`APP_GUARD` en `auth.module.ts`) para que todos
+  los módulos lo tengan sin configurar nada. Si cada uno tuviera que registrarlo,
+  sería fácil olvidarlo y dejar un endpoint abierto.
+- **La clave de metadata es `'roles'`, no `'ROLES'`.** La librería de BetterAuth
+  usa `'ROLES'` para su propio decorador, que solo entiende el plugin `admin`.
+  Nuestro decorador usa `'roles'` a propósito, para no chocar ni depender de él.
+- **El guard busca la sesión él mismo** si `request.session` todavía no está.
+  Los guards globales de NestJS no garantizan un orden entre módulos, y esta
+  integración registra el suyo por su cuenta. Buscar la sesión con
+  `authService.api.getSession()` hace que el guard funcione sin importar el orden.
+- **Un rol desconocido se trata como `asesor`.** Si en la base aparece un rol que
+  no está en el enum `UserRole`, el usuario queda con los permisos mínimos. Fallar
+  hacia el lado seguro, nunca hacia el lado permisivo.
+- **El rol viaja en la sesión**, así que el frontend no necesita un endpoint extra
+  para saber qué menú mostrar: lo lee de `GET /api/auth/get-session`.
