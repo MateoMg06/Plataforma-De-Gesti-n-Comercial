@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { ContactosCliente } from "./ContactosCliente";
+import { PortafolioCliente } from "./PortafolioCliente";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import "./ClientesPage.css";
@@ -631,6 +632,8 @@ export function ClientesPage() {
           )}
           {/* HU-07: los contactos se gestionan al editar un cliente ya registrado. */}
           {editando !== null && <ContactosCliente idCliente={editando} />}
+          {/* HU-09: el portafolio también se gestiona al editar un cliente. */}
+          {editando !== null && <PortafolioCliente idCliente={editando} />}
         </section>
       </div>
 
