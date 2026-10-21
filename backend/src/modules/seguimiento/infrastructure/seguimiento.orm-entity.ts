@@ -11,7 +11,7 @@ export class SeguimientoOrmEntity {
   @Column({ name: 'id_visita' })
   id_visita: number;
 
-  @Column({ name: 'fecha_proxima' })
+  @Column({ name: 'fecha_proxima', type: 'date' })
   fecha_proxima: string;
 
   @Column({ name: 'actividad' })

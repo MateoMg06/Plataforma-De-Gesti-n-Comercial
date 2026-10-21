@@ -15,6 +15,7 @@ export enum AccionBitacora {
   CREAR_PEDIDO = 'crear_pedido',
   EDITAR_PEDIDO = 'editar_pedido',
   REPROGRAMAR_VISITA = 'reprogramar_visita',
+  CREAR_SEGUIMIENTO = 'crear_seguimiento',
 }
 
 @Entity('bitacora')
@@ -22,8 +23,9 @@ export class BitacoraOrmEntity {
   @PrimaryGeneratedColumn({ name: 'id_bitacora' })
   id: number;
 
-  @Column({ name: 'usuario_id' })
-  usuario_id: number;
+  // Id del usuario de BetterAuth: es texto, no número.
+  @Column({ name: 'usuario_id', type: 'varchar', length: 100 })
+  usuario_id: string;
 
   @Column({ name: 'usuario_nombre', length: 100 })
   usuario_nombre: string;

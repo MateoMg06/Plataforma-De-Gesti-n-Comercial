@@ -22,7 +22,7 @@ export function SeguimientosPage() {
   const [observacion, setObservacion] = useState('');
   const [error, setError] = useState('');
 
-  const cargar = () => api<Seguimiento[]>('/seguimientos').then(setSeguimientos).catch((e) => setError(e.message));
+  const cargar = () => api<Seguimiento[]>('/seguimientos/pendientes').then(setSeguimientos).catch((e) => setError(e.message));
 
   useEffect(() => {
     cargar();
@@ -63,6 +63,7 @@ export function SeguimientosPage() {
           value={fechaProxima}
           onChange={(e) => setFechaProxima(e.target.value)}
           placeholder="Fecha próxima"
+          type="date"
         />
         <input
           className="input"
@@ -82,7 +83,7 @@ export function SeguimientosPage() {
       <ul>
         {seguimientos.map((s) => (
           <li key={s.id}>
-            Visita: {s.id_visita} | Próxima: {s.fecha_proxima} | Act: {s.actividad} | Completado: {s.completado}
+            Visita: {s.id_visita} | Próxima: {s.fecha_proxima} | Act: {s.actividad} | Completado: {s.completado ? 'Sí' : 'No'}
           </li>
         ))}
       </ul>

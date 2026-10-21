@@ -1,8 +1,11 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { CrearSeguimientoUseCase } from '../application/crear-seguimiento.use-case.js';
 import { ListarSeguimientosPendientesUseCase } from '../application/listar-seguimientos-pendientes.use-case.js';
 import { ObtenerHistorialClienteUseCase } from '../application/obtener-historial-cliente.use-case.js';
+import { RegistrarEnBitacora } from '../../bitacora/infrastructure/bitacora.decorator.js';
+import { CrearSeguimientoDto } from './dto/crear-seguimiento.dto.js';
 
+// Presentación: recibe HTTP, valida con el DTO y delega en los casos de uso.
 @Controller('seguimientos')
 export class SeguimientosController {
   constructor(
@@ -12,17 +15,18 @@ export class SeguimientosController {
   ) {}
 
   @Post()
-  async crear(@Body() dto: { id_visita: number; fecha_proxima: string; actividad: string; observacion: string }): Promise<void> {
-    await this.crearSeguimiento.ejecutar(dto.id_visita, dto.fecha_proxima, dto.actividad, dto.observacion);
+  @RegistrarEnBitacora('crear_seguimiento')
+  crear(@Body() dto: CrearSeguimientoDto) {
+    return this.crearSeguimiento.ejecutar(dto.id_visita, dto.fecha_proxima, dto.actividad, dto.observacion);
   }
 
   @Get('pendientes')
-  async listarPendientes(): Promise<void> {
-    await this.listarPendientesUseCase.ejecutar();
+  listarPendientes() {
+    return this.listarPendientesUseCase.ejecutar();
   }
 
   @Get('cliente/:idCliente')
-  async historialCliente(@Param('idCliente') idCliente: number): Promise<void> {
-    await this.obtenerHistorialUseCase.ejecutar(idCliente);
+  historialCliente(@Param('idCliente', ParseIntPipe) idCliente: number) {
+    return this.obtenerHistorialUseCase.ejecutar(idCliente);
   }
 }

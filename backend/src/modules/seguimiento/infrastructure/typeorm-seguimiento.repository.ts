@@ -34,7 +34,7 @@ export class TypeOrmSeguimientoRepository {
 
   async listar(): Promise<Seguimiento[]> {
     const repo = this.dataSource.getRepository(SeguimientoOrmEntity);
-    const entities = await repo.find();
+    const entities = await repo.find({ order: { fecha_proxima: 'ASC' } });
     return entities.map((e) => new Seguimiento(
       e.id,
       e.id_visita,

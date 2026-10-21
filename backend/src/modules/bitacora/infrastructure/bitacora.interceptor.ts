@@ -20,11 +20,12 @@ export type AccionBitacora =
   | 'editar_cotizacion' 
   | 'crear_pedido' 
   | 'editar_pedido' 
-  | 'reprogramar_visita';
+  | 'reprogramar_visita'
+  | 'crear_seguimiento';
 
 export interface RegistroBitacora {
   id: number;
-  usuario_id: number;
+  usuario_id: string;
   usuario_nombre: string;
   accion: AccionBitacora;
   modulo: string;
@@ -58,6 +59,7 @@ export class BitacoraInterceptor implements NestInterceptor {
       map((data) => {
         // Registrar en bitácora después de que el handler se ejecutó
         if (accion && usuario) {
+          // Si falla el registro no se rompe la respuesta al usuario.
           this.registrarEnBitacora({
             accion: accion as AccionBitacora,
             modulo: modulo,
@@ -66,7 +68,7 @@ export class BitacoraInterceptor implements NestInterceptor {
             fecha: new Date().toISOString(),
             detalle: `${request.method} ${request.url} - ${accion}`,
             ip: ip,
-          });
+          }).catch((error) => console.error('No se pudo registrar en la bitácora', error));
         }
         return data;
       })
@@ -82,11 +84,12 @@ export class BitacoraInterceptor implements NestInterceptor {
     return 'desconocido';
   }
 
-  private obtenerUsuario(request: any): { id: number; nombre: string } | null {
-    // Intentar obtener el usuario de la sesión de BetterAuth
+  private obtenerUsuario(request: any): { id: string; nombre: string } | null {
+    // El guard de BetterAuth deja el usuario en request.user.
+    // BetterAuth usa user.name (no nombre) y su id es texto.
     const user = request.user ?? request.session?.user;
-    if (user && user.id && user.nombre) {
-      return { id: user.id, nombre: user.nombre };
+    if (user && user.id && user.name) {
+      return { id: user.id, nombre: user.name };
     }
     // Si no hay usuario en el contexto, aún así registramos para tener trazabilidad
     return null;

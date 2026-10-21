@@ -6,7 +6,9 @@ import { SEGUIMIENTO_REPOSITORY, type SeguimientoRepository } from '../domain/se
 export class ListarSeguimientosPendientesUseCase {
   constructor(@Inject(SEGUIMIENTO_REPOSITORY) private readonly seguimientos: SeguimientoRepository) {}
 
+  // Pendientes = los que aún no se han completado (ya vienen ordenados por fecha_proxima).
   async ejecutar(): Promise<Seguimiento[]> {
-    return this.seguimientos.listar();
+    const todos = await this.seguimientos.listar();
+    return todos.filter((s) => !s.completado);
   }
 }

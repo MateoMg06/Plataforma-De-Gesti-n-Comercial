@@ -8,7 +8,7 @@ services:
       POSTGRES_DB: comercial360
     ports:
       # Si ya tienes otro PostgreSQL en el 5432, pon DB_PORT=5434 en el .env de la raíz y de backend/.
-      - '${DB_PORT:-5434}:5432'
+      - '${DB_PORT:-5432}:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
 volumes:

@@ -13,6 +13,7 @@ import { ZonasPage } from './pages/ZonasPage';
 import { RutasPage } from './pages/RutasPage';
 import { AsesoresPage } from './pages/AsesoresPage';
 import { AgendaPage } from './pages/AgendaPage';
+import { SeguimientosPage } from './pages/SeguimientosPage';
 
 export default function App() {
   return (
@@ -36,6 +37,8 @@ export default function App() {
                   <AgendaPage />
                 ) : item.path === '/rutas' ? (
                   <RutasPage />
+                ) : item.path === '/seguimientos' ? (
+                  <SeguimientosPage />
                 ) : (
                   <PlaceholderPage item={item} />
                 )
