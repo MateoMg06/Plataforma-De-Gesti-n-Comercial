@@ -18,6 +18,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { Roles } from '@thallesp/nestjs-better-auth';
 import { CrearZonaUseCase } from '../application/crear-zona.use-case.js';
 import { ListarZonasUseCase } from '../application/listar-zonas.use-case.js';
 import { CrearZonaDto } from './dto/crear-zona.dto.js';
@@ -25,6 +26,7 @@ import { CrearZonaDto } from './dto/crear-zona.dto.js';
 // Presentación: recibe HTTP, valida con el DTO y delega en los casos de uso.
 // Sin lógica de negocio aquí.
 // Cuando HU-02/HU-03 estén listas, agregar el guard de sesión y @Roles('administrador').
+// HU-03: crear, editar y borrar es solo para administrador (Configuración).
 @ApiTags('Zonas')
 @Controller('zonas')
 export class ZonasController {
@@ -35,6 +37,7 @@ export class ZonasController {
     private readonly listarZonas: ListarZonasUseCase,
   ) {}
 
+  @Roles(['administrador'])
   @Patch(':id')
   @ApiOperation({ summary: 'Editar el nombre de una zona' })
   @ApiBadRequestResponse({ description: 'ID o nombre inválido.' })
@@ -44,6 +47,7 @@ export class ZonasController {
     return this.editarZona.ejecutar(id, dto.nombre);
   }
 
+  @Roles(['administrador'])
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar una zona sin referencias' })
   @ApiOkResponse({ description: 'Zona eliminada.' })
@@ -59,6 +63,7 @@ export class ZonasController {
     return this.listarZonas.ejecutar();
   }
 
+  @Roles(['administrador'])
   @Post()
   crear(@Body() dto: CrearZonaDto) {
     return this.crearZona.ejecutar(dto.nombre);
