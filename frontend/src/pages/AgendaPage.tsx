@@ -1,5 +1,6 @@
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import "./AgendaPage.css";
 
@@ -59,7 +60,8 @@ function hora(fecha: Date): string {
 }
 
 // HU-11: agenda de todas las visitas, por semana o por mes.
-export function AgendaPage() {
+// HU-12: con mia = true muestra solo las visitas del asesor que inició sesión.
+export function AgendaPage({ mia = false }: { mia?: boolean }) {
   const [visitas, setVisitas] = useState<Visita[]>([]);
   const [clientes, setClientes] = useState<Record<number, string>>({});
   const [asesores, setAsesores] = useState<Record<number, string>>({});
@@ -68,9 +70,16 @@ export function AgendaPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api<Visita[]>("/visitas")
-      .then(setVisitas)
-      .catch((e) => setError(e.message));
+    setError("");
+    if (mia) {
+      api<{ asesor: { id: number; nombre: string }; visitas: Visita[] }>("/agenda/mia")
+        .then((agenda) => setVisitas(agenda.visitas))
+        .catch((e) => setError(e.message));
+    } else {
+      api<Visita[]>("/visitas")
+        .then(setVisitas)
+        .catch((e) => setError(e.message));
+    }
     // Nombres para mostrar en cada evento: la visita solo trae los ids.
     api<{ datos: { id: number; razonSocial: string }[] }>("/clientes?limit=100")
       .then((pagina) =>
@@ -84,7 +93,7 @@ export function AgendaPage() {
         setAsesores(Object.fromEntries(lista.map((a) => [a.id, a.nombre]))),
       )
       .catch((e) => setError(e.message));
-  }, []);
+  }, [mia]);
 
   const dias = diasVisibles(vista, referencia);
   const hoy = new Date();
@@ -115,11 +124,14 @@ export function AgendaPage() {
       <div className="page-header">
         <div>
           <h1>
-            <Calendar size={26} /> Agenda comercial
+            <Calendar size={26} /> {mia ? "Mi agenda" : "Agenda comercial"}
           </h1>
-          <p>Visitas de todos los asesores.</p>
+          <p>{mia ? "Tus visitas como asesor." : "Visitas de todos los asesores."}</p>
         </div>
         <div className="page-actions">
+          <Link className="btn" to={mia ? "/agenda" : "/agenda/mia"}>
+            {mia ? "Ver agenda global" : "Ver mi agenda"}
+          </Link>
           <div className="agenda-vistas" role="group" aria-label="Vista">
             <button
               className={`btn ${vista === "semana" ? "btn-primary" : ""}`}

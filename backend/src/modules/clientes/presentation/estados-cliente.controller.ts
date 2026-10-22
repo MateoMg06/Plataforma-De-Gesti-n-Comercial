@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { Roles } from '@thallesp/nestjs-better-auth';
 import {
   ApiTags,
   ApiOperation,
@@ -21,7 +22,8 @@ import { EliminarEstadoClienteUseCase } from '../application/eliminar-estado-cli
 import { ListarEstadosClienteUseCase } from '../application/listar-estados-cliente.use-case.js';
 import { GuardarEstadoClienteDto } from './dto/guardar-estado-cliente.dto.js';
 
-@ApiTags('EstadosCliente')
+// HU-03: crear, editar y borrar es solo para administrador (Configuración).
+@ApiTags('Estados de cliente')
 @Controller('estados-cliente')
 export class EstadosClienteController {
   constructor(
@@ -40,6 +42,7 @@ export class EstadosClienteController {
     return this.listarOpciones.ejecutar();
   }
 
+  @Roles(['administrador'])
   @Post()
   @ApiOperation({ summary: 'Crear estado de cliente' })
   @ApiBadRequestResponse({ description: 'Datos inválidos.' })
@@ -48,6 +51,7 @@ export class EstadosClienteController {
     return this.crearOpcion.ejecutar(dto.nombre);
   }
 
+  @Roles(['administrador'])
   @Patch(':id')
   @ApiOperation({ summary: 'Editar estado de cliente' })
   @ApiBadRequestResponse({ description: 'Datos inválidos.' })
@@ -60,6 +64,7 @@ export class EstadosClienteController {
     return this.editarOpcion.ejecutar(id, dto.nombre);
   }
 
+  @Roles(['administrador'])
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar estado de cliente sin referencias' })
   @ApiNotFoundResponse({ description: 'La opción no existe.' })

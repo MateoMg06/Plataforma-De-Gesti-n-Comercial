@@ -5,9 +5,6 @@ import { api } from '../api/client';
 import { menu, type Rol } from './menu';
 import './AppLayout.css';
 
-// TODO HU-03 (Kevin V): tomar el rol de la sesión de BetterAuth.
-const rol: Rol = 'administrador';
-
 // Iniciales para el avatar: "Ana María Pérez" -> "AM".
 const iniciales = (nombre: string) =>
   nombre
@@ -31,6 +28,8 @@ export function AppLayout() {
   const [cerrando, setCerrando] = useState(false);
   // El nombre sí viene de la sesión: así se ve quién inició sesión.
   const [nombre, setNombre] = useState('');
+  // HU-03: el rol también viene de la sesión (user.role) y filtra el menú.
+  const [rol, setRol] = useState<Rol>('asesor');
   // HU-02: el layout es la parte PRIVADA de la app. Mientras comprueba la
   // sesión no se pinta nada; si no hay sesión, se vuelve al login.
   const [sesionValida, setSesionValida] = useState(false);
@@ -56,10 +55,11 @@ export function AppLayout() {
   });
   
   useEffect(() => {
-    api<{ session: unknown; user: { name: string } } | null>('/auth/get-session')
+    api<{ session: unknown; user: { name: string; role: Rol } } | null>('/auth/get-session')
       .then((datos) => {
         if (datos?.session) {
           setNombre(datos.user.name);
+          setRol(datos.user.role);
           setSesionValida(true);
         } else navigate('/login', { replace: true });
       })
@@ -135,7 +135,7 @@ export function AppLayout() {
               <span className="avatar">{iniciales(nombre)}</span>
               <span className="usuario-datos">
                 <strong>{nombre}</strong>
-                <span>Administrador</span>
+                <span className="usuario-rol">{rol}</span>
               </span>
               <ChevronDown size={18} />
             </button>

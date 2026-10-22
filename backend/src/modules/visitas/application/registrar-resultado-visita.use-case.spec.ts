@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { ResultadoRegistrado, ResultadoVisita } from '../domain/resultado-visita.js';
 import { Visita } from '../domain/visita.js';
 import type { VisitaRepository } from '../domain/visita.repository.js';
@@ -67,13 +67,13 @@ describe('RegistrarResultadoVisitaUseCase', () => {
     ]);
   });
 
-  it('una visita realizada no se puede editar', async () => {
+  it('una visita realizada no se puede editar (responde 400, no 500)', async () => {
     const realizada = visitaProgramada().registrarResultado(fechaReal, 'realizada');
     const repo = new VisitaRepositoryEnMemoria([realizada]);
     const useCase = new RegistrarResultadoVisitaUseCase(repo);
-    await expect(
-      useCase.ejecutar(1, fechaReal, 'cancelada', []),
-    ).rejects.toThrow('realizada');
+    const intento = useCase.ejecutar(1, fechaReal, 'cancelada', []);
+    await expect(intento).rejects.toBeInstanceOf(BadRequestException);
+    await expect(intento).rejects.toThrow('realizada');
   });
 
   it('rechaza una visita inexistente', async () => {

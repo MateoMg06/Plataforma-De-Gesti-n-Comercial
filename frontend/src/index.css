@@ -107,6 +107,8 @@ fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
 .section-title { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; font-size: 16px; font-weight: 700; }
 .section-title svg { color: var(--navy-700); }
 .section-title .muted { margin-left: auto; font-size: 13px; font-weight: 400; }
+/* Botón de cerrar al final del título (detalle de un pedido, por ejemplo). */
+.section-title > .btn-icon:last-child { margin-left: auto; }
 .page-title { margin: 0 0 4px; font-size: 24px; }
 .muted { color: var(--text-muted); }
 .link { color: var(--orange-600); font-weight: 600; }
@@ -144,11 +146,11 @@ fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
   white-space: nowrap;
 }
 .pill::first-letter { text-transform: uppercase; }
-.pill-realizada, .pill-activo, .pill-finalizada {
+.pill-realizada, .pill-activo, .pill-finalizada, .pill-entregado {
   background: color-mix(in srgb, var(--success) 16%, var(--surface));
   color: color-mix(in srgb, var(--success) 65%, var(--navy-900));
 }
-.pill-programada, .pill-activa {
+.pill-programada, .pill-activa, .pill-pendiente {
   background: var(--orange-100);
   color: color-mix(in srgb, var(--orange-500) 70%, var(--navy-900));
 }
@@ -156,11 +158,11 @@ fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
   background: color-mix(in srgb, var(--danger) 14%, var(--surface));
   color: color-mix(in srgb, var(--danger) 75%, var(--navy-900));
 }
-.pill-planeada {
+.pill-planeada, .pill-confirmado {
   background: color-mix(in srgb, var(--info) 14%, var(--surface));
   color: color-mix(in srgb, var(--info) 70%, var(--navy-900));
 }
-/* cancelada e inactivo usan el gris por defecto. */
+/* cancelada, cancelado e inactivo usan el gris por defecto. */
 
 /* Círculo numerado (orden de visita, agenda del día). */
 .num {

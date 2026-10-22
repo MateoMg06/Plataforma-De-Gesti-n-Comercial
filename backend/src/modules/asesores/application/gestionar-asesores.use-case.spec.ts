@@ -39,6 +39,10 @@ class AsesorRepositoryEnMemoria implements AsesorRepository {
   async buscarPorCorreo(correo: string) {
     return this.asesores.find((a) => a.correo === correo) ?? null;
   }
+
+  async buscarPorIdUsuario() {
+    return null;
+  }
 }
 
 describe('RegistrarAsesorUseCase', () => {

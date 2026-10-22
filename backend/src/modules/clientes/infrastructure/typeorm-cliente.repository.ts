@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   ILike,
+  In,
   QueryFailedError,
   Repository,
   type FindOptionsWhere,
@@ -39,6 +40,7 @@ export class TypeOrmClienteRepository implements ClienteRepository {
       filtros.idPotencial = consulta.idPotencial;
     if (consulta.idEstadoCliente !== undefined)
       filtros.idEstadoCliente = consulta.idEstadoCliente;
+    if (consulta.ids !== undefined) filtros.id = In(consulta.ids);
     // ILike parametriza el texto. Se escapan comodines para buscar texto literal.
     const texto = consulta.busqueda?.replace(/[\\%_]/g, '\\$&');
     const where = texto

@@ -10,6 +10,8 @@ export type ConsultaClientes = {
   idTipoCliente?: number;
   idPotencial?: number;
   idEstadoCliente?: number;
+  // HU-03: si viene, solo se listan estos clientes (los del asesor).
+  ids?: number[];
 };
 
 export type PaginaClientes = {

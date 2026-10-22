@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { ResultadoRegistrado } from '../domain/resultado-visita.js';
 import { type EstadoResultado, type Visita } from '../domain/visita.js';
 import { VISITA_REPOSITORY, type VisitaRepository } from '../domain/visita.repository.js';
@@ -19,7 +19,14 @@ export class RegistrarResultadoVisitaUseCase {
       throw new NotFoundException('La visita no existe');
     }
     // La entidad valida las reglas: una visita realizada no se puede editar.
-    const actualizada = visita.registrarResultado(fechaReal, estado);
+    // Si la regla falla, se responde 400 con el mensaje (antes salía error 500).
+    let actualizada: Visita;
+    try {
+      actualizada = visita.registrarResultado(fechaReal, estado);
+    } catch (error) {
+      if (error instanceof Error) throw new BadRequestException(error.message);
+      throw error;
+    }
     const guardada = await this.visitas.guardar(actualizada);
     await this.visitas.guardarResultadosVisita(idVisita, resultados);
     return guardada;

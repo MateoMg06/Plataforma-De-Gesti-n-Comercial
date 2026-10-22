@@ -31,7 +31,7 @@ interface Cliente {
   municipio: string;
 }
 
-// Basado en diseno_04 (Creación de rutas). HU-14 y HU-15 (Andres).
+// Basado en diseno_04 (Creación de rutas). HU-14, HU-15 y HU-16 (Andres).
 export function RutasPage() {
   const [rutas, setRutas] = useState<Ruta[]>([]);
   const [asesores, setAsesores] = useState<Asesor[]>([]);
@@ -126,6 +126,26 @@ export function RutasPage() {
       await cargarRutas();
     } catch (err) {
       setError((err as Error).message);
+    }
+  };
+
+  // HU-16: activar (genera las visitas) o finalizar la ruta seleccionada.
+  const cambiarEstado = async (accion: 'activar' | 'finalizar') => {
+    setError('');
+    setMensaje('');
+    setGuardando(true);
+    try {
+      const ruta = await api<Ruta>(`/rutas/${idRuta}/${accion}`, { method: 'PATCH' });
+      await cargarRutas();
+      setMensaje(
+        accion === 'activar'
+          ? `Ruta activada: se programaron ${ruta.clientes.length} visitas.`
+          : 'Ruta finalizada: ya no admite cambios.',
+      );
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -225,6 +245,16 @@ export function RutasPage() {
               <span>Asesor: <strong>{asesorDe(rutaSeleccionada.idAsesor)}</strong></span>
               <span>Del {rutaSeleccionada.fechaInicio} al {rutaSeleccionada.fechaFin}</span>
               <span><strong>{rutaSeleccionada.clientes.length}</strong> paradas</span>
+              {rutaSeleccionada.estado === 'planeada' && (
+                <button className="btn btn-primary btn-sm" disabled={guardando} onClick={() => cambiarEstado('activar')}>
+                  Activar ruta
+                </button>
+              )}
+              {rutaSeleccionada.estado === 'activa' && (
+                <button className="btn btn-sm" disabled={guardando} onClick={() => cambiarEstado('finalizar')}>
+                  Finalizar ruta
+                </button>
+              )}
             </p>
           )}
 

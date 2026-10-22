@@ -23,7 +23,16 @@ import { TiposClienteController } from './presentation/tipos-cliente.controller.
 import { TIPO_CLIENTE_REPOSITORY } from './domain/tipo-cliente.repository.js';
 import { TypeOrmTipoClienteRepository } from './infrastructure/typeorm-tipo-cliente.repository.js';
 import { ListarOpcionesClienteUseCase } from './application/listar-opciones-cliente.use-case.js';
-import { Module } from '@nestjs/common';
+import { CrearContactoUseCase } from './application/crear-contacto.use-case.js';
+import { EditarContactoUseCase } from './application/editar-contacto.use-case.js';
+import { EliminarContactoUseCase } from './application/eliminar-contacto.use-case.js';
+import { ListarContactosUseCase } from './application/listar-contactos.use-case.js';
+import { CONTACTO_CLIENTE_REPOSITORY } from './domain/contacto-cliente.repository.js';
+import { ContactoClienteOrmEntity } from './infrastructure/contacto-cliente.orm-entity.js';
+import { TypeOrmContactoClienteRepository } from './infrastructure/typeorm-contacto-cliente.repository.js';
+import { ContactosClienteController } from './presentation/contactos-cliente.controller.js';
+import { forwardRef, Module } from '@nestjs/common';
+import { VisitasModule } from '../visitas/visitas.module.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ZonasModule } from '../zonas/zonas.module.js';
 import { RegistrarClienteUseCase } from './application/registrar-cliente.use-case.js';
@@ -35,15 +44,34 @@ import { PotencialOrmEntity } from './infrastructure/potencial.orm-entity.js';
 import { EstadoClienteOrmEntity } from './infrastructure/estado-cliente.orm-entity.js';
 import { TypeOrmClienteRepository } from './infrastructure/typeorm-cliente.repository.js';
 import { ClientesController } from './presentation/clientes.controller.js';
+import { ListarPortafoliosUseCase } from './application/listar-portafolios.use-case.js';
+import { CrearPortafolioUseCase } from './application/crear-portafolio.use-case.js';
+import { EditarPortafolioUseCase } from './application/editar-portafolio.use-case.js';
+import { EliminarPortafolioUseCase } from './application/eliminar-portafolio.use-case.js';
+import { ListarPortafolioClienteUseCase } from './application/listar-portafolio-cliente.use-case.js';
+import { AgregarPortafolioClienteUseCase } from './application/agregar-portafolio-cliente.use-case.js';
+import { RetirarPortafolioClienteUseCase } from './application/retirar-portafolio-cliente.use-case.js';
+import { PORTAFOLIO_REPOSITORY } from './domain/portafolio.repository.js';
+import { PortafolioOrmEntity } from './infrastructure/portafolio.orm-entity.js';
+import { ClientePortafolioOrmEntity } from './infrastructure/cliente-portafolio.orm-entity.js';
+import { TypeOrmPortafolioRepository } from './infrastructure/typeorm-portafolio.repository.js';
+import { PortafoliosController } from './presentation/portafolios.controller.js';
+import { PortafolioClienteController } from './presentation/portafolio-cliente.controller.js';
 
 @Module({
   imports: [
     ZonasModule,
+    // HU-03: clientes necesita las visitas para saber cuáles clientes son de un asesor,
+    // y visitas necesita clientes para validar el cliente. forwardRef resuelve ese ciclo.
+    forwardRef(() => VisitasModule),
     TypeOrmModule.forFeature([
       ClienteOrmEntity,
       TipoClienteOrmEntity,
       PotencialOrmEntity,
       EstadoClienteOrmEntity,
+      ContactoClienteOrmEntity,
+      PortafolioOrmEntity,
+      ClientePortafolioOrmEntity,
     ]),
   ],
   controllers: [
@@ -51,6 +79,9 @@ import { ClientesController } from './presentation/clientes.controller.js';
     PotencialesController,
     ClientesController,
     TiposClienteController,
+    ContactosClienteController,
+    PortafoliosController,
+    PortafolioClienteController,
   ],
   providers: [
     ListarClientesUseCase,
@@ -81,7 +112,26 @@ import { ClientesController } from './presentation/clientes.controller.js';
     RegistrarClienteUseCase,
     ObtenerClienteUseCase,
     { provide: CLIENTE_REPOSITORY, useClass: TypeOrmClienteRepository },
+    // HU-07: contactos del cliente.
+    ListarContactosUseCase,
+    CrearContactoUseCase,
+    EditarContactoUseCase,
+    EliminarContactoUseCase,
+    {
+      provide: CONTACTO_CLIENTE_REPOSITORY,
+      useClass: TypeOrmContactoClienteRepository,
+    },
+    // HU-09: portafolio y su relación con el cliente.
+    ListarPortafoliosUseCase,
+    CrearPortafolioUseCase,
+    EditarPortafolioUseCase,
+    EliminarPortafolioUseCase,
+    ListarPortafolioClienteUseCase,
+    AgregarPortafolioClienteUseCase,
+    RetirarPortafolioClienteUseCase,
+    { provide: PORTAFOLIO_REPOSITORY, useClass: TypeOrmPortafolioRepository },
   ],
-  exports: [ObtenerClienteUseCase],
+  // ListarClientes y ListarPotenciales: los usa el dashboard (HU-32).
+  exports: [ObtenerClienteUseCase, ListarClientesUseCase, ListarPotencialesUseCase],
 })
 export class ClientesModule {}

@@ -13,6 +13,12 @@ import { ZonasPage } from './pages/ZonasPage';
 import { RutasPage } from './pages/RutasPage';
 import { AsesoresPage } from './pages/AsesoresPage';
 import { AgendaPage } from './pages/AgendaPage';
+import { SeguimientosPage } from './pages/SeguimientosPage';
+import { CotizacionesPage } from './pages/CotizacionesPage';
+import { DashboardPage } from './pages/DashboardPage';
+import { MapaPage } from './pages/MapaPage';
+import { PedidosPage } from './pages/PedidosPage';
+import { PortafolioPage } from './pages/PortafolioPage';
 
 export default function App() {
   return (
@@ -26,7 +32,9 @@ export default function App() {
               key={item.path}
               path={item.path}
               element={
-                item.path === '/visitas' ? (
+                item.path === '/dashboard' ? (
+                  <DashboardPage />
+                ) : item.path === '/visitas' ? (
                   <VisitasPage />
                 ) : item.path === '/clientes' ? (
                   <ClientesPage />
@@ -36,6 +44,14 @@ export default function App() {
                   <AgendaPage />
                 ) : item.path === '/rutas' ? (
                   <RutasPage />
+                ) : item.path === '/seguimientos' ? (
+                  <SeguimientosPage />
+                ) : item.path === '/cotizaciones' ? (
+                  <CotizacionesPage />
+                ) : item.path === '/mapa' ? (
+                  <MapaPage />
+                ) : item.path === '/pedidos' ? (
+                  <PedidosPage />
                 ) : (
                   <PlaceholderPage item={item} />
                 )
@@ -55,7 +71,9 @@ export default function App() {
             element={<EstadosClientePage />}
           />
           <Route path="/configuracion/zonas" element={<ZonasPage />} />
+          <Route path="/configuracion/portafolio" element={<PortafolioPage />} />
           <Route path="/configuracion/asesores" element={<AsesoresPage />} />
+          <Route path="/agenda/mia" element={<AgendaPage mia />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

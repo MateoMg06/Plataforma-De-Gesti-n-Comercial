@@ -158,3 +158,4 @@
   .topbar-search { display: none; }
   .content { padding: 16px; }
 }
+.usuario-rol { text-transform: capitalize; }

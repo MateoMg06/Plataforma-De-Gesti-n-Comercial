@@ -76,78 +76,52 @@ Ese endpoint se restringe o se esconde en la **HU-04** (administración de usuar
 
 ---
 
-## Estado: HU-03 · Roles y permisos (lista)
+## HU-03 · Roles y permisos
 
-### Cómo proteger un endpoint tuyo (lo que necesitas, en 3 líneas)
+Hay **una sola** forma de proteger por rol: el `@Roles()` de la integración oficial
+`@thallesp/nestjs-better-auth`. No hay guard propio.
 
-Importa el decorador y el enum, y pon `@Roles(...)` encima del método:
+### Cómo proteger un endpoint
 
 ```ts
-import { Roles } from '../../../common/decorators/roles.decorator.js';
-import { UserRole } from '../../../common/enums/domain.enums.js';
+import { Roles } from '@thallesp/nestjs-better-auth';
 
-@Get()
-@Roles(UserRole.ADMINISTRADOR, UserRole.LIDER)
-listar() { /* ... */ }
+@Roles(['administrador'])            // o ['administrador', 'lider']
+@Post()
+crear(@Body() dto: CrearZonaDto) { /* ... */ }
 ```
 
-Eso es todo. **No hay que registrar nada en tu módulo**: el `RolesGuard` es global
-y ya corre en toda la aplicación (se registra en `auth.module.ts`).
+No hay que registrar nada en tu módulo: el `AuthGuard` de la librería ya es global.
 
 | Lo que pasa | Respuesta |
 |---|---|
-| Sin sesión y la ruta tiene `@Roles()` | `401 Unauthorized` |
-| Con sesión, pero el rol no está en la lista | `403 Forbidden` |
-| La ruta **no** tiene `@Roles()` | Pasa cualquiera con sesión (como antes) |
+| Sin sesión | `401` |
+| Con sesión, pero el rol no está en la lista | `403` |
+| El usuario no tiene rol | `403`. La librería niega el acceso (`if (!role) return false`) |
+| El endpoint no tiene `@Roles()` | Pasa cualquiera con sesión |
 
-### Saber quién es el usuario de la sesión
+### De dónde sale el rol
 
-Si tu caso de uso necesita el usuario actual (por ejemplo, para que el asesor
-solo vea lo suyo), importa `ObtenerUsuarioActualUseCase`, que este módulo exporta:
+- La columna `role` de la tabla `user` (migración `AgregarRolUsuario`). Sus valores son `administrador`, `lider` y `asesor`, y por defecto es `asesor`.
+- En `infrastructure/auth.ts` se declara con `additionalFields` e `input: false`, para que **nadie pueda elegir su rol al registrarse**.
+- Llega a la sesión como **`user.role`**, no como `rol`. El frontend lo lee de `GET /api/auth/get-session` para filtrar el menú.
+- Para asignar roles en local: `npm run seed` (ver el README principal).
+
+### Que el asesor vea solo lo suyo
+
+Lee el usuario de la sesión en el controlador y pásalo al caso de uso:
 
 ```ts
-// en tu modulo.ts:  imports: [AuthModule]
-this.usuarioActual.ejecutar(request.session.user) // -> Usuario { id, nombre, correo, rol, activo }
-```
+import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 
-El controlador obtiene la sesión de la petición con `@Req()`:
-
-```ts
 @Get()
-listar(@Req() req) {
-  const usuario = this.usuarioActual.ejecutar(req.session.user);
-  return this.listarVisitas.ejecutar(usuario);
+listar(@Session() session: UserSession) {
+  return this.listarVisitas.ejecutar({ id: session.user.id, role: session.user.role as string });
 }
 ```
 
-`Usuario` tiene dos métodos de negocio que ahorran preguntas:
+En el caso de uso, si `role === 'asesor'`, busca su asesor con `ObtenerAsesorPorUsuarioUseCase` (lo exporta el módulo asesores, por la columna `id_usuario`) y filtra. Así lo hacen visitas, rutas, clientes y el dashboard.
 
-- `puedeAccederA([UserRole.ADMINISTRADOR])` — `false` si el usuario está desactivado.
-- `esAsesor()` — para saber si hay que filtrar por sus propios datos.
-
-### Qué hay hoy
-
-| Archivo | Para qué sirve |
-|---|---|
-| `domain/usuario.ts` | Entidad de dominio: el rol y las reglas (`puedeAccederA`, `esAsesor`). TypeScript puro. |
-| `application/obtener-usuario-actual.use-case.ts` | Convierte la sesión de BetterAuth en un `Usuario` del negocio. |
-| `../../common/decorators/roles.decorator.ts` | El decorador `@Roles(...)`. |
-| `../../common/guards/roles.guard.ts` | El guard global que hace cumplir `@Roles()`. |
-
-### Detalles técnicos importantes (para la sustentación)
-
-- **El `RolesGuard` es global** (`APP_GUARD` en `auth.module.ts`) para que todos
-  los módulos lo tengan sin configurar nada. Si cada uno tuviera que registrarlo,
-  sería fácil olvidarlo y dejar un endpoint abierto.
-- **La clave de metadata es `'roles'`, no `'ROLES'`.** La librería de BetterAuth
-  usa `'ROLES'` para su propio decorador, que solo entiende el plugin `admin`.
-  Nuestro decorador usa `'roles'` a propósito, para no chocar ni depender de él.
-- **El guard busca la sesión él mismo** si `request.session` todavía no está.
-  Los guards globales de NestJS no garantizan un orden entre módulos, y esta
-  integración registra el suyo por su cuenta. Buscar la sesión con
-  `authService.api.getSession()` hace que el guard funcione sin importar el orden.
-- **Un rol desconocido se trata como `asesor`.** Si en la base aparece un rol que
-  no está en el enum `UserRole`, el usuario queda con los permisos mínimos. Fallar
-  hacia el lado seguro, nunca hacia el lado permisivo.
-- **El rol viaja en la sesión**, así que el frontend no necesita un endpoint extra
-  para saber qué menú mostrar: lo lee de `GET /api/auth/get-session`.
+> **Ojo:** no uses un `@Roles` propio con otra clave de metadata (`'roles'`). Nadie lo
+> revisaría y el endpoint quedaría **abierto sin avisar**. Por eso se borró
+> `common/decorators/roles.decorator.ts`.
