@@ -31,11 +31,21 @@ interface Cliente {
   municipio: string;
 }
 
+interface ClienteSugerido {
+  idCliente: number;
+  razonSocial: string;
+  frecuenciaVisitaDias: number;
+  fechaUltimaVisita: string;
+  diasDesdeUltimaVisita: number;
+  diasAtraso: number;
+}
+
 // Basado en diseno_04 (Creación de rutas). HU-14, HU-15 y HU-16 (Andres).
 export function RutasPage() {
   const [rutas, setRutas] = useState<Ruta[]>([]);
   const [asesores, setAsesores] = useState<Asesor[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [sugerencias, setSugerencias] = useState<ClienteSugerido[]>([]);
   const [nombre, setNombre] = useState('');
   const [idAsesor, setIdAsesor] = useState('');
   const [fechaInicio, setFechaInicio] = useState('');
@@ -61,6 +71,9 @@ export function RutasPage() {
       .catch((err) => setError((err as Error).message));
     api<{ datos: Cliente[] }>('/clientes?limit=100')
       .then((pagina) => setClientes(pagina.datos))
+      .catch((err) => setError((err as Error).message));
+    api<ClienteSugerido[]>('/rutas/sugerencias-frecuencia')
+      .then(setSugerencias)
       .catch((err) => setError((err as Error).message));
   }, []);
 
@@ -142,6 +155,25 @@ export function RutasPage() {
           ? `Ruta activada: se programaron ${ruta.clientes.length} visitas.`
           : 'Ruta finalizada: ya no admite cambios.',
       );
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const agregarSugerido = async (idClienteSugerido: number) => {
+    if (!rutaSeleccionada || rutaSeleccionada.estado !== 'planeada') return;
+    setError('');
+    setMensaje('');
+    setGuardando(true);
+    try {
+      await api(`/rutas/${rutaSeleccionada.id}/clientes`, {
+        method: 'POST',
+        body: JSON.stringify({ id_cliente: idClienteSugerido }),
+      });
+      await cargarRutas();
+      setMensaje('Cliente sugerido agregado a la ruta.');
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -278,6 +310,50 @@ export function RutasPage() {
               <Plus size={18} /> Agregar cliente
             </button>
           </form>
+
+          <div className="rutas-sugerencias">
+            <h3>Clientes por visitar</h3>
+            <p>Clientes que superaron su frecuencia de visita, ordenados por días de atraso.</p>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Última visita</th>
+                    <th>Atraso</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sugerencias.map((cliente) => {
+                    const yaEnRuta = rutaSeleccionada?.clientes.some(
+                      (enRuta) => enRuta.idCliente === cliente.idCliente,
+                    );
+                    return (
+                      <tr key={cliente.idCliente}>
+                        <td><strong>{cliente.razonSocial}</strong></td>
+                        <td>{cliente.fechaUltimaVisita}</td>
+                        <td>{cliente.diasAtraso} días</td>
+                        <td>
+                          <button
+                            className="btn btn-outline btn-sm"
+                            type="button"
+                            disabled={!rutaSeleccionada || rutaSeleccionada.estado !== 'planeada' || yaEnRuta || guardando}
+                            onClick={() => agregarSugerido(cliente.idCliente)}
+                          >
+                            {yaEnRuta ? 'Ya está en la ruta' : 'Agregar a ruta'}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {sugerencias.length === 0 && (
+                    <tr><td colSpan={4} className="vacio">No hay clientes atrasados en su frecuencia de visita.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
           <div className="table-wrap">
             <table className="table">

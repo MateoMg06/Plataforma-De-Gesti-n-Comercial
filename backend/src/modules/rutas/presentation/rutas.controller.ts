@@ -15,6 +15,7 @@ import { FinalizarRutaUseCase } from '../application/finalizar-ruta.use-case.js'
 import { CrearRutaUseCase } from '../application/crear-ruta.use-case.js';
 import { ListarRutasUseCase } from '../application/listar-rutas.use-case.js';
 import { ReordenarClienteRutaUseCase } from '../application/reordenar-cliente-ruta.use-case.js';
+import { SugerirClientesPorFrecuenciaUseCase } from '../application/sugerir-clientes-por-frecuencia.use-case.js';
 import { AgregarClienteRutaDto } from './dto/agregar-cliente-ruta.dto.js';
 import { CrearRutaDto } from './dto/crear-ruta.dto.js';
 import { ReordenarClienteRutaDto } from './dto/reordenar-cliente-ruta.dto.js';
@@ -30,7 +31,28 @@ export class RutasController {
     private readonly reordenarCliente: ReordenarClienteRutaUseCase,
     private readonly activarRuta: ActivarRutaUseCase,
     private readonly finalizarRuta: FinalizarRutaUseCase,
+    private readonly sugerirClientes: SugerirClientesPorFrecuenciaUseCase,
   ) {}
+
+  @Roles(['administrador', 'lider'])
+  @Get('sugerencias-frecuencia')
+  @ApiOperation({ summary: 'Listar clientes atrasados según su frecuencia de visita' })
+  @ApiOkResponse({
+    description: 'Clientes ordenados desde el mayor atraso',
+    schema: {
+      example: [{
+        idCliente: 101,
+        razonSocial: 'Comercial Norte SAS',
+        frecuenciaVisitaDias: 15,
+        fechaUltimaVisita: '2026-09-20',
+        diasDesdeUltimaVisita: 31,
+        diasAtraso: 16,
+      }],
+    },
+  })
+  sugerenciasPorFrecuencia() {
+    return this.sugerirClientes.ejecutar();
+  }
 
   @Get()
   @ApiOperation({ summary: 'Listar rutas con sus clientes ordenados' })
