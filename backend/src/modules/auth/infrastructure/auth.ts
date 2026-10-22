@@ -3,7 +3,25 @@
 // .env. Es el mismo truco que usa src/database/data-source.ts.
 import 'dotenv/config';
 import { betterAuth } from 'better-auth';
+import { admin } from 'better-auth/plugins/admin';
+import {createAccessControl} from 'better-auth/plugins/access';
+import {defaultStatements} from 'better-auth/plugins/admin/access';
 import { Pool } from 'pg';
+
+
+// Recursos y acciones disponibles. Se parte de los defaults del plugin admin
+// para que los endpoints internos (create user, ban, set-role...) sigan funcionando.
+const ac = createAccessControl(defaultStatements);
+
+const administrador = ac.newRole({
+  user: ['create', 'list', 'update', 'set-role', 'ban', 'get'],
+})
+const lider = ac.newRole({
+  user: ['list'],
+})
+const asesor = ac.newRole({
+  user: [],
+})
 
 // Instancia de BetterAuth (HU-01). Es el adaptador que crea y controla
 // usuarios, sesiones y contraseñas. Usa el MISMO PostgreSQL que TypeORM,
@@ -30,6 +48,14 @@ export const auth = betterAuth({
       activo: {type: 'boolean',defaultValue: true, input: false },
     },
   },
+  plugins:[
+    admin({
+      ac,            // <- importante: pasar el access control
+      roles: { administrador, lider, asesor},
+      adminRoles: ['administrador'],
+      defaultRole: 'asesor',
+    }),
+  ],
   // Secreto de cifrado y URL base: salen del .env, nunca del código.
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',

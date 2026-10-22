@@ -125,3 +125,45 @@ En el caso de uso, si `role === 'asesor'`, busca su asesor con `ObtenerAsesorPor
 > **Ojo:** no uses un `@Roles` propio con otra clave de metadata (`'roles'`). Nadie lo
 > revisaría y el endpoint quedaría **abierto sin avisar**. Por eso se borró
 > `common/decorators/roles.decorator.ts`.
+
+---
+
+## HU-04 · Administración de usuarios
+
+La administración de usuarios se resuelve utilizando el **plugin oficial `admin` de BetterAuth** con control de acceso por roles (`createAccessControl`) y la columna `activo` para borrado lógico (desactivación).
+
+### Qué hay hoy
+
+| Archivo | Para qué sirve |
+|---|---|
+| `infrastructure/auth.ts` | Configura el plugin `admin` con permisos RBAC estrictos (solo `administrador` puede crear, listar, modificar y desactivar usuarios), y declara el campo `activo` en `user.additionalFields`. |
+| `frontend/src/pages/UsuariosPage.tsx` | Pantalla de administración en Configuración (`/configuracion/usuarios`) para listar usuarios, registrar nuevos con contraseña y activar/inactivar cuentas. |
+| `frontend/src/pages/CatalogosPage.tsx` | Enlace a la gestión de usuarios dentro del menú de Configuración. |
+| `frontend/src/App.tsx` | Registra la ruta protegida `/configuracion/usuarios`. |
+
+### Cómo funciona
+
+- **Listar usuarios:** `GET /api/auth/admin/list-users` (solo rol `administrador`). Devuelve todos los usuarios registrados con su nombre, correo, rol y estado.
+- **Crear usuario:** `POST /api/auth/admin/create-user` con `{ name, email, password, role }`.
+  - Valida automáticamente que el correo sea único (BetterAuth rechaza duplicados).
+  - La contraseña se hashea de forma segura con Scrypt antes de guardarse en `account`.
+  - El usuario se crea con estado `activo: true` por defecto.
+- **Activar / Inactivar:** `POST /api/auth/admin/update-user` con `{ userId, data: { activo: boolean } }`.
+  - Cumple la regla *"no se eliminan usuarios con actividad, solo se desactivan"*: la pantalla no expone eliminación destructiva física para no romper claves foráneas ni perder la autoría histórica en visitas, cotizaciones o pedidos.
+- **Bloqueo de acceso:** Un usuario con `activo: false` no puede acceder a las funciones del sistema.
+
+### Detalles técnicos importantes (para explicar en la sustentación)
+
+- **Control de acceso del plugin admin (`createAccessControl`):** En `infrastructure/auth.ts`, definimos explícitamente qué acciones puede hacer cada rol sobre el recurso `user`. El rol `administrador` tiene permisos completos (`create`, `list`, `update`, `set-role`, `ban`, `get`), `lider` solo `list`, y `asesor` ninguno (`[]`). Si un usuario que no es administrador intenta consumir los endpoints de `/api/auth/admin/*`, BetterAuth devuelve automáticamente **403 Forbidden**.
+- **Borrado lógico vs. Borrado físico:** En sistemas comerciales y de auditoría nunca se eliminan registros con historial (`DELETE FROM "user"`). En su lugar se usa el campo `activo: boolean`. Esto preserva la integridad de las relaciones con asesores, agendas, visitas y seguimientos.
+- **Sin registro público:** No existe pantalla de registro para usuarios externos; solo los administradores autenticados pueden registrar personal del equipo desde el módulo de Configuración.
+
+### Cómo probarlo (paso a paso)
+
+1. Iniciar sesión como administrador (`admin@comercial360.co` / `Demo2026!`).
+2. Ir a **Configuración** en el menú lateral y hacer clic en **Usuarios**.
+3. **Crear usuario:** Llenar el formulario con nombre, correo nuevo, contraseña y rol (ej. `asesor`). Al hacer clic en "Agregar", el nuevo usuario aparece en la tabla inferior.
+4. **Validar correo único:** Intentar registrar otro usuario con el mismo correo. El sistema mostrará un error indicando que ya está registrado.
+5. **Inactivar usuario:** En la tabla, presionar el botón "Inactivar" del usuario recién creado. Su badge cambia a `inactivo` y el botón a "Activar".
+6. **Activar usuario:** Presionar "Activar" para restaurar el estado activo de la cuenta.
+
