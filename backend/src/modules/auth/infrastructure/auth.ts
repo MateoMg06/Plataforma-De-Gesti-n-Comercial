@@ -4,6 +4,7 @@
 import 'dotenv/config';
 import { betterAuth } from 'better-auth';
 import { Pool } from 'pg';
+import { databaseSslConfig } from '../../../config/database.config.js';
 
 // Instancia de BetterAuth (HU-01). Es el adaptador que crea y controla
 // usuarios, sesiones y contraseñas. Usa el MISMO PostgreSQL que TypeORM,
@@ -17,7 +18,7 @@ export const auth = betterAuth({
     user: process.env.DB_USER ?? 'comercial',
     password: process.env.DB_PASSWORD ?? 'comercial',
     database: process.env.DB_NAME ?? 'comercial360',
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    ssl: databaseSslConfig(),
   }),
   // HU-01: solo correo y contraseña. El login con Microsoft es opcional y va al final.
   emailAndPassword: { enabled: true },

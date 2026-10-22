@@ -30,6 +30,81 @@ npm run dev
 
 Para comprobar que todo funciona: abre http://localhost:3000/api/health y luego, en el frontend, **Configuración → Ver ejemplo: catálogo de zonas**. Si puedes agregar una zona, la cadena frontend → backend → PostgreSQL está bien.
 
+## PostgreSQL en AWS RDS (HU-INF-02)
+
+La configuración está preparada para PostgreSQL local y RDS. La instancia AWS
+se crea por separado; estos cambios no crean recursos ni trasladan los datos locales.
+Región de referencia: **us-east-1 (Virginia del Norte)**, la misma indicada en
+`AWS_REGION` de `backend/.env.example` para los servicios AWS del proyecto.
+
+### Crear la instancia
+
+1. En la región acordada, abrir RDS y crear una instancia **PostgreSQL**. Usar
+   PostgreSQL 16 para mantener la misma versión mayor que Docker local.
+2. Definir el identificador de la instancia y, en la configuración adicional,
+   el **nombre inicial de base de datos `comercial360`**. El identificador de la
+   instancia y el nombre de la base son valores distintos.
+3. Guardar el usuario administrador y su contraseña fuera del repositorio.
+   Revisar el costo estimado, el tamaño y el almacenamiento antes de crearla;
+   no asumir que la cuenta dispone de recursos gratuitos.
+4. Para el despliegue con EC2, usar la misma VPC y una base sin acceso público.
+   En el grupo de seguridad de RDS permitir TCP 5432 desde el grupo de seguridad
+   del backend. Ejecutar las migraciones desde una máquina con acceso a esa red.
+   Si se hace una prueba temporal desde el equipo local mediante acceso público,
+   permitir únicamente la IP pública del desarrollador (`/32`), nunca `0.0.0.0/0`,
+   y retirar ese acceso al terminar.
+5. Esperar el estado **Available** y copiar el endpoint DNS y el puerto de la
+   pestaña de conectividad. No usar una IP fija ni anteponer `https://` al endpoint.
+
+Referencia: [crear y conectar PostgreSQL en RDS](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.PostgreSQL.html).
+
+### Configurar el backend
+
+Descargar el [bundle CA oficial de RDS](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html)
+y guardarlo fuera del repositorio, por ejemplo en una carpeta de certificados
+del usuario del sistema. El proceso del backend debe poder leerlo.
+
+En el entorno del backend que conectará a RDS, establecer estos valores:
+
+```dotenv
+DB_HOST=<endpoint-DNS-de-RDS>
+DB_PORT=5432
+DB_USER=<usuario-de-la-base>
+DB_PASSWORD=<contraseña-privada>
+DB_NAME=comercial360
+DB_SSL=true
+DB_SSL_CA=/ruta/absoluta/al/global-bundle.pem
+```
+
+Son ejemplos de configuración: reemplazar los valores entre `< >`. No sobrescribir
+el `.env` local que funciona; usar estas variables en el entorno de despliegue.
+`DB_SSL=true` exige un certificado CA legible y valida la identidad del servidor.
+No desactivar la validación del certificado para resolver errores de conexión.
+
+### Aplicar y verificar las migraciones
+
+Desde `backend/`, con las variables anteriores cargadas y acceso de red a RDS:
+
+```bash
+npm run build
+npm run typeorm -- query 'SELECT current_database() AS base, ssl FROM pg_stat_ssl WHERE pid = pg_backend_pid()'
+npm run typeorm -- migration:show
+npm run migration:run
+npm run typeorm -- migration:show
+```
+
+La consulta debe mostrar `base = comercial360` y `ssl = true`. Al finalizar,
+las migraciones deben figurar aplicadas (`[X]`). Se mantiene `synchronize: false`:
+las tablas se crean mediante las migraciones versionadas.
+
+RDS comienza sin los datos de tu base local. Para una instancia exclusivamente
+de **demo**, se puede ejecutar `npm run seed`; no ejecutar ese script en producción.
+Luego reiniciar el backend y comprobar el login y el listado de clientes.
+
+La HU queda validada en AWS cuando existe la instancia, la conexión verifica el
+certificado, las migraciones están aplicadas y el backend puede consultar datos.
+Preparar el código por sí solo no acredita esas comprobaciones.
+
 ## Datos de prueba (seed)
 
 `npm run seed` (en `backend/`) carga datos para la demo:
