@@ -1,6 +1,7 @@
 import 'leaflet/dist/leaflet.css';
 import { Map as MapIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet';
 import { api } from '../api/client';
 import './MapaPage.css';
@@ -201,6 +202,9 @@ export function MapaPage() {
                   })}
                   <br />
                   <span className={`pill pill-${visita.estado}`}>{visita.estado.replace('_', ' ')}</span>
+                  <br />
+                  {/* HU-22: enlace al detalle de la visita en la pantalla de visitas. */}
+                  <Link to="/visitas">Ver detalle</Link>
                 </Popup>
               </CircleMarker>
             ))}
