@@ -8,14 +8,18 @@ import { CotizacionDetalleOrmEntity } from './infrastructure/cotizacion-detalle.
 import { PedidoOrmEntity } from './infrastructure/pedido.orm-entity.js';
 import { TypeOrmCotizacionRepository } from './infrastructure/typeorm-cotizacion.repository.js';
 import { TypeOrmPedidoRepository } from './infrastructure/typeorm-pedido.repository.js';
+import { InMemoryStorageAdapter } from './infrastructure/in-memory-storage.adapter.js';
 import { COTIZACION_REPOSITORY } from './domain/cotizacion.repository.js';
 import { PEDIDO_REPOSITORY } from './domain/pedido.repository.js';
+import { STORAGE_PORT } from './domain/storage.port.js';
 import { CrearCotizacionUseCase } from './application/crear-cotizacion.use-case.js';
 import { ListarCotizacionesUseCase } from './application/listar-cotizaciones.use-case.js';
 import { EnviarCotizacionUseCase } from './application/enviar-cotizacion.use-case.js';
 import { AprobarCotizacionUseCase } from './application/aprobar-cotizacion.use-case.js';
 import { RechazarCotizacionUseCase } from './application/rechazar-cotizacion.use-case.js';
 import { ConvertirCotizacionEnPedidoUseCase } from './application/convertir-cotizacion-en-pedido.use-case.js';
+import { SubirDocumentoCotizacionUseCase } from './application/subir-documento-cotizacion.use-case.js';
+import { DescargarDocumentoCotizacionUseCase } from './application/descargar-documento-cotizacion.use-case.js';
 import { ListarPedidosUseCase } from './application/listar-pedidos.use-case.js';
 import { ObtenerPedidoUseCase } from './application/obtener-pedido.use-case.js';
 import { CotizacionesController } from './presentation/cotizaciones.controller.js';
@@ -38,10 +42,13 @@ import { PedidosController } from './presentation/pedidos.controller.js';
     AprobarCotizacionUseCase,
     RechazarCotizacionUseCase,
     ConvertirCotizacionEnPedidoUseCase,
+    SubirDocumentoCotizacionUseCase,
+    DescargarDocumentoCotizacionUseCase,
     ListarPedidosUseCase,
     ObtenerPedidoUseCase,
     { provide: COTIZACION_REPOSITORY, useClass: TypeOrmCotizacionRepository },
     { provide: PEDIDO_REPOSITORY, useClass: TypeOrmPedidoRepository },
+    { provide: STORAGE_PORT, useClass: InMemoryStorageAdapter }, //Cambiar InMemory por S3StorageAdapter en despliegue de AWS
   ],
   // HU-32: el dashboard lee cotizaciones y pedidos con estos casos de uso.
   exports: [ListarCotizacionesUseCase, ListarPedidosUseCase],

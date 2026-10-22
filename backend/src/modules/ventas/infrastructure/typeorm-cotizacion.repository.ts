@@ -22,6 +22,7 @@ export class TypeOrmCotizacionRepository implements CotizacionRepository {
       await this.repo.update(cotizacion.id, {
         estado: cotizacion.estado,
         valor: cotizacion.total,
+        documentoKey: cotizacion.documentoKey,
       });
       const fila = await this.repo.findOneBy({ id: cotizacion.id });
       return new Cotizacion(
@@ -32,6 +33,7 @@ export class TypeOrmCotizacionRepository implements CotizacionRepository {
         fila!.fecha,
         fila!.estado as CotizacionEstado,
         cotizacion.detalles,
+        cotizacion.documentoKey,
       );
     }
 
@@ -40,10 +42,10 @@ export class TypeOrmCotizacionRepository implements CotizacionRepository {
       idCliente: cotizacion.idCliente,
       idAsesor: cotizacion.idAsesor,
       fecha: cotizacion.fecha,
-      valor: cotizacion.total,
-      estado: cotizacion.estado,
-      documentoKey: null,
-    });
+       valor: cotizacion.total,
+       estado: cotizacion.estado,
+       documentoKey: cotizacion.documentoKey,
+     });
     for (const d of cotizacion.detalles) {
       await this.detalleRepo.save({
         idCotizacion: fila.id,
@@ -61,6 +63,7 @@ export class TypeOrmCotizacionRepository implements CotizacionRepository {
       fila.fecha,
       fila.estado as CotizacionEstado,
       cotizacion.detalles,
+      cotizacion.documentoKey,
     );
   }
 
@@ -68,24 +71,25 @@ export class TypeOrmCotizacionRepository implements CotizacionRepository {
     const fila = await this.repo.findOneBy({ id });
     if (!fila) return null;
     const detalles = await this.detalleRepo.find({ where: { idCotizacion: id } });
-    return new Cotizacion(
-      fila.id,
-      fila.numero,
-      fila.idCliente,
-      fila.idAsesor,
-      fila.fecha,
-      fila.estado as CotizacionEstado,
-      detalles.map(
-        (d) =>
-          new CotizacionDetalle(
-            d.id,
-            d.producto,
-            d.cantidad,
-            Number(d.precio),
-            Number(d.subtotal),
-          ),
-      ),
-    );
+      return new Cotizacion(
+        fila.id,
+        fila.numero,
+        fila.idCliente,
+        fila.idAsesor,
+        fila.fecha,
+        fila.estado as CotizacionEstado,
+        detalles.map(
+          (d) =>
+            new CotizacionDetalle(
+              d.id,
+              d.producto,
+              d.cantidad,
+              Number(d.precio),
+              Number(d.subtotal),
+            ),
+        ),
+        fila.documentoKey,
+      );
   }
 
   // Todas las cotizaciones con su detalle, la más reciente primero.

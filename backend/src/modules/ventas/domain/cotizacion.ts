@@ -42,6 +42,7 @@ export class Cotizacion {
     public readonly fecha: Date,
     public readonly estado: CotizacionEstado,
     detalles: CotizacionDetalle[],
+    public readonly documentoKey: string | null = null,
   ) {
     if (idCliente <= 0) throw new Error('El cliente es obligatorio');
     if (idAsesor <= 0) throw new Error('El asesor es obligatorio');
@@ -105,13 +106,27 @@ export class Cotizacion {
       this.fecha,
       estado,
       this.detalles,
+      this.documentoKey,
+    );
+  }
+
+  conDocumento(clave: string | null): Cotizacion {
+    return new Cotizacion(
+      this.id,
+      this.numero,
+      this.idCliente,
+      this.idAsesor,
+      this.fecha,
+      this.estado,
+      this.detalles,
+      clave,
     );
   }
 
   // El total vive en un getter, y JSON.stringify no serializa los getters.
   // Con este toJSON la API devuelve el total junto con el resto de la
   // cotización, sin duplicar el cálculo en la capa de presentación.
-  toJSON() {
+   toJSON() {
     return {
       id: this.id,
       numero: this.numero,
@@ -121,6 +136,7 @@ export class Cotizacion {
       estado: this.estado,
       total: this.total,
       detalles: this.detalles,
+      documentoKey: this.documentoKey,
     };
   }
 }

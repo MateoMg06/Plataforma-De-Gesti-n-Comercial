@@ -1,4 +1,7 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { SubirDocumentoCotizacionUseCase } from '../application/subir-documento-cotizacion.use-case.js';
+import { DescargarDocumentoCotizacionUseCase } from '../application/descargar-documento-cotizacion.use-case.js';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -43,6 +46,8 @@ export class CotizacionesController {
     private readonly aprobarCotizacion: AprobarCotizacionUseCase,
     private readonly rechazarCotizacion: RechazarCotizacionUseCase,
     private readonly convertirEnPedido: ConvertirCotizacionEnPedidoUseCase,
+    private readonly subirDocumento: SubirDocumentoCotizacionUseCase,
+    private readonly descargarDocumento: DescargarDocumentoCotizacionUseCase,
   ) {}
 
   @Get()
@@ -106,5 +111,25 @@ export class CotizacionesController {
   @ApiConflictResponse({ description: 'La cotización ya se convirtió en pedido.' })
   convertir(@Param('id', ParseIntPipe) id: number) {
     return this.convertirEnPedido.ejecutar(id);
+  }
+
+  @Post(':id/documento')
+  @UseInterceptors(FileInterceptor('archivo'))
+  @ApiOperation({ summary: 'Subir documento de la cotización (HU-29)' })
+  subirDocumentoCotizacion(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() archivo: { buffer: Buffer; originalname: string; mimetype: string },
+  ) {
+    return this.subirDocumento.ejecutar(id, archivo.buffer, archivo.originalname, archivo.mimetype);
+  }
+
+  @Get(':id/documento')
+  @ApiOperation({ summary: 'Descargar documento de la cotización (HU-29)' })
+  async descargarDocumentoCotizacion(@Param('id', ParseIntPipe) id: number) {
+    const doc = await this.descargarDocumento.ejecutar(id);
+    return new StreamableFile(doc.contenido, {
+      type: doc.contentType,
+      disposition: `attachment; filename="${doc.nombreArchivo}"`,
+    });
   }
 }
