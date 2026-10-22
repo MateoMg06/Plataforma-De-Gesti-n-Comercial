@@ -1,6 +1,6 @@
 import { Bell, Calendar, ChevronDown, LogOut, Menu as MenuIcon, Search } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../api/client';
 import { menu, type Rol } from './menu';
 import './AppLayout.css';
@@ -27,6 +27,7 @@ const hoy = new Date().toLocaleDateString('es-CO', {
 
 export function AppLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [cerrando, setCerrando] = useState(false);
   // El nombre sí viene de la sesión: así se ve quién inició sesión.
   const [nombre, setNombre] = useState('');
@@ -38,6 +39,22 @@ export function AppLayout() {
   const [busqueda, setBusqueda] = useState('');
   const items = menu.filter((item) => item.roles.includes(rol));
 
+  // HU-03: si la ruta actual en la barra del navegador exige roles que el
+  // usuario no tiene, lo redirigimos al dashboard.
+  const rutaProtegida = menu.find(
+    (item)=> location.pathname === item.path ||
+    location.pathname.startsWith(item.path + '/'),
+  );
+  const noAutorizado = Boolean(sesionValida && rutaProtegida &&
+    !rutaProtegida.roles.includes(rol)
+  );
+  useEffect(()=>{
+    if (noAutorizado) {
+      navigate('/dashboard', {replace:true})
+    }
+    [noAutorizado, navigate]
+  });
+  
   useEffect(() => {
     api<{ session: unknown; user: { name: string } } | null>('/auth/get-session')
       .then((datos) => {
