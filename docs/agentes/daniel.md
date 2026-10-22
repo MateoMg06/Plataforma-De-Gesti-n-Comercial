@@ -13,6 +13,7 @@ No estás en el recorrido principal. Si llegas, HU-27 (crear cotización en borr
 - **HU-30 (TERMINADA)· Convertir en pedido (Must).** Solo cotizaciones aprobadas. El pedido hereda cliente, valor y referencia a la cotización. Número automático y único.
 - **HU-31 · Consultar pedidos (Should).** Filtros por cliente, asesor, estado y fechas; detalle con su cotización de origen.
 - **HU-INF-04 · S3 (después del MVP).** Bucket con permisos mínimos; puerto `StoragePort` en dominio y adaptador S3 en infraestructura.
+- **HU-INF-06 · Sonar (después del MVP).** Configuración básica para la cobertura local
 
 ## Tablas que son tuyas
 COTIZACION (+ `documento_key`), COTIZACION_DETALLE, PEDIDO.

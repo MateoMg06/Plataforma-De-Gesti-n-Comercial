@@ -3,7 +3,8 @@
   "private": true,
   "description": "Raíz del repo: solo instala Husky para validar ramas y commits",
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "sonar:scan": "sonar-scanner"
   },
   "devDependencies": {
     "husky": "^9.1.7"
