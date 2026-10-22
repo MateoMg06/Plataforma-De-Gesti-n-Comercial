@@ -1,3 +1,11 @@
+import { ContactoClienteOrmEntity } from './infrastructure/contacto-cliente.orm-entity.js';
+import { CONTACTO_CLIENTE_REPOSITORY } from './domain/contacto-cliente.repository.js';
+import { TypeOrmContactoClienteRepository } from './infrastructure/typeorm-contacto-cliente.repository.js';
+import { ContactosController } from './presentation/contactos.controller.js';
+import { CrearContactoUseCase } from './application/crear-contacto.use-case.js';
+import { EditarContactoUseCase } from './application/editar-contacto.use-case.js';
+import { EliminarContactoUseCase } from './application/eliminar-contacto.use-case.js';
+import { ListarContactosUseCase } from './application/listar-contactos.use-case.js';
 import { ListarClientesUseCase } from './application/listar-clientes.use-case.js';
 import { EditarClienteUseCase } from './application/editar-cliente.use-case.js';
 import { CambiarActividadClienteUseCase } from './application/cambiar-actividad-cliente.use-case.js';
@@ -40,6 +48,7 @@ import { ClientesController } from './presentation/clientes.controller.js';
   imports: [
     ZonasModule,
     TypeOrmModule.forFeature([
+      ContactoClienteOrmEntity,
       ClienteOrmEntity,
       TipoClienteOrmEntity,
       PotencialOrmEntity,
@@ -47,12 +56,21 @@ import { ClientesController } from './presentation/clientes.controller.js';
     ]),
   ],
   controllers: [
+    ContactosController,
     EstadosClienteController,
     PotencialesController,
     ClientesController,
     TiposClienteController,
   ],
   providers: [
+    CrearContactoUseCase,
+    EditarContactoUseCase,
+    EliminarContactoUseCase,
+    ListarContactosUseCase,
+    {
+      provide: CONTACTO_CLIENTE_REPOSITORY,
+      useClass: TypeOrmContactoClienteRepository,
+    },
     ListarClientesUseCase,
     EditarClienteUseCase,
     CambiarActividadClienteUseCase,

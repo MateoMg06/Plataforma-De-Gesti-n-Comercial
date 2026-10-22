@@ -14,6 +14,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import "./ClientesPage.css";
+import { ContactosCliente } from "./ContactosCliente";
 
 type Opcion = { id: number; nombre: string };
 type Opciones = { tipos: Opcion[]; potenciales: Opcion[]; estados: Opcion[] };
@@ -73,6 +74,7 @@ const filtrosVacios = {
 };
 
 export function ClientesPage() {
+  const [clienteContactos, setClienteContactos] = useState<Cliente | null>(null);
   const [datos, setDatos] = useState(formularioVacio);
   const [zonas, setZonas] = useState<Opcion[]>([]);
   const [opciones, setOpciones] = useState<Opciones>({
@@ -448,6 +450,7 @@ export function ClientesPage() {
                           </td>
                           <td>
                             <div className="acciones">
+                              <button className="btn" onClick={() => setClienteContactos(cliente)}>Contactos</button>
                               <button
                                 className="btn-icon"
                                 aria-label={`Editar ${cliente.razonSocial}`}
@@ -523,6 +526,8 @@ export function ClientesPage() {
             )
           )}
         </section>
+
+        {clienteContactos && <ContactosCliente key={clienteContactos.id} idCliente={clienteContactos.id} nombre={clienteContactos.razonSocial} />}
 
         <section className="card" id="formulario-cliente">
           <div className="page-header clientes-form-cabecera">
