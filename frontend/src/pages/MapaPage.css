@@ -1,5 +1,8 @@
 .mapa { height: 560px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
 
+/* HU-21: filtros del mapa; el contador queda debajo del toolbar. */
+.mapa-filtros { margin-bottom: 8px; }
+
 /* Leyenda con el número de visitas por estado. */
 .mapa-leyenda { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0 0 16px; padding: 0; list-style: none; }
 .mapa-leyenda li { display: flex; align-items: center; gap: 6px; }
