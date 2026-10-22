@@ -51,8 +51,7 @@ export function AppLayout() {
     if (noAutorizado) {
       navigate('/dashboard', {replace:true})
     }
-    [noAutorizado, navigate]
-  });
+  }, [noAutorizado, navigate]);
   
   useEffect(() => {
     api<{ session: unknown; user: { name: string; role: Rol } } | null>('/auth/get-session')
@@ -88,7 +87,7 @@ export function AppLayout() {
     if (texto) navigate(`/clientes?busqueda=${encodeURIComponent(texto)}`);
   }
 
-  if (!sesionValida) return null;
+  if (!sesionValida || noAutorizado) return null;
 
   return (
     <div className={`layout ${menuCompacto ? 'layout-compacto' : ''}`}>
