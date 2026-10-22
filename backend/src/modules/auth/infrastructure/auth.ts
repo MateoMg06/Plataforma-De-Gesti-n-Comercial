@@ -27,6 +27,7 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: { type: 'string', defaultValue: 'asesor', input: false },
+      activo: {type: 'boolean',defaultValue: true, input: false },
     },
   },
   // Secreto de cifrado y URL base: salen del .env, nunca del código.

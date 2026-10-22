@@ -12,6 +12,7 @@ import { VisitasPage } from './pages/VisitasPage';
 import { ZonasPage } from './pages/ZonasPage';
 import { RutasPage } from './pages/RutasPage';
 import { AsesoresPage } from './pages/AsesoresPage';
+import { UsuariosPage } from './pages/UsuariosPage';
 import { AgendaPage } from './pages/AgendaPage';
 import { SeguimientosPage } from './pages/SeguimientosPage';
 import { CotizacionesPage } from './pages/CotizacionesPage';
@@ -73,6 +74,10 @@ export default function App() {
           <Route path="/configuracion/zonas" element={<ZonasPage />} />
           <Route path="/configuracion/portafolio" element={<PortafolioPage />} />
           <Route path="/configuracion/asesores" element={<AsesoresPage />} />
+          <Route
+            path="/configuracion/usuarios"
+            element={<UsuariosPage />}
+          />
           <Route path="/agenda/mia" element={<AgendaPage mia />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

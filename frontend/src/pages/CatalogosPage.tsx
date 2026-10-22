@@ -7,6 +7,7 @@ import {
   Tags,
   TrendingUp,
   UserCog,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -29,6 +30,7 @@ const catalogos: Opcion[] = [
 
 const equipo: Opcion[] = [
   { ruta: "/configuracion/asesores", titulo: "Asesores", detalle: "Asesores comerciales y su estado.", icono: UserCog },
+  { ruta: "/configuracion/usuarios", titulo: "Usuarios", detalle: "Usuarios del sistema y sus roles.", icono: Users },
 ];
 
 function ListaOpciones({ opciones }: { opciones: Opcion[] }) {
