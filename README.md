@@ -60,9 +60,31 @@ Referencia: [crear y conectar PostgreSQL en RDS](https://docs.aws.amazon.com/Ama
 
 ### Configurar el backend
 
+El archivo `global-bundle.pem` contiene los certificados de las autoridades de
+confianza de AWS RDS. Permite comprobar que el certificado presentado por el
+servidor pertenece al endpoint al que se está conectando el backend. Con
+`DB_SSL=true`, la conexión va cifrada y se verifica la identidad del servidor.
+El archivo no es una contraseña ni contiene datos de la aplicación.
+
 Descargar el [bundle CA oficial de RDS](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html)
-y guardarlo fuera del repositorio, por ejemplo en una carpeta de certificados
-del usuario del sistema. El proceso del backend debe poder leerlo.
+y guardarlo fuera del repositorio. En Linux o macOS:
+
+```bash
+mkdir -p "$HOME/.postgresql"
+curl -fL https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem \
+  -o "$HOME/.postgresql/global-bundle.pem"
+realpath "$HOME/.postgresql/global-bundle.pem"
+```
+
+Copiar la ruta absoluta que devuelve el último comando en `DB_SSL_CA` del
+`backend/.env`. No escribir `$HOME` ni `~` en esa variable: el backend usa la ruta
+literal. Dejar una sola línea `DB_SSL_CA`, sin otra definición vacía que la
+sobrescriba. El proceso del backend debe tener permiso de lectura sobre el archivo.
+
+En otro PC hay que descargar el certificado y configurar la ruta propia de ese
+equipo. Git no incluye el `.env` ni los archivos `.pem`. En Windows, descargar el
+archivo desde el mismo enlace y usar una ruta como
+`DB_SSL_CA=C:/Users/tu_usuario/.postgresql/global-bundle.pem`.
 
 En el entorno del backend que conectará a RDS, establecer estos valores:
 
