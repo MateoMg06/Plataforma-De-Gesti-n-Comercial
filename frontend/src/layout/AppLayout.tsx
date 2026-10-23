@@ -34,6 +34,8 @@ export function AppLayout() {
   // sesión no se pinta nada; si no hay sesión, se vuelve al login.
   const [sesionValida, setSesionValida] = useState(false);
   const [menuCompacto, setMenuCompacto] = useState(false);
+  // En celular (600 px o menos) el menú no ocupa espacio: se abre encima con ☰.
+  const [menuMovil, setMenuMovil] = useState(false);
   const [menuUsuario, setMenuUsuario] = useState(false);
   const [busqueda, setBusqueda] = useState('');
   const items = menu.filter((item) => item.roles.includes(rol));
@@ -48,6 +50,18 @@ export function AppLayout() {
   useEffect(() => {
     if (noAutorizado) navigate('/dashboard', { replace: true });
   }, [noAutorizado, navigate]);
+
+  // Al cambiar de pantalla se cierran el menú del celular y el del usuario.
+  useEffect(() => {
+    setMenuMovil(false);
+    setMenuUsuario(false);
+  }, [location.pathname]);
+
+  // ☰ en celular abre/cierra el menú; en pantallas grandes lo deja solo con íconos.
+  function alternarMenu() {
+    if (window.matchMedia('(max-width: 600px)').matches) setMenuMovil(!menuMovil);
+    else setMenuCompacto(!menuCompacto);
+  }
 
   useEffect(() => {
     api<{ session: unknown; user: { name: string; role: Rol } } | null>('/auth/get-session')
@@ -86,7 +100,7 @@ export function AppLayout() {
   if (!sesionValida || noAutorizado) return null;
 
   return (
-    <div className={`layout ${menuCompacto ? 'layout-compacto' : ''}`}>
+    <div className={`layout ${menuCompacto ? 'layout-compacto' : ''} ${menuMovil ? 'layout-menu-abierto' : ''}`}>
       <header className="topbar">
         <div className="topbar-brand">
           <img src="/favicon.svg" alt="" width={30} height={30} />
@@ -97,8 +111,9 @@ export function AppLayout() {
         <button
           className="btn-icon"
           type="button"
-          aria-label={menuCompacto ? 'Mostrar nombres del menú' : 'Ocultar nombres del menú'}
-          onClick={() => setMenuCompacto(!menuCompacto)}
+          aria-label="Menú"
+          aria-expanded={menuMovil || !menuCompacto}
+          onClick={alternarMenu}
         >
           <MenuIcon size={22} />
         </button>
@@ -156,6 +171,8 @@ export function AppLayout() {
             ))}
           </nav>
         </aside>
+        {/* Fondo oscuro detrás del menú del celular: tocarlo lo cierra. */}
+        {menuMovil && <div className="menu-fondo" aria-hidden="true" onClick={() => setMenuMovil(false)} />}
         <main className="content">
           <Outlet />
         </main>

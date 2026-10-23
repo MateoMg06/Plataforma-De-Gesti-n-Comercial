@@ -145,17 +145,58 @@
   font-size: 13px;
 }
 
-/* En pantallas pequeñas el menú queda solo con íconos y se esconde la fecha. */
+.usuario-rol { text-transform: capitalize; }
+.topbar-fecha span { white-space: nowrap; }
+.menu-fondo { display: none; }
+
+/* Portátiles pequeños: la fecha completa ya no cabe en una línea y aprieta la barra. */
+@media (max-width: 1200px) {
+  .topbar-fecha { display: none; }
+}
+
+/* Tabletas: el menú queda solo con íconos. */
 @media (max-width: 900px) {
-  .topbar-fecha, .usuario-datos { display: none; }
+  .usuario-datos { display: none; }
   .topbar-brand { width: 76px; }
   .topbar-brand span { display: none; }
   .sidebar { width: 76px; }
   .nav-item { justify-content: center; padding: 14px 0; }
   .nav-item span { display: none; }
 }
+
+/* Celulares: el menú sale de la izquierda al tocar ☰ y el contenido usa todo el ancho. */
 @media (max-width: 600px) {
+  .topbar { gap: 8px; padding-right: 12px; }
+  .topbar-brand { width: auto; padding-left: 16px; }
+  .topbar-right { gap: 8px; }
   .topbar-search { display: none; }
   .content { padding: 16px; }
+
+  .sidebar {
+    position: fixed;
+    top: 68px;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    width: min(280px, 82vw);
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease-out;
+  }
+  .layout-menu-abierto .sidebar { transform: none; box-shadow: var(--shadow-lg); }
+  /* Dentro del menú abierto sí se ven los nombres. */
+  .sidebar .nav-item { justify-content: flex-start; padding: 14px 20px; }
+  .sidebar .nav-item span { display: inline; }
+  .menu-fondo {
+    display: block;
+    position: fixed;
+    inset: 68px 0 0 0;
+    z-index: 25;
+    background: color-mix(in srgb, var(--navy-900) 45%, transparent);
+  }
+
+  .app-footer { flex-direction: column; gap: 4px; padding: 12px 16px; }
 }
-.usuario-rol { text-transform: capitalize; }
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none; }
+}

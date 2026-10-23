@@ -225,7 +225,9 @@ export function CotizacionesPage() {
                       <td>{c.detalles.map((d) => `${d.cantidad} × ${d.producto}`).join(", ")}</td>
                       <td className="derecha">{pesos(c.total)}</td>
                       <td><span className={`pill pill-${c.estado}`}>{c.estado}</span></td>
-                      <td className="derecha cotizaciones-acciones">
+                      <td className="derecha">
+                        {/* Un td con display: flex deja de ser celda y descuadra la fila: el flex va en un div. */}
+                        <div className="cotizaciones-acciones">
                         {c.estado === "borrador" && (
                           <button className="btn btn-sm" onClick={() => void cambiarEstado(c, "enviar")}>Enviar</button>
                         )}
@@ -255,6 +257,7 @@ export function CotizacionesPage() {
                             }}
                           />
                         </label>
+                        </div>
                       </td>
                     </tr>
                   ))

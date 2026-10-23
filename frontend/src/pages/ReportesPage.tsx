@@ -285,7 +285,7 @@ export function ReportesPage() {
           </div>
         )}
 
-        <section className="card">
+        <section className="card reporte-detalle">
           <h2 className="section-title">
             <List size={18} /> Detalle
             <span className="reporte-pestanas" role="tablist">
