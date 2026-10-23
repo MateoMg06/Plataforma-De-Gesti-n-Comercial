@@ -1,6 +1,6 @@
 import { Bell, Calendar, ChevronDown, LogOut, Menu as MenuIcon, Search } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { menu, type Rol } from './menu';
 import './AppLayout.css';
@@ -24,6 +24,7 @@ const hoy = new Date().toLocaleDateString('es-CO', {
 
 export function AppLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [cerrando, setCerrando] = useState(false);
   // El nombre sí viene de la sesión: así se ve quién inició sesión.
   const [nombre, setNombre] = useState('');
@@ -36,6 +37,17 @@ export function AppLayout() {
   const [menuUsuario, setMenuUsuario] = useState(false);
   const [busqueda, setBusqueda] = useState('');
   const items = menu.filter((item) => item.roles.includes(rol));
+
+  // HU-03 (Kevin V): si la ruta de la barra del navegador exige un rol que el
+  // usuario no tiene (por ejemplo un asesor que escribe /configuracion), se va
+  // al dashboard. El backend igual responde 403; esto evita una pantalla rota.
+  const rutaDelMenu = menu.find(
+    (item) => location.pathname === item.path || location.pathname.startsWith(item.path + '/'),
+  );
+  const noAutorizado = Boolean(sesionValida && rutaDelMenu && !rutaDelMenu.roles.includes(rol));
+  useEffect(() => {
+    if (noAutorizado) navigate('/dashboard', { replace: true });
+  }, [noAutorizado, navigate]);
 
   useEffect(() => {
     api<{ session: unknown; user: { name: string; role: Rol } } | null>('/auth/get-session')
@@ -71,7 +83,7 @@ export function AppLayout() {
     if (texto) navigate(`/clientes?busqueda=${encodeURIComponent(texto)}`);
   }
 
-  if (!sesionValida) return null;
+  if (!sesionValida || noAutorizado) return null;
 
   return (
     <div className={`layout ${menuCompacto ? 'layout-compacto' : ''}`}>

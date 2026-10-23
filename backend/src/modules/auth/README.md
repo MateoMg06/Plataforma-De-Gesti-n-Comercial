@@ -125,3 +125,23 @@ En el caso de uso, si `role === 'asesor'`, busca su asesor con `ObtenerAsesorPor
 > **Ojo:** no uses un `@Roles` propio con otra clave de metadata (`'roles'`). Nadie lo
 > revisaría y el endpoint quedaría **abierto sin avisar**. Por eso se borró
 > `common/decorators/roles.decorator.ts`.
+
+---
+
+## HU-04 · Administración de usuarios (Kevin V)
+
+Se usa el **plugin oficial `admin` de BetterAuth** (`infrastructure/auth.ts`). No hay código propio de seguridad.
+
+| Acción | Endpoint | Quién |
+|---|---|---|
+| Listar usuarios | `GET /api/auth/admin/list-users` | administrador y líder |
+| Crear usuario (nombre, correo, contraseña, rol) | `POST /api/auth/admin/create-user` | administrador |
+| Desactivar | `POST /api/auth/admin/ban-user` `{ userId, banReason }` | administrador |
+| Activar | `POST /api/auth/admin/unban-user` `{ userId }` | administrador |
+
+- **Permisos:** `createAccessControl` define qué puede hacer cada rol sobre el recurso `user`. Si un rol no tiene permiso, BetterAuth responde **403** solo.
+- **Correo único:** BetterAuth rechaza un correo repetido (400).
+- **Un usuario desactivado no puede entrar:** desactivar es *ban*. Al hacerlo, BetterAuth **cierra sus sesiones abiertas** y rechaza su inicio de sesión (403, que el login muestra como "Tu usuario está desactivado").
+- **No se eliminan usuarios:** tienen historial (visitas, cotizaciones, bitácora). Solo se desactivan.
+- **Columnas:** la migración `AgregarCamposAdminBetterAuth` agrega `banned`, `banReason` y `banExpires` a `user`, e `impersonatedBy` a `session`.
+- **Pantalla:** Configuración → Usuarios (`frontend/src/pages/UsuariosPage.tsx`).
