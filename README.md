@@ -28,6 +28,16 @@ npm install
 npm run dev
 ```
 
+### Entrar a la aplicación
+
+Después de `npm run seed`, abre http://localhost:5173 y entra como administrador:
+
+| Correo | Contraseña |
+|---|---|
+| `admin@comercial360.co` | `Demo2026!` |
+
+Los demás usuarios de prueba están en [Datos de prueba](#datos-de-prueba-seed). Si dice "Correo o contraseña incorrectos", lee la nota sobre usuarios que ya existían en esa misma sección.
+
 Para comprobar que todo funciona: abre http://localhost:3000/api/health y luego, en el frontend, **Configuración → Ver ejemplo: catálogo de zonas**. Si puedes agregar una zona, la cadena frontend → backend → PostgreSQL está bien.
 
 ## PostgreSQL en AWS RDS (HU-INF-02)
@@ -156,7 +166,9 @@ Todos los usuarios tienen la contraseña de prueba **`Demo2026!`**. Es solo para
 | `sofia@comercial360.co` | asesor | Nada: es un asesor sin visitas |
 | `juan@comercial360.co` | asesor | "Mi agenda" le avisa que no tiene asesor vinculado |
 
-Si el usuario ya existía en tu base, el seed solo le asigna el rol y conserva su contraseña.
+Si el usuario ya existía en tu base, el seed solo le asigna el rol y **conserva su contraseña**: no es `Demo2026!` sino la que tenía. Por ejemplo, si creaste `admin@comercial360.co` a mano antes del seed, entra con esa contraseña o empieza de cero (abajo).
+
+En AWS (RDS), después de correr el seed para la demo, cambia la contraseña del administrador: el repositorio es público y cualquiera puede leer `Demo2026!`.
 
 **Empezar de cero** (borra todos los datos locales):
 
