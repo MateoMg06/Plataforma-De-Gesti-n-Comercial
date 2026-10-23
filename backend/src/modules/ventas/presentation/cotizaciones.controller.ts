@@ -1,5 +1,7 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes, ApiForbiddenResponse } from '@nestjs/swagger';
+import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { SubirDocumentoCotizacionUseCase } from '../application/subir-documento-cotizacion.use-case.js';
 import { DescargarDocumentoCotizacionUseCase } from '../application/descargar-documento-cotizacion.use-case.js';
 import {
@@ -114,19 +116,43 @@ export class CotizacionesController {
   }
 
   @Post(':id/documento')
-  @UseInterceptors(FileInterceptor('archivo'))
-  @ApiOperation({ summary: 'Subir documento de la cotización (HU-29)' })
+  // El límite del interceptor corta archivos gigantes antes de leerlos completos.
+  @UseInterceptors(FileInterceptor('archivo', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  @ApiOperation({
+    summary: 'Subir documento de la cotización (HU-29)',
+    description: 'PDF, PNG o JPG de máximo 10 MB. El archivo va a S3; la base guarda solo documento_key.',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ schema: { type: 'object', properties: { archivo: { type: 'string', format: 'binary' } } } })
+  @ApiBadRequestResponse({ description: 'Sin archivo, tipo no permitido o más de 10 MB.' })
+  @ApiForbiddenResponse({ description: 'La cotización es de otro asesor.' })
+  @ApiNotFoundResponse({ description: 'La cotización no existe.' })
   subirDocumentoCotizacion(
     @Param('id', ParseIntPipe) id: number,
-    @UploadedFile() archivo: { buffer: Buffer; originalname: string; mimetype: string },
+    @UploadedFile() archivo: { buffer: Buffer; originalname: string; mimetype: string } | undefined,
+    @Session() session: UserSession,
   ) {
-    return this.subirDocumento.ejecutar(id, archivo.buffer, archivo.originalname, archivo.mimetype);
+    return this.subirDocumento.ejecutar(
+      id,
+      archivo?.buffer,
+      archivo?.originalname ?? '',
+      archivo?.mimetype ?? '',
+      { id: session.user.id, role: session.user.role as string },
+    );
   }
 
   @Get(':id/documento')
-  @ApiOperation({ summary: 'Descargar documento de la cotización (HU-29)' })
-  async descargarDocumentoCotizacion(@Param('id', ParseIntPipe) id: number) {
-    const doc = await this.descargarDocumento.ejecutar(id);
+  @ApiOperation({ summary: 'Descargar documento de la cotización (HU-29)', description: 'El asesor solo descarga los de sus cotizaciones.' })
+  @ApiForbiddenResponse({ description: 'La cotización es de otro asesor.' })
+  @ApiNotFoundResponse({ description: 'La cotización no existe o no tiene documento.' })
+  async descargarDocumentoCotizacion(
+    @Param('id', ParseIntPipe) id: number,
+    @Session() session: UserSession,
+  ) {
+    const doc = await this.descargarDocumento.ejecutar(id, {
+      id: session.user.id,
+      role: session.user.role as string,
+    });
     return new StreamableFile(doc.contenido, {
       type: doc.contentType,
       disposition: `attachment; filename="${doc.nombreArchivo}"`,

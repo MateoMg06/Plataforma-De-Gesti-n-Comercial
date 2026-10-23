@@ -34,7 +34,7 @@ Para comprobar que todo funciona: abre http://localhost:3000/api/health y luego,
 
 La configuración está preparada para PostgreSQL local y RDS. La instancia AWS
 se crea por separado; estos cambios no crean recursos ni trasladan los datos locales.
-Región de referencia: **us-east-1 (Virginia del Norte)**, la misma indicada en
+Región de referencia: **us-east-2 (Ohio)**, la misma indicada en
 `AWS_REGION` de `backend/.env.example` para los servicios AWS del proyecto.
 
 ### Crear la instancia
@@ -126,6 +126,10 @@ Luego reiniciar el backend y comprobar el login y el listado de clientes.
 La HU queda validada en AWS cuando existe la instancia, la conexión verifica el
 certificado, las migraciones están aplicadas y el backend puede consultar datos.
 Preparar el código por sí solo no acredita esas comprobaciones.
+
+## Despliegue en EC2 (HU-INF-03)
+
+Guía paso a paso en [docs/despliegue-aws.md](docs/despliegue-aws.md): EC2 con nginx y pm2, RDS y S3 con rol IAM. Archivos en `deploy/`.
 
 ## Datos de prueba (seed)
 
