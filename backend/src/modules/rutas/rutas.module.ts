@@ -9,6 +9,7 @@ import { CrearRutaUseCase } from './application/crear-ruta.use-case.js';
 import { AgregarClienteRutaUseCase } from './application/agregar-cliente-ruta.use-case.js';
 import { ListarRutasUseCase } from './application/listar-rutas.use-case.js';
 import { ReordenarClienteRutaUseCase } from './application/reordenar-cliente-ruta.use-case.js';
+import { SugerirClientesPorFrecuenciaUseCase } from './application/sugerir-clientes-por-frecuencia.use-case.js';
 import { RUTA_REPOSITORY } from './domain/ruta.repository.js';
 import { RutaOrmEntity } from './infrastructure/ruta.orm-entity.js';
 import { RutaClienteOrmEntity } from './infrastructure/ruta-cliente.orm-entity.js';
@@ -28,6 +29,7 @@ import { RutasController } from './presentation/rutas.controller.js';
     ReordenarClienteRutaUseCase,
     ActivarRutaUseCase,
     FinalizarRutaUseCase,
+    SugerirClientesPorFrecuenciaUseCase,
     { provide: RUTA_REPOSITORY, useClass: TypeOrmRutaRepository },
   ],
 })
