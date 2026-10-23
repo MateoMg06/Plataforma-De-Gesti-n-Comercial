@@ -8,6 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
+import { RegistrarEnBitacora } from '../../bitacora/infrastructure/bitacora.decorator.js';
 import { ListarVisitasUseCase } from '../application/listar-visitas.use-case.js';
 import { ProgramarVisitaUseCase } from '../application/programar-visita.use-case.js';
 import { RegistrarResultadoVisitaUseCase } from '../application/registrar-resultado-visita.use-case.js';
@@ -46,6 +47,7 @@ export class VisitasController {
   }
 
   @Post()
+  @RegistrarEnBitacora('crear_visita')
   @ApiOperation({ summary: 'Programar una visita (HU-18)', description: 'Queda en estado programada.' })
   @ApiCreatedResponse({ description: 'Visita programada.', schema: { example: visitaEjemplo } })
   @ApiBadRequestResponse({ description: 'Datos inválidos.' })
@@ -61,6 +63,7 @@ export class VisitasController {
 
   // HU-19: registrar el resultado de una visita.
   @Post(':id/resultados')
+  @RegistrarEnBitacora('editar_visita')
   @ApiOperation({
     summary: 'Registrar el resultado de una visita (HU-19)',
     description: 'Fecha real, estado final y resultados del catálogo. Una visita realizada no se puede editar.',

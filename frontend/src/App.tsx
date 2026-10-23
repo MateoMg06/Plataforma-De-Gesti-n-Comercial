@@ -14,6 +14,7 @@ import { RutasPage } from './pages/RutasPage';
 import { AsesoresPage } from './pages/AsesoresPage';
 import { AgendaPage } from './pages/AgendaPage';
 import { SeguimientosPage } from './pages/SeguimientosPage';
+import { BitacoraPage } from './pages/BitacoraPage';
 import { CotizacionesPage } from './pages/CotizacionesPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { MapaPage } from './pages/MapaPage';
@@ -53,6 +54,8 @@ export default function App() {
                   <MapaPage />
                 ) : item.path === '/pedidos' ? (
                   <PedidosPage />
+                ) : item.path === '/bitacora' ? (
+                  <BitacoraPage />
                 ) : (
                   <PlaceholderPage item={item} />
                 )

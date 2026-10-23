@@ -35,6 +35,7 @@ import {
 import { RegistrarClienteUseCase } from '../application/registrar-cliente.use-case.js';
 import { ObtenerClienteUseCase } from '../application/obtener-cliente.use-case.js';
 import { RegistrarClienteDto } from './dto/registrar-cliente.dto.js';
+import { RegistrarEnBitacora } from '../../bitacora/infrastructure/bitacora.decorator.js';
 
 @ApiTags('Clientes')
 @Controller('clientes')
@@ -65,6 +66,7 @@ export class ClientesController {
   }
 
   @Put(':id')
+  @RegistrarEnBitacora('editar_cliente')
   @ApiOperation({
     summary: 'Editar los datos de un cliente',
     description:
@@ -82,6 +84,7 @@ export class ClientesController {
   }
 
   @Patch(':id/actividad')
+  @RegistrarEnBitacora('editar_cliente')
   @ApiOperation({ summary: 'Activar o desactivar un cliente' })
   @ApiParam({ name: 'id', type: 'integer', example: 1 })
   @ApiOkResponse({ type: RespuestaClienteDto })
@@ -95,6 +98,7 @@ export class ClientesController {
   }
 
   @Post()
+  @RegistrarEnBitacora('crear_cliente')
   @ApiOperation({
     summary: 'Registrar un cliente',
     description:
