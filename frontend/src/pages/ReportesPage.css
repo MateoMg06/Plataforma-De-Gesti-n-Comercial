@@ -35,6 +35,13 @@
   background: var(--bg);
 }
 
+@media (max-width: 600px) {
+  /* Las pestañas del detalle bajan debajo del título en vez de apretarse a su lado. */
+  .reporte-detalle .section-title { flex-wrap: wrap; }
+  .reporte-pestanas { flex-basis: 100%; margin-left: 0; }
+  .reporte-pestanas .btn { flex: 1 1 auto; }
+}
+
 @media (max-width: 760px) {
   .reporte-totales,
   .reporte-graficos {

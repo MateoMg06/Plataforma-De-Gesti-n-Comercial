@@ -63,6 +63,8 @@ h1, h2, h3 { color: var(--navy-900); }
   background: var(--surface);
   color: var(--text);
   font: inherit;
+  /* Sin esto, inputs como fecha y hora no se encogen y se salen de su columna. */
+  min-width: 0;
 }
 .input:focus { outline: none; border-color: var(--orange-500); box-shadow: 0 0 0 3px var(--orange-100); }
 .input:disabled { background: var(--bg); }
@@ -82,6 +84,13 @@ fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
 @media (max-width: 600px) {
   .form-grid { grid-template-columns: 1fr; }
   .form-grid .span-2 { grid-column: auto; }
+  /* En iPhone, un campo con letra menor a 16 px hace zoom al tocarlo. */
+  .input, .field .input { font-size: 16px; }
+  /* Botones del tamaño de un dedo (mínimo 40 px). */
+  .btn-sm { min-height: 40px; }
+  .btn-icon { width: 40px; height: 40px; }
+  /* Los botones de un formulario ocupan el ancho y se reparten la fila. */
+  .form-actions > .btn { flex: 1 1 auto; }
 }
 
 /* ---------- Tarjetas y estructura de página ---------- */
@@ -131,6 +140,20 @@ fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
 .table .acciones { display: flex; gap: 2px; justify-content: flex-end; }
 .table .derecha { text-align: right; }
 .table .vacio { padding: 28px 12px; text-align: center; color: var(--text-muted); }
+/* Pantallas medianas: celdas un poco más juntas para que la mayoría de tablas quepan sin scroll. */
+@media (max-width: 1100px) {
+  .table th, .table td { padding-left: 8px; padding-right: 8px; }
+}
+/* Celular: las tablas se desplazan de lado; la primera columna (el nombre o número)
+   queda fija para no perder de vista a qué fila corresponde cada dato.
+   :where() deja la especificidad baja para que los fondos de cada página (por ejemplo
+   los seguimientos vencidos) sigan ganando. */
+@media (max-width: 600px) {
+  :where(.table) th:first-child,
+  :where(.table) td:first-child { position: sticky; left: 0; z-index: 1; background-color: var(--surface); }
+  :where(.table) th:first-child { background-color: var(--bg); }
+  :where(.table) td:first-child { box-shadow: 1px 0 0 var(--border); }
+}
 .table-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; color: var(--text-muted); }
 
 /* ---------- Etiquetas de estado (pills) ----------

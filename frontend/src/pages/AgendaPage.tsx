@@ -240,9 +240,14 @@ export function AgendaPage() {
                     vista === "mes" && dia.getMonth() !== referencia.getMonth()
                       ? "agenda-fuera"
                       : "",
+                    visitasDelDia(dia).length === 0 ? "agenda-dia-vacio" : "",
                   ].join(" ")}
                 >
-                  <div className="agenda-numero">{dia.getDate()}</div>
+                  <div className="agenda-numero">
+                    {/* En celular los días van en lista: ahí sí se muestra "Lun", "Mar"... */}
+                    <span className="agenda-dia-nombre">{DIAS[(dia.getDay() + 6) % 7]}</span>
+                    {dia.getDate()}
+                  </div>
                   {visitasDelDia(dia).map((v) => (
                     <div
                       key={v.id}
