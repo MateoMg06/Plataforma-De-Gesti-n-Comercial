@@ -1,5 +1,5 @@
 import {
-  BarChart3, Calendar, ClipboardCheck, FileText, LayoutDashboard, LineChart,
+  BarChart3, Calendar, ClipboardCheck, FileText, History, LayoutDashboard, LineChart,
   Map, Route, Settings, ShoppingCart, Users, type LucideIcon,
 } from 'lucide-react';
 
@@ -27,6 +27,7 @@ export const menu: MenuItem[] = [
   { path: '/cotizaciones', label: 'Cotizaciones', icon: FileText, responsable: 'Daniel', historias: 'HU-27 a HU-30', roles: todos },
   { path: '/pedidos', label: 'Pedidos', icon: ShoppingCart, responsable: 'Daniel', historias: 'HU-31', roles: todos },
   { path: '/seguimientos', label: 'Seguimientos', icon: BarChart3, responsable: 'Kevin B', historias: 'HU-23 a HU-26', roles: todos },
+  { path: '/bitacora', label: 'Bitácora', icon: History, responsable: 'Kevin B', historias: 'HU-25', roles: ['administrador', 'lider'] },
   { path: '/reportes', label: 'Reportes', icon: LineChart, responsable: 'Julian', historias: 'HU-33, HU-34', roles: ['administrador', 'lider'] },
   { path: '/configuracion', label: 'Configuración', icon: Settings, responsable: 'Kevin V / Francisco / Mateo', historias: 'HU-04, HU-08, HU-10', roles: ['administrador'] },
 ];

@@ -1,0 +1,12 @@
+/* HU-24: los seguimientos vencidos se resaltan en rojo. */
+.fila-vencida td {
+  background: color-mix(in srgb, var(--danger) 6%, var(--surface));
+}
+.fila-vencida td:first-child {
+  box-shadow: inset 3px 0 0 var(--danger);
+  color: var(--danger);
+}
+.pill-vencido {
+  background: color-mix(in srgb, var(--danger) 14%, var(--surface));
+  color: color-mix(in srgb, var(--danger) 75%, var(--navy-900));
+}

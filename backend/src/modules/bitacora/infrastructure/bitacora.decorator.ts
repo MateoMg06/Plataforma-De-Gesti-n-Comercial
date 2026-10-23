@@ -2,17 +2,22 @@ import { SetMetadata } from '@nestjs/common';
 
 // Acciones que se pueden registrar en la bitácora.
 // Los valores son los mismos que guarda la columna "accion" de la tabla bitacora.
-export type AccionBitacora =
-  | 'crear_cliente'
-  | 'editar_cliente'
-  | 'crear_visita'
-  | 'editar_visita'
-  | 'crear_cotizacion'
-  | 'editar_cotizacion'
-  | 'crear_pedido'
-  | 'editar_pedido'
-  | 'reprogramar_visita'
-  | 'crear_seguimiento';
+// Es un arreglo para que el filtro de la consulta (HU-25) valide contra la misma lista.
+export const ACCIONES_BITACORA = [
+  'crear_cliente',
+  'editar_cliente',
+  'crear_visita',
+  'editar_visita',
+  'crear_cotizacion',
+  'editar_cotizacion',
+  'crear_pedido',
+  'editar_pedido',
+  'reprogramar_visita',
+  'crear_seguimiento',
+  'completar_seguimiento',
+] as const;
+
+export type AccionBitacora = (typeof ACCIONES_BITACORA)[number];
 
 // Clave con la que el interceptor lee la acción a registrar.
 export const BITACORA_ACCION_KEY = 'bitacora_accion';

@@ -10,7 +10,9 @@ export class TypeOrmSeguimientoRepository {
 
   async guardar(seguimiento: Seguimiento): Promise<Seguimiento> {
     const repo = this.dataSource.getRepository(SeguimientoOrmEntity);
+    // Con id actualiza el seguimiento existente (HU-24 completar); sin id lo crea.
     const entity = repo.create({
+      id: seguimiento.id ?? undefined,
       id_visita: seguimiento.id_visita,
       fecha_proxima: seguimiento.fecha_proxima,
       actividad: seguimiento.actividad,

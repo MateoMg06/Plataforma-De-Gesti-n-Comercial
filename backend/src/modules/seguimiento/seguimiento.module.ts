@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 // Agrega: controlador, caso de uso, repositorio TypeORM y entidad ORM.
 // Registrar en app.module.ts para que esté disponible en toda la aplicación.
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CompletarSeguimientoUseCase } from './application/completar-seguimiento.use-case.js';
 import { CrearSeguimientoUseCase } from './application/crear-seguimiento.use-case.js';
 import { ListarSeguimientosPendientesUseCase } from './application/listar-seguimientos-pendientes.use-case.js';
 import { ObtenerHistorialClienteUseCase } from './application/obtener-historial-cliente.use-case.js';
@@ -16,6 +17,7 @@ import { SeguimientosController } from './presentation/seguimientos.controller.j
   controllers: [SeguimientosController],
   providers: [
     CrearSeguimientoUseCase,
+    CompletarSeguimientoUseCase,
     ListarSeguimientosPendientesUseCase,
     ObtenerHistorialClienteUseCase,
     // Aquí se conecta el puerto con su adaptador. Cambiar de BD = cambiar esta línea.
