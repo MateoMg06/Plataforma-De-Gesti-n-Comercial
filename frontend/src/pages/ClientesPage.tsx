@@ -13,6 +13,7 @@ import {
 import { useEffect, useState, type FormEvent } from "react";
 import { ContactosCliente } from "./ContactosCliente";
 import { PortafolioCliente } from "./PortafolioCliente";
+import { HistorialCliente } from "./HistorialCliente";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import "./ClientesPage.css";
@@ -634,6 +635,8 @@ export function ClientesPage() {
           {editando !== null && <ContactosCliente idCliente={editando} />}
           {/* HU-09: el portafolio también se gestiona al editar un cliente. */}
           {editando !== null && <PortafolioCliente idCliente={editando} />}
+          {/* HU-26: historial del cliente (visitas, seguimientos, cotizaciones y pedidos). */}
+          {editando !== null && <HistorialCliente idCliente={editando} />}
         </section>
       </div>
 
