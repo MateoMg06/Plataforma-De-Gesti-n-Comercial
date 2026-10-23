@@ -21,6 +21,7 @@ export class TypeOrmAsesorRepository implements AsesorRepository {
       correo: asesor.correo,
       telefono: asesor.telefono,
       estado: asesor.estado,
+      idUsuario: asesor.idUsuario,
     });
     return this.aDominio(fila);
   }
@@ -52,6 +53,7 @@ export class TypeOrmAsesorRepository implements AsesorRepository {
       fila.correo,
       fila.telefono,
       fila.estado as AsesorEstado,
+      fila.idUsuario,
     );
   }
 }

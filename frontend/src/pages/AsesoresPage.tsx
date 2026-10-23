@@ -9,13 +9,25 @@ interface Asesor {
   correo: string;
   telefono: string;
   estado: "activo" | "inactivo";
+  // HU-12: usuario de BetterAuth con el que inicia sesión (null = sin usuario).
+  idUsuario: string | null;
 }
 
-const vacio = { nombre: "", correo: "", telefono: "" };
+interface Usuario {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+}
+
+const vacio = { nombre: "", correo: "", telefono: "", idUsuario: "" };
 
 // HU-10: crear, editar y activar/inactivar asesores. Mismo patrón que ZonasPage.
+// HU-12: cada asesor se vincula con su usuario para que vea "Mi agenda" y solo sus datos.
 export function AsesoresPage() {
   const [asesores, setAsesores] = useState<Asesor[]>([]);
+  // Usuarios con rol asesor (plugin admin de BetterAuth) para el vínculo.
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [form, setForm] = useState(vacio);
   const [error, setError] = useState("");
   const [editando, setEditando] = useState<number | null>(null);
@@ -28,6 +40,9 @@ export function AsesoresPage() {
 
   useEffect(() => {
     cargar();
+    api<{ users?: Usuario[] }>("/auth/admin/list-users")
+      .then((datos) => setUsuarios((datos.users ?? []).filter((u) => u.role === "asesor")))
+      .catch((e) => setError(e.message));
   }, []);
 
   const cancelar = () => {
@@ -42,7 +57,8 @@ export function AsesoresPage() {
     try {
       await api(editando === null ? "/asesores" : `/asesores/${editando}`, {
         method: editando === null ? "POST" : "PUT",
-        body: JSON.stringify(form),
+        // "" en el selector = sin usuario.
+        body: JSON.stringify({ ...form, idUsuario: form.idUsuario || null }),
       });
       cancelar();
       await cargar();
@@ -76,6 +92,11 @@ export function AsesoresPage() {
     }
   };
 
+  // Un usuario solo puede ser de un asesor: se ocultan los ya vinculados a otro.
+  const usuariosLibres = usuarios.filter(
+    (u) => !asesores.some((a) => a.idUsuario === u.id && a.id !== editando),
+  );
+
   return (
     <div>
       <nav className="breadcrumb">
@@ -90,7 +111,8 @@ export function AsesoresPage() {
           </h1>
           <p>
             Los asesores inactivos no reciben rutas nuevas. El correo no se
-            puede repetir.
+            puede repetir. Vincula cada asesor con su usuario para que pueda ver
+            su agenda y sus datos.
           </p>
         </div>
       </div>
@@ -139,6 +161,22 @@ export function AsesoresPage() {
                 placeholder="300 123 4567"
               />
             </label>
+            <label className="field">
+              Usuario para iniciar sesión
+              <select
+                className="input"
+                disabled={guardando}
+                value={form.idUsuario}
+                onChange={(e) => setForm({ ...form, idUsuario: e.target.value })}
+              >
+                <option value="">Sin usuario</option>
+                {usuariosLibres.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} · {u.email}
+                  </option>
+                ))}
+              </select>
+            </label>
             <div className="form-actions">
               <button disabled={guardando} className="btn btn-primary">
                 {guardando ? "Guardando…" : editando === null ? "Agregar" : "Guardar"}
@@ -168,6 +206,7 @@ export function AsesoresPage() {
                   <th>Nombre</th>
                   <th>Correo</th>
                   <th>Teléfono</th>
+                  <th>Usuario</th>
                   <th>Estado</th>
                   <th className="derecha">Acciones</th>
                 </tr>
@@ -180,6 +219,13 @@ export function AsesoresPage() {
                     </td>
                     <td>{a.correo}</td>
                     <td>{a.telefono}</td>
+                    <td>
+                      {a.idUsuario ? (
+                        (usuarios.find((u) => u.id === a.idUsuario)?.email ?? "Vinculado")
+                      ) : (
+                        <span className="muted">Sin usuario</span>
+                      )}
+                    </td>
                     <td>
                       <span className={`pill pill-${a.estado}`}>{a.estado}</span>
                     </td>
@@ -196,6 +242,7 @@ export function AsesoresPage() {
                               nombre: a.nombre,
                               correo: a.correo,
                               telefono: a.telefono,
+                              idUsuario: a.idUsuario ?? "",
                             });
                             setError("");
                           }}
@@ -215,7 +262,7 @@ export function AsesoresPage() {
                 ))}
                 {asesores.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="vacio">
+                    <td colSpan={6} className="vacio">
                       Aún no hay asesores registrados.
                     </td>
                   </tr>

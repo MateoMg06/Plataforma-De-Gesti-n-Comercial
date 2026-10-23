@@ -1,6 +1,6 @@
 import { Eye, FileText, List, Search, ShoppingCart, X } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
-import { api } from "../api/client";
+import { api, apiTodosLosClientes } from "../api/client";
 
 interface Pedido {
   id: number;
@@ -64,8 +64,8 @@ export function PedidosPage() {
     api<{ user: { role: string } } | null>("/auth/get-session")
       .then((datos) => setRol(datos?.user.role ?? ""))
       .catch(() => setRol(""));
-    api<{ datos: { id: number; razonSocial: string }[] }>("/clientes?limit=100")
-      .then((pagina) => setClientes(pagina.datos.map((c) => ({ id: c.id, nombre: c.razonSocial }))))
+    apiTodosLosClientes<{ id: number; razonSocial: string }>()
+      .then((lista) => setClientes(lista.map((c) => ({ id: c.id, nombre: c.razonSocial }))))
       .catch((e) => setError((e as Error).message));
     api<Opcion[]>("/asesores")
       .then(setAsesores)

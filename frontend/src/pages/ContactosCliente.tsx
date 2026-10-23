@@ -21,6 +21,8 @@ export function ContactosCliente({ idCliente }: { idCliente: number }) {
   const [datos, setDatos] = useState(vacio);
   const [editando, setEditando] = useState<number | null>(null);
   const [error, setError] = useState("");
+  // Evita guardar dos veces el mismo contacto con un doble clic.
+  const [guardando, setGuardando] = useState(false);
 
   const cargar = () =>
     api<Contacto[]>(`/clientes/${idCliente}/contactos`)
@@ -36,7 +38,9 @@ export function ContactosCliente({ idCliente }: { idCliente: number }) {
 
   const guardar = async (e: FormEvent) => {
     e.preventDefault();
+    if (guardando) return;
     setError("");
+    setGuardando(true);
     try {
       await api(
         editando === null
@@ -49,6 +53,8 @@ export function ContactosCliente({ idCliente }: { idCliente: number }) {
       cargar();
     } catch (err) {
       setError((err as Error).message);
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -140,8 +146,8 @@ export function ContactosCliente({ idCliente }: { idCliente: number }) {
             Cancelar
           </button>
         )}
-        <button className="btn btn-outline btn-sm">
-          {editando === null ? "Agregar contacto" : "Guardar contacto"}
+        <button className="btn btn-outline btn-sm" disabled={guardando}>
+          {guardando ? "Guardando…" : editando === null ? "Agregar contacto" : "Guardar contacto"}
         </button>
       </form>
     </div>

@@ -22,12 +22,13 @@ export class ActualizarAsesorUseCase {
     nombre: string,
     correo: string,
     telefono: string,
+    idUsuario: string | null = null,
   ): Promise<Asesor> {
     const asesor = await this.asesores.buscarPorId(id);
     if (!asesor) throw new NotFoundException(`No existe el asesor ${id}`);
     let actualizado: Asesor;
     try {
-      actualizado = asesor.actualizar(nombre, correo, telefono);
+      actualizado = asesor.actualizar(nombre, correo, telefono, idUsuario);
     } catch (error) {
       if (error instanceof Error) throw new BadRequestException(error.message);
       throw error;
@@ -38,6 +39,13 @@ export class ActualizarAsesorUseCase {
       throw new ConflictException(
         `Ya existe un asesor con el correo ${actualizado.correo}`,
       );
+    }
+    // HU-12: un usuario solo puede estar vinculado a un asesor (si no, "Mi agenda" no sabría cuál mostrar).
+    if (actualizado.idUsuario) {
+      const vinculado = await this.asesores.buscarPorIdUsuario(actualizado.idUsuario);
+      if (vinculado && vinculado.id !== id) {
+        throw new ConflictException(`Ese usuario ya está vinculado al asesor ${vinculado.nombre}`);
+      }
     }
     return this.asesores.guardar(actualizado);
   }

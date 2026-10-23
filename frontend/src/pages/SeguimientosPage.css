@@ -6,7 +6,3 @@
   box-shadow: inset 3px 0 0 var(--danger);
   color: var(--danger);
 }
-.pill-vencido {
-  background: color-mix(in srgb, var(--danger) 14%, var(--surface));
-  color: color-mix(in srgb, var(--danger) 75%, var(--navy-900));
-}

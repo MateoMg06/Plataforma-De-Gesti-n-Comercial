@@ -146,19 +146,19 @@ fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
   white-space: nowrap;
 }
 .pill::first-letter { text-transform: uppercase; }
-.pill-realizada, .pill-activo, .pill-finalizada, .pill-entregado {
+.pill-realizada, .pill-activo, .pill-finalizada, .pill-entregado, .pill-aprobada, .pill-completado {
   background: color-mix(in srgb, var(--success) 16%, var(--surface));
   color: color-mix(in srgb, var(--success) 65%, var(--navy-900));
 }
-.pill-programada, .pill-activa, .pill-pendiente {
+.pill-programada, .pill-activa, .pill-pendiente, .pill-enviada {
   background: var(--orange-100);
   color: color-mix(in srgb, var(--orange-500) 70%, var(--navy-900));
 }
-.pill-reprogramada, .pill-no_atendida {
+.pill-reprogramada, .pill-no_atendida, .pill-rechazada, .pill-vencido {
   background: color-mix(in srgb, var(--danger) 14%, var(--surface));
   color: color-mix(in srgb, var(--danger) 75%, var(--navy-900));
 }
-.pill-planeada, .pill-confirmado {
+.pill-planeada, .pill-confirmado, .pill-borrador {
   background: color-mix(in srgb, var(--info) 14%, var(--surface));
   color: color-mix(in srgb, var(--info) 70%, var(--navy-900));
 }

@@ -56,16 +56,16 @@ export class AsesoresController {
   @Post()
   @ApiOperation({ summary: 'Registrar un asesor (queda activo)' })
   @ApiBadRequestResponse({ description: 'Datos inválidos.' })
-  @ApiConflictResponse({ description: 'El correo ya existe.' })
+  @ApiConflictResponse({ description: 'El correo ya existe o el usuario ya es de otro asesor.' })
   crear(@Body() dto: CrearAsesorDto) {
-    return this.registrarAsesor.ejecutar(dto.nombre, dto.correo, dto.telefono);
+    return this.registrarAsesor.ejecutar(dto.nombre, dto.correo, dto.telefono, dto.idUsuario ?? null);
   }
 
   @Roles(['administrador'])
   @Put(':id')
   @ApiOperation({ summary: 'Editar nombre, correo y teléfono' })
   @ApiNotFoundResponse({ description: 'El asesor no existe.' })
-  @ApiConflictResponse({ description: 'El correo ya es de otro asesor.' })
+  @ApiConflictResponse({ description: 'El correo o el usuario ya son de otro asesor.' })
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: CrearAsesorDto,
@@ -75,6 +75,7 @@ export class AsesoresController {
       dto.nombre,
       dto.correo,
       dto.telefono,
+      dto.idUsuario ?? null,
     );
   }
 

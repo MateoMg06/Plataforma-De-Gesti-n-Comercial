@@ -1,7 +1,6 @@
 import { Calendar, CalendarClock, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
-import { api } from "../api/client";
+import { api, apiTodosLosClientes } from "../api/client";
 import "./AgendaPage.css";
 
 interface Visita {
@@ -70,8 +69,12 @@ function hora(fecha: Date): string {
 }
 
 // HU-11: agenda de todas las visitas, por semana o por mes.
-// HU-12: con mia = true muestra solo las visitas del asesor que inició sesión.
-export function AgendaPage({ mia = false }: { mia?: boolean }) {
+// HU-12: el asesor ve solo SU agenda ("Mi agenda"); el administrador y el líder,
+// que no son asesores, ven la de todos. Lo decide el rol de la sesión.
+export function AgendaPage() {
+  // null mientras se consulta la sesión.
+  const [rol, setRol] = useState<string | null>(null);
+  const mia = rol === "asesor";
   const [visitas, setVisitas] = useState<Visita[]>([]);
   const [clientes, setClientes] = useState<Record<number, string>>({});
   const [asesores, setAsesores] = useState<Record<number, string>>({});
@@ -98,13 +101,20 @@ export function AgendaPage({ mia = false }: { mia?: boolean }) {
   };
 
   useEffect(() => {
+    api<{ user: { role: string } } | null>("/auth/get-session")
+      .then((datos) => setRol(datos?.user.role ?? ""))
+      .catch(() => setRol(""));
+  }, []);
+
+  useEffect(() => {
+    if (rol === null) return;
     setError("");
     cargarVisitas();
     // Nombres para mostrar en cada evento: la visita solo trae los ids.
-    api<{ datos: { id: number; razonSocial: string }[] }>("/clientes?limit=100")
-      .then((pagina) =>
+    apiTodosLosClientes<{ id: number; razonSocial: string }>()
+      .then((lista) =>
         setClientes(
-          Object.fromEntries(pagina.datos.map((c) => [c.id, c.razonSocial])),
+          Object.fromEntries(lista.map((c) => [c.id, c.razonSocial])),
         ),
       )
       .catch((e) => setError(e.message));
@@ -113,7 +123,7 @@ export function AgendaPage({ mia = false }: { mia?: boolean }) {
         setAsesores(Object.fromEntries(lista.map((a) => [a.id, a.nombre]))),
       )
       .catch((e) => setError(e.message));
-  }, [mia]);
+  }, [rol]);
 
   const dias = diasVisibles(vista, referencia);
   const hoy = new Date();
@@ -178,9 +188,6 @@ export function AgendaPage({ mia = false }: { mia?: boolean }) {
           <p>{mia ? "Tus visitas como asesor." : "Visitas de todos los asesores."}</p>
         </div>
         <div className="page-actions">
-          <Link className="btn" to={mia ? "/agenda" : "/agenda/mia"}>
-            {mia ? "Ver agenda global" : "Ver mi agenda"}
-          </Link>
           <div className="agenda-vistas" role="group" aria-label="Vista">
             <button
               className={`btn ${vista === "semana" ? "btn-primary" : ""}`}

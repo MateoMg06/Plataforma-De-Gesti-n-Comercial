@@ -52,16 +52,10 @@ export function LoginPage() {
       });
       navigate('/dashboard');
     } catch (e) {
-      // BetterAuth responde en inglés ("Invalid email or password"): se traduce.
-      // Nunca se muestra la contraseña ni datos internos.
+      // api() ya traduce los errores de BetterAuth ("Invalid email or password",
+      // usuario desactivado...). Nunca se muestra la contraseña ni datos internos.
       const mensaje = e instanceof Error ? e.message : '';
-      setError(
-        /invalid email or password/i.test(mensaje)
-          ? 'Correo o contraseña incorrectos'
-          : /banned/i.test(mensaje)
-            ? 'Tu usuario está desactivado. Habla con el administrador.'
-            : mensaje || 'No se pudo iniciar sesión',
-      );
+      setError(mensaje || 'No se pudo iniciar sesión');
     } finally {
       setCargando(false);
     }

@@ -20,10 +20,11 @@ export class RegistrarAsesorUseCase {
     nombre: string,
     correo: string,
     telefono: string,
+    idUsuario: string | null = null,
   ): Promise<Asesor> {
     let asesor: Asesor;
     try {
-      asesor = Asesor.crear(nombre, correo, telefono);
+      asesor = Asesor.crear(nombre, correo, telefono, idUsuario);
     } catch (error) {
       if (error instanceof Error) throw new BadRequestException(error.message);
       throw error;
@@ -33,6 +34,13 @@ export class RegistrarAsesorUseCase {
       throw new ConflictException(
         `Ya existe un asesor con el correo ${asesor.correo}`,
       );
+    }
+    // HU-12: un usuario solo puede estar vinculado a un asesor (si no, "Mi agenda" no sabría cuál mostrar).
+    if (asesor.idUsuario) {
+      const vinculado = await this.asesores.buscarPorIdUsuario(asesor.idUsuario);
+      if (vinculado) {
+        throw new ConflictException(`Ese usuario ya está vinculado al asesor ${vinculado.nombre}`);
+      }
     }
     return this.asesores.guardar(asesor);
   }

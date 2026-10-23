@@ -3,7 +3,7 @@ import { Map as MapIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet';
-import { api } from '../api/client';
+import { api, apiTodosLosClientes } from '../api/client';
 import './MapaPage.css';
 
 interface Visita {
@@ -47,12 +47,12 @@ export function MapaPage() {
     // Visitas, clientes (coordenadas) y asesores ya existen en el backend: no hace falta uno nuevo.
     Promise.all([
       api<Visita[]>('/visitas'),
-      api<{ datos: Cliente[] }>('/clientes?limit=100'),
+      apiTodosLosClientes<Cliente>(),
       api<{ id: number; nombre: string }[]>('/asesores'),
     ])
-      .then(([listaVisitas, pagina, listaAsesores]) => {
+      .then(([listaVisitas, listaClientes, listaAsesores]) => {
         setVisitas(listaVisitas);
-        setClientes(pagina.datos);
+        setClientes(listaClientes);
         setAsesores(Object.fromEntries(listaAsesores.map((a) => [a.id, a.nombre])));
       })
       .catch((e) => setError((e as Error).message))

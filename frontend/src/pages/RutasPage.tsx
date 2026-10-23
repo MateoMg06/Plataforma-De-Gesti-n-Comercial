@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronUp, Info, MapPin, Plus, Route, Users } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
-import { api } from '../api/client';
+import { api, apiTodosLosClientes } from '../api/client';
 import './RutasPage.css';
 
 interface ClienteEnRuta {
@@ -69,8 +69,8 @@ export function RutasPage() {
     api<Asesor[]>('/asesores')
       .then(setAsesores)
       .catch((err) => setError((err as Error).message));
-    api<{ datos: Cliente[] }>('/clientes?limit=100')
-      .then((pagina) => setClientes(pagina.datos))
+    apiTodosLosClientes<Cliente>()
+      .then(setClientes)
       .catch((err) => setError((err as Error).message));
     api<ClienteSugerido[]>('/rutas/sugerencias-frecuencia')
       .then(setSugerencias)
@@ -182,6 +182,8 @@ export function RutasPage() {
   };
 
   const rutaSeleccionada = rutas.find((ruta) => ruta.id === Number(idRuta));
+  // HU-16: una ruta finalizada no admite cambios (misma regla que el dominio).
+  const rutaCerrada = rutaSeleccionada?.estado === 'finalizada';
   const clienteDe = (id: number) => clientes.find((c) => c.id === id);
   const asesorDe = (id: number) => asesores.find((a) => a.id === id)?.nombre ?? `Asesor ${id}`;
   // HU-10: solo los asesores activos pueden recibir rutas nuevas.
@@ -298,7 +300,7 @@ export function RutasPage() {
                 value={idCliente}
                 onChange={(e) => setIdCliente(e.target.value)}
                 required
-                disabled={!idRuta || guardando}
+                disabled={!idRuta || rutaCerrada || guardando}
               >
                 <option value="">Selecciona un cliente</option>
                 {clientesDisponibles.map((c) => (
@@ -306,10 +308,11 @@ export function RutasPage() {
                 ))}
               </select>
             </label>
-            <button className="btn btn-outline" disabled={!idRuta || guardando}>
+            <button className="btn btn-outline" disabled={!idRuta || rutaCerrada || guardando}>
               <Plus size={18} /> Agregar cliente
             </button>
           </form>
+          {rutaCerrada && <p className="muted">Esta ruta está finalizada: ya no admite cambios.</p>}
 
           <div className="rutas-sugerencias">
             <h3>Clientes por visitar</h3>
@@ -388,7 +391,7 @@ export function RutasPage() {
                             className="btn-icon"
                             type="button"
                             aria-label={`Subir ${nombreCliente}`}
-                            disabled={cliente.ordenVisita === 1}
+                            disabled={cliente.ordenVisita === 1 || rutaCerrada || guardando}
                             onClick={() => moverCliente(cliente, -1)}
                           >
                             <ChevronUp size={18} />
@@ -397,7 +400,7 @@ export function RutasPage() {
                             className="btn-icon"
                             type="button"
                             aria-label={`Bajar ${nombreCliente}`}
-                            disabled={cliente.ordenVisita === rutaSeleccionada.clientes.length}
+                            disabled={cliente.ordenVisita === rutaSeleccionada.clientes.length || rutaCerrada || guardando}
                             onClick={() => moverCliente(cliente, 1)}
                           >
                             <ChevronDown size={18} />
