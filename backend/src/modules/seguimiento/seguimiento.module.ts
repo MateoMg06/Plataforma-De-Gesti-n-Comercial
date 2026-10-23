@@ -3,6 +3,9 @@ import { Module } from '@nestjs/common';
 // Agrega: controlador, caso de uso, repositorio TypeORM y entidad ORM.
 // Registrar en app.module.ts para que esté disponible en toda la aplicación.
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ClientesModule } from '../clientes/clientes.module.js';
+import { VentasModule } from '../ventas/ventas.module.js';
+import { VisitasModule } from '../visitas/visitas.module.js';
 import { CompletarSeguimientoUseCase } from './application/completar-seguimiento.use-case.js';
 import { CrearSeguimientoUseCase } from './application/crear-seguimiento.use-case.js';
 import { ListarSeguimientosPendientesUseCase } from './application/listar-seguimientos-pendientes.use-case.js';
@@ -13,7 +16,8 @@ import { SeguimientoOrmEntity } from './infrastructure/seguimiento.orm-entity.js
 import { SeguimientosController } from './presentation/seguimientos.controller.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SeguimientoOrmEntity])],
+  // HU-26: el historial usa los casos de uso que exportan clientes, visitas y ventas.
+  imports: [TypeOrmModule.forFeature([SeguimientoOrmEntity]), ClientesModule, VisitasModule, VentasModule],
   controllers: [SeguimientosController],
   providers: [
     CrearSeguimientoUseCase,

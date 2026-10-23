@@ -54,8 +54,14 @@ export class SeguimientosController {
   }
 
   @Get('cliente/:idCliente')
-  @ApiOperation({ summary: 'Historial de seguimientos de un cliente (HU-26)' })
-  @ApiOkResponse({ description: 'Seguimientos del cliente.' })
+  @ApiOperation({
+    summary: 'Historial del cliente (HU-26)',
+    description: 'Línea de tiempo con visitas, seguimientos, cotizaciones y pedidos, del más reciente al más antiguo.',
+  })
+  @ApiOkResponse({
+    schema: { example: [{ tipo: 'cotizacion', fecha: '2026-10-21T14:00:00.000Z', titulo: 'Cotización COT-1001', estado: 'aprobada', detalle: '$9.850.000' }] },
+  })
+  @ApiNotFoundResponse({ description: 'El cliente no existe.' })
   historialCliente(@Param('idCliente', ParseIntPipe) idCliente: number) {
     return this.obtenerHistorialUseCase.ejecutar(idCliente);
   }

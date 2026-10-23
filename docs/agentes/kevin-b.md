@@ -10,7 +10,7 @@ No estás en el recorrido principal. Avanza HU-23 y HU-24, y antes del corte de 
 - **HU-23 · Crear seguimiento (Must).** Desde una visita: `id_visita`, `fecha_proxima`, actividad y observación. Estado inicial `completado = false`.
 - **HU-24 (TERMINADA) · Seguimientos pendientes (Must).** Lista ordenada por `fecha_proxima`, resaltando los vencidos. Marcar completado registra fecha y usuario.
 - **HU-25 (TERMINADA) · Bitácora (Must).** Registro automático de quién, cuándo y qué en acciones clave (crear o editar cliente, visitas, cotizaciones, pedidos, reprogramaciones). Transversal con un interceptor o decorador, sin repetir código. Consulta con filtros por usuario, fecha y tipo.
-- **HU-26 · Historial del cliente (Should).** Línea de tiempo con visitas, seguimientos, cotizaciones y pedidos del cliente.
+- **HU-26 (TERMINADA) · Historial del cliente (Should).** Línea de tiempo con visitas, seguimientos, cotizaciones y pedidos del cliente.
 
 ## Tablas que son tuyas
 SEGUIMIENTO (+ `fecha_completado`, `completado_por`), HISTORIAL_CLIENTE y la tabla de bitácora.

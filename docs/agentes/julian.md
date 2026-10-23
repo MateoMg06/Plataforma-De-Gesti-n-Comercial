@@ -8,9 +8,9 @@ No estás en el recorrido principal. Puedes avanzar el dashboard con datos falso
 
 ## Historias
 - **HU-32 · Dashboard de KPIs (Must).** Visitas realizadas vs programadas, cotizaciones por estado, valor cotizado y pedidos por asesor, clientes por potencial. Datos actualizados al cargar. El asesor ve solo los suyos.
-- **HU-33 · Reportes con filtros (Must).** Visitas, cotizaciones y pedidos filtrados por fechas, asesor y zona; tabla con totales.
-- **HU-34 · Exportar a CSV (Must).** Clientes, visitas, cotizaciones y pedidos; respeta los filtros; UTF-8 compatible con Excel (agrega BOM al inicio).
-- **HU-35 · Gráficos (Should).** Al menos 3 gráficos interactivos que se actualizan con los filtros.
+- **HU-33 (TERMINADA) · Reportes con filtros (Must).** Visitas, cotizaciones y pedidos filtrados por fechas, asesor y zona; tabla con totales.
+- **HU-34 (TERMINADA) · Exportar a CSV (Must).** Clientes, visitas, cotizaciones y pedidos; respeta los filtros; UTF-8 compatible con Excel (agrega BOM al inicio).
+- **HU-35 (TERMINADA) · Gráficos (Should).** Al menos 3 gráficos interactivos que se actualizan con los filtros.
 - **HU-INF-05 · Jenkins (después del MVP).** Jenkins en el mismo EC2; pipeline pull → build → test → deploy; demostrar un cambio desplegado.
 
 ## Tablas
