@@ -22,6 +22,7 @@ class AsesorRepositoryEnMemoria implements AsesorRepository {
       asesor.correo,
       asesor.telefono,
       asesor.estado,
+      asesor.idUsuario,
     );
     this.asesores = this.asesores.filter((a) => a.id !== id);
     this.asesores.push(guardado);
@@ -40,8 +41,8 @@ class AsesorRepositoryEnMemoria implements AsesorRepository {
     return this.asesores.find((a) => a.correo === correo) ?? null;
   }
 
-  async buscarPorIdUsuario() {
-    return null;
+  async buscarPorIdUsuario(idUsuario: string) {
+    return this.asesores.find((a) => a.idUsuario === idUsuario) ?? null;
   }
 }
 
@@ -106,6 +107,24 @@ describe('ActualizarAsesorUseCase', () => {
     await expect(
       useCase.ejecutar(99, 'Ana', 'ana@correo.com', '300'),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+});
+
+describe('Vínculo asesor - usuario (HU-12)', () => {
+  it('guarda el usuario y no deja vincularlo a otro asesor', async () => {
+    const repo = new AsesorRepositoryEnMemoria();
+    const registrar = new RegistrarAsesorUseCase(repo);
+    const ana = await registrar.ejecutar('Ana', 'ana@correo.com', '300', 'u-ana');
+    expect(ana.idUsuario).toBe('u-ana');
+    await expect(registrar.ejecutar('Otro', 'otro@correo.com', '301', 'u-ana')).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('al editar puede conservar su usuario o quitarlo', async () => {
+    const repo = new AsesorRepositoryEnMemoria();
+    const ana = await new RegistrarAsesorUseCase(repo).ejecutar('Ana', 'ana@correo.com', '300', 'u-ana');
+    const actualizar = new ActualizarAsesorUseCase(repo);
+    expect((await actualizar.ejecutar(ana.id!, 'Ana', 'ana@correo.com', '300', 'u-ana')).idUsuario).toBe('u-ana');
+    expect((await actualizar.ejecutar(ana.id!, 'Ana', 'ana@correo.com', '300', null)).idUsuario).toBeNull();
   });
 });
 

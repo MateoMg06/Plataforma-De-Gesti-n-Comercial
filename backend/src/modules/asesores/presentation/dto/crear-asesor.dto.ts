@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 // Se usa para crear y para editar: los datos que se piden son los mismos.
 export class CrearAsesorDto {
@@ -19,4 +19,11 @@ export class CrearAsesorDto {
   @IsNotEmpty()
   @MaxLength(20)
   telefono: string;
+
+  // HU-12: usuario (BetterAuth) con el que el asesor inicia sesión. null = sin usuario.
+  @ApiPropertyOptional({ type: String, nullable: true, example: 'Wu0wpJSWS4iWFAWEUBnSWtPaOaYgIgg6' })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  idUsuario?: string | null;
 }

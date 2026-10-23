@@ -81,7 +81,8 @@ export default function App() {
           <Route path="/configuracion/portafolio" element={<PortafolioPage />} />
           <Route path="/configuracion/usuarios" element={<UsuariosPage />} />
           <Route path="/configuracion/asesores" element={<AsesoresPage />} />
-          <Route path="/agenda/mia" element={<AgendaPage mia />} />
+          {/* HU-12: "Mi agenda" es la misma pantalla: con rol asesor ya muestra solo la suya. */}
+          <Route path="/agenda/mia" element={<Navigate to="/agenda" replace />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
