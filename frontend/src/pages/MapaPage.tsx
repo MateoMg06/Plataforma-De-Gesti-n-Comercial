@@ -1,6 +1,7 @@
 import 'leaflet/dist/leaflet.css';
 import { Map as MapIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet';
 import { api } from '../api/client';
 import './MapaPage.css';
@@ -36,6 +37,12 @@ export function MapaPage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
 
+  // HU-21: filtros del mapa. Se aplican sobre la lista ya cargada y se combinan entre sí.
+  const [filtroAsesor, setFiltroAsesor] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('');
+  const [filtroDesde, setFiltroDesde] = useState('');
+  const [filtroHasta, setFiltroHasta] = useState('');
+
   useEffect(() => {
     // Visitas, clientes (coordenadas) y asesores ya existen en el backend: no hace falta uno nuevo.
     Promise.all([
@@ -52,8 +59,18 @@ export function MapaPage() {
       .finally(() => setCargando(false));
   }, []);
 
+  // HU-21: los filtros se combinan (AND). Si un filtro está vacío, no restringe.
+  const visitasFiltradas = visitas.filter((v) => {
+    if (filtroAsesor && v.idAsesor !== Number(filtroAsesor)) return false;
+    if (filtroEstado && v.estado !== filtroEstado) return false;
+    const fecha = new Date(v.fechaProgramada).getTime();
+    if (filtroDesde && fecha < new Date(filtroDesde).getTime()) return false;
+    if (filtroHasta && fecha > new Date(filtroHasta).getTime()) return false;
+    return true;
+  });
+
   // Cada visita con las coordenadas de su cliente. Las que no tienen cliente con ubicación no se dibujan.
-  const puntos = visitas
+  const puntos = visitasFiltradas
     .map((v) => ({ visita: v, cliente: clientes.find((c) => c.id === v.idCliente) }))
     .filter((p): p is { visita: Visita; cliente: Cliente } => Boolean(p.cliente));
 
@@ -65,7 +82,8 @@ export function MapaPage() {
         ]
       : CENTRO_POR_DEFECTO;
 
-  const cuantas = (estado: string) => visitas.filter((v) => v.estado === estado).length;
+  // HU-21: el contador por estado también respeta los filtros aplicados.
+  const cuantas = (estado: string) => visitasFiltradas.filter((v) => v.estado === estado).length;
 
   return (
     <div>
@@ -79,6 +97,71 @@ export function MapaPage() {
       </div>
 
       {error && <p className="error">{error}</p>}
+
+      {/* HU-21: filtros combinables por asesor, estado y rango de fechas. */}
+      <section className="card">
+        <div className="toolbar mapa-filtros">
+          <label className="field">
+            Asesor
+            <select
+              className="input"
+              value={filtroAsesor}
+              onChange={(e) => setFiltroAsesor(e.target.value)}
+            >
+              <option value="">Todos</option>
+              {Object.entries(asesores).map(([id, nombre]) => (
+                <option key={id} value={id}>{nombre}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            Estado
+            <select
+              className="input"
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value)}
+            >
+              <option value="">Todos</option>
+              {ESTADOS.map((estado) => (
+                <option key={estado} value={estado}>{estado.replace('_', ' ')}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            Desde
+            <input
+              className="input"
+              type="datetime-local"
+              value={filtroDesde}
+              onChange={(e) => setFiltroDesde(e.target.value)}
+            />
+          </label>
+          <label className="field">
+            Hasta
+            <input
+              className="input"
+              type="datetime-local"
+              value={filtroHasta}
+              onChange={(e) => setFiltroHasta(e.target.value)}
+            />
+          </label>
+          <button
+            className="btn"
+            type="button"
+            onClick={() => {
+              setFiltroAsesor('');
+              setFiltroEstado('');
+              setFiltroDesde('');
+              setFiltroHasta('');
+            }}
+          >
+            Limpiar filtros
+          </button>
+        </div>
+        <p className="muted">
+          Mostrando {visitasFiltradas.length} de {visitas.length} visitas
+        </p>
+      </section>
 
       <section className="card">
         <ul className="mapa-leyenda">
@@ -119,6 +202,9 @@ export function MapaPage() {
                   })}
                   <br />
                   <span className={`pill pill-${visita.estado}`}>{visita.estado.replace('_', ' ')}</span>
+                  <br />
+                  {/* HU-22: enlace al detalle de la visita en la pantalla de visitas. */}
+                  <Link to="/visitas">Ver detalle</Link>
                 </Popup>
               </CircleMarker>
             ))}
