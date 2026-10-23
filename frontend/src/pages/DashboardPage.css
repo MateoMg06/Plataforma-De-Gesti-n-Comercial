@@ -80,31 +80,6 @@
   white-space: nowrap;
 }
 
-/* Estados de cotización con los colores del tema. */
-.kpi-estado {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.kpi-estado-borrador {
-  background: color-mix(in srgb, var(--text-muted) 14%, var(--surface));
-  color: var(--text);
-}
-.kpi-estado-enviada {
-  background: color-mix(in srgb, var(--info) 14%, var(--surface));
-  color: color-mix(in srgb, var(--info) 70%, var(--navy-900));
-}
-.kpi-estado-aprobada {
-  background: color-mix(in srgb, var(--success) 16%, var(--surface));
-  color: color-mix(in srgb, var(--success) 65%, var(--navy-900));
-}
-.kpi-estado-rechazada {
-  background: color-mix(in srgb, var(--danger) 14%, var(--surface));
-  color: color-mix(in srgb, var(--danger) 75%, var(--navy-900));
-}
-
 /* Barras horizontales de clientes por potencial. */
 .kpi-barras {
   list-style: none;

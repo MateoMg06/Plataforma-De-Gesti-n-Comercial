@@ -1,6 +1,6 @@
 import { CheckCircle2, ClipboardList, Plus } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
-import { api } from '../api/client';
+import { api, apiTodosLosClientes } from '../api/client';
 import './SeguimientosPage.css';
 
 interface Seguimiento {
@@ -53,8 +53,8 @@ export function SeguimientosPage() {
     api<Visita[]>('/visitas')
       .then(setVisitas)
       .catch((e) => setError((e as Error).message));
-    api<{ datos: { id: number; razonSocial: string }[] }>('/clientes?limit=100')
-      .then((pagina) => setClientes(pagina.datos.map((c) => ({ id: c.id, nombre: c.razonSocial }))))
+    apiTodosLosClientes<{ id: number; razonSocial: string }>()
+      .then((lista) => setClientes(lista.map((c) => ({ id: c.id, nombre: c.razonSocial }))))
       .catch((e) => setError((e as Error).message));
   }, []);
 

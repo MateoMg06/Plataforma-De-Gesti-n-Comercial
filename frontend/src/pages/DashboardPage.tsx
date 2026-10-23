@@ -185,7 +185,8 @@ export function DashboardPage() {
               <ul className="kpi-lista">
                 {estados.map((estado) => (
                   <li key={estado.clase}>
-                    <span className={`kpi-estado kpi-estado-${estado.clase}`}>
+                    {/* Mismos colores que en Cotizaciones: pills comunes de index.css. */}
+                    <span className={`pill pill-${estado.clase}`}>
                       {estado.etiqueta}
                     </span>
                     <strong>{estado.valor}</strong>

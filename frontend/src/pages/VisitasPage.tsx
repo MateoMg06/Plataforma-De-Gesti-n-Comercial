@@ -1,6 +1,6 @@
 import { CalendarPlus, Check, ClipboardCheck, ClipboardList, List, Plus } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
-import { api } from '../api/client';
+import { api, apiTodosLosClientes } from '../api/client';
 import './VisitasPage.css';
 
 interface Visita {
@@ -56,8 +56,8 @@ export function VisitasPage() {
 
   useEffect(() => {
     cargar();
-    api<{ datos: { id: number; razonSocial: string }[] }>('/clientes?limit=100')
-      .then((pagina) => setClientes(pagina.datos.map((c) => ({ id: c.id, nombre: c.razonSocial }))))
+    apiTodosLosClientes<{ id: number; razonSocial: string }>()
+      .then((lista) => setClientes(lista.map((c) => ({ id: c.id, nombre: c.razonSocial }))))
       .catch((e) => setError(e.message));
     // Asesores (HU-10) y rutas (HU-14) ya existen: se usan los datos reales.
     api<Opcion[]>('/asesores')

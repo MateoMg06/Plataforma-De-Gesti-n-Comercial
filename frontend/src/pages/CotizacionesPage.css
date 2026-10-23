@@ -1,15 +1,20 @@
 /* HU-27: formulario a la izquierda, lista a la derecha (como rutas). */
 .cotizaciones-layout { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 20px; align-items: start; }
 .cotizaciones-form { display: grid; gap: 12px; }
-.cotizaciones-linea { display: grid; grid-template-columns: minmax(0, 1fr) 70px 110px 32px; gap: 8px; align-items: center; }
+/* Producto en su propia fila (ocupa todo el ancho); debajo cantidad, precio y quitar.
+   Así el nombre del producto se puede escribir también en celular. */
+.cotizaciones-linea { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) 32px; gap: 8px; align-items: center; }
+.cotizaciones-linea > input:first-child { grid-column: 1 / -1; }
+
+/* HU-29: el input de archivo queda invisible pero enfocable con el teclado;
+   el foco se ve en el clip. */
+.cotizaciones-adjuntar { position: relative; cursor: pointer; }
+.cotizaciones-archivo { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.cotizaciones-adjuntar:focus-within { outline: 2px solid var(--orange-500); outline-offset: 2px; }
 .cotizaciones-total { margin: 4px 0; text-align: right; }
 .cotizaciones-acciones { display: flex; justify-content: flex-end; gap: 6px; }
 
-/* Estados de la cotización (HU-28). */
-.pill-borrador { background: color-mix(in srgb, var(--info) 14%, var(--surface)); color: color-mix(in srgb, var(--info) 70%, var(--navy-900)); }
-.pill-enviada { background: var(--orange-100); color: color-mix(in srgb, var(--orange-500) 70%, var(--navy-900)); }
-.pill-aprobada { background: color-mix(in srgb, var(--success) 16%, var(--surface)); color: color-mix(in srgb, var(--success) 65%, var(--navy-900)); }
-.pill-rechazada { background: color-mix(in srgb, var(--danger) 14%, var(--surface)); color: color-mix(in srgb, var(--danger) 75%, var(--navy-900)); }
+/* Los colores de los estados de la cotización (HU-28) están en las pills de index.css. */
 
 @media (max-width: 900px) {
   .cotizaciones-layout { grid-template-columns: minmax(0, 1fr); }

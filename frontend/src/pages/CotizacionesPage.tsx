@@ -1,6 +1,6 @@
 import { Download, FileText, Paperclip, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
-import { api, apiDescargarArchivo, apiSubirArchivo } from "../api/client";
+import { api, apiDescargarArchivo, apiSubirArchivo, apiTodosLosClientes } from "../api/client";
 import "./CotizacionesPage.css";
 
 interface Detalle {
@@ -46,6 +46,8 @@ export function CotizacionesPage() {
   const [lineas, setLineas] = useState<Linea[]>([lineaVacia]);
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
+  // Evita crear dos cotizaciones con un doble clic.
+  const [guardando, setGuardando] = useState(false);
 
   const cargar = () =>
     api<Cotizacion[]>("/cotizaciones")
@@ -54,8 +56,8 @@ export function CotizacionesPage() {
 
   useEffect(() => {
     cargar();
-    api<{ datos: { id: number; razonSocial: string }[] }>("/clientes?limit=100")
-      .then((pagina) => setClientes(Object.fromEntries(pagina.datos.map((c) => [c.id, c.razonSocial]))))
+    apiTodosLosClientes<{ id: number; razonSocial: string }>()
+      .then((lista) => setClientes(Object.fromEntries(lista.map((c) => [c.id, c.razonSocial]))))
       .catch((e) => setError(e.message));
     api<{ id: number; nombre: string; estado: string }[]>("/asesores")
       .then(setAsesores)
@@ -69,8 +71,10 @@ export function CotizacionesPage() {
 
   const crear = async (e: FormEvent) => {
     e.preventDefault();
+    if (guardando) return;
     setError("");
     setMensaje("");
+    setGuardando(true);
     try {
       const nueva = await api<Cotizacion>("/cotizaciones", {
         method: "POST",
@@ -91,6 +95,8 @@ export function CotizacionesPage() {
       cargar();
     } catch (err) {
       setError((err as Error).message);
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -186,7 +192,9 @@ export function CotizacionesPage() {
           <p className="cotizaciones-total">
             Total estimado: <strong>{pesos(totalPrevio)}</strong>
           </p>
-          <button className="btn btn-primary">Crear cotización</button>
+          <button className="btn btn-primary" disabled={guardando}>
+            {guardando ? "Guardando…" : "Crear cotización"}
+          </button>
         </form>
 
         <section className="card">
@@ -233,12 +241,13 @@ export function CotizacionesPage() {
                             <Download size={18} />
                           </button>
                         )}
-                        <label className="btn-icon" title={c.documentoKey ? "Reemplazar documento" : "Adjuntar documento"}>
+                        {/* El input no usa "hidden": así se puede elegir con el teclado (Tab + Enter). */}
+                        <label className="btn-icon cotizaciones-adjuntar" title={c.documentoKey ? "Reemplazar documento" : "Adjuntar documento"}>
                           <Paperclip size={18} />
                           <input
                             type="file"
                             accept="application/pdf,image/png,image/jpeg"
-                            hidden
+                            className="cotizaciones-archivo"
                             aria-label={`Adjuntar documento a la cotización ${c.numero}`}
                             onChange={(e) => {
                               void subirDocumento(c, e.target.files?.[0]);
