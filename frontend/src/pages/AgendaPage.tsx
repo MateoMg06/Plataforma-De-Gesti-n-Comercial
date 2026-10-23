@@ -1,5 +1,5 @@
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Calendar, CalendarClock, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import "./AgendaPage.css";
@@ -10,6 +10,7 @@ interface Visita {
   idAsesor: number;
   fechaProgramada: string;
   estado: string;
+  motivoReprogramacion?: string | null;
 }
 
 type Vista = "semana" | "mes";
@@ -55,6 +56,15 @@ function diasVisibles(vista: Vista, referencia: Date): Date[] {
   return dias;
 }
 
+// Valor para un input datetime-local en hora local: "2026-10-28T10:00".
+function paraInput(fecha: Date): string {
+  const local = new Date(fecha.getTime() - fecha.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
+// HU-13: solo se reprograman las visitas pendientes.
+const esPendiente = (estado: string) => estado === "programada" || estado === "reprogramada";
+
 function hora(fecha: Date): string {
   return fecha.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
 }
@@ -68,9 +78,14 @@ export function AgendaPage({ mia = false }: { mia?: boolean }) {
   const [vista, setVista] = useState<Vista>("semana");
   const [referencia, setReferencia] = useState(new Date());
   const [error, setError] = useState("");
+  const [mensaje, setMensaje] = useState("");
+  // HU-13: visita elegida para reprogramar, con la nueva fecha y el motivo.
+  const [seleccion, setSeleccion] = useState<Visita | null>(null);
+  const [nuevaFecha, setNuevaFecha] = useState("");
+  const [motivo, setMotivo] = useState("");
+  const [guardando, setGuardando] = useState(false);
 
-  useEffect(() => {
-    setError("");
+  const cargarVisitas = () => {
     if (mia) {
       api<{ asesor: { id: number; nombre: string }; visitas: Visita[] }>("/agenda/mia")
         .then((agenda) => setVisitas(agenda.visitas))
@@ -80,6 +95,11 @@ export function AgendaPage({ mia = false }: { mia?: boolean }) {
         .then(setVisitas)
         .catch((e) => setError(e.message));
     }
+  };
+
+  useEffect(() => {
+    setError("");
+    cargarVisitas();
     // Nombres para mostrar en cada evento: la visita solo trae los ids.
     api<{ datos: { id: number; razonSocial: string }[] }>("/clientes?limit=100")
       .then((pagina) =>
@@ -119,6 +139,35 @@ export function AgendaPage({ mia = false }: { mia?: boolean }) {
   // Panel "Agenda del día" del diseño: las visitas de hoy en orden de hora.
   const deHoy = visitasDelDia(hoy);
 
+  const elegir = (v: Visita) => {
+    setSeleccion(v);
+    setNuevaFecha(paraInput(new Date(v.fechaProgramada)));
+    setMotivo("");
+    setError("");
+    setMensaje("");
+  };
+
+  // HU-13: reprogramar desde la agenda (queda registrado en la bitácora).
+  const reprogramar = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!seleccion) return;
+    setError("");
+    setGuardando(true);
+    try {
+      await api(`/agenda/visitas/${seleccion.id}/reprogramar`, {
+        method: "PATCH",
+        body: JSON.stringify({ fechaProgramada: nuevaFecha, motivo }),
+      });
+      setMensaje("Visita reprogramada.");
+      setSeleccion(null);
+      cargarVisitas();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setGuardando(false);
+    }
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -150,6 +199,7 @@ export function AgendaPage({ mia = false }: { mia?: boolean }) {
       </div>
 
       {error && <p className="error">{error}</p>}
+      {mensaje && <p className="success" role="status">{mensaje}</p>}
 
       <div className="agenda-layout">
         <section className="card">
@@ -187,7 +237,15 @@ export function AgendaPage({ mia = false }: { mia?: boolean }) {
                 >
                   <div className="agenda-numero">{dia.getDate()}</div>
                   {visitasDelDia(dia).map((v) => (
-                    <div key={v.id} className={`agenda-evento evento-${v.estado}`}>
+                    <div
+                      key={v.id}
+                      className={`agenda-evento evento-${v.estado} ${esPendiente(v.estado) ? "agenda-evento-boton" : ""}`}
+                      title={v.motivoReprogramacion ? `Motivo: ${v.motivoReprogramacion}` : undefined}
+                      role={esPendiente(v.estado) ? "button" : undefined}
+                      tabIndex={esPendiente(v.estado) ? 0 : undefined}
+                      onClick={() => esPendiente(v.estado) && elegir(v)}
+                      onKeyDown={(e) => e.key === "Enter" && esPendiente(v.estado) && elegir(v)}
+                    >
                       <strong>{hora(v.fecha)}</strong>
                       <span>{clientes[v.idCliente] ?? `Cliente ${v.idCliente}`}</span>
                       <span className="agenda-asesor">
@@ -204,6 +262,42 @@ export function AgendaPage({ mia = false }: { mia?: boolean }) {
           </div>
         </section>
 
+        <div className="stack">
+        {seleccion ? (
+          <form className="card" onSubmit={reprogramar}>
+            <h2 className="section-title">
+              <CalendarClock size={18} /> Reprogramar visita
+              <button type="button" className="btn-icon" aria-label="Cerrar" onClick={() => setSeleccion(null)}>
+                <X size={18} />
+              </button>
+            </h2>
+            <p className="muted agenda-reprogramar-cliente">
+              {clientes[seleccion.idCliente] ?? `Cliente ${seleccion.idCliente}`} ·{" "}
+              {asesores[seleccion.idAsesor] ?? `Asesor ${seleccion.idAsesor}`}
+            </p>
+            <fieldset className="stack" disabled={guardando}>
+              <label className="field">
+                Nueva fecha y hora *
+                <input className="input" type="datetime-local" required value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)} />
+              </label>
+              <label className="field">
+                Motivo *
+                <textarea
+                  className="input"
+                  required
+                  maxLength={255}
+                  rows={3}
+                  value={motivo}
+                  onChange={(e) => setMotivo(e.target.value)}
+                  placeholder="Ej: el cliente pidió cambiar la cita"
+                />
+              </label>
+              <button className="btn btn-primary">{guardando ? "Guardando…" : "Reprogramar"}</button>
+            </fieldset>
+          </form>
+        ) : (
+          <p className="muted agenda-ayuda">Haz clic en una visita pendiente del calendario para reprogramarla.</p>
+        )}
         <aside className="card agenda-hoy-panel">
           <h2 className="section-title">
             Agenda del día
@@ -233,6 +327,7 @@ export function AgendaPage({ mia = false }: { mia?: boolean }) {
             </ol>
           )}
         </aside>
+        </div>
       </div>
     </div>
   );

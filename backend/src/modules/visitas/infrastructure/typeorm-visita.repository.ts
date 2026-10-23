@@ -28,6 +28,7 @@ export class TypeOrmVisitaRepository implements VisitaRepository {
       fechaProgramada: visita.fechaProgramada,
       fechaReal: visita.fechaReal,
       estadoVisita: visita.estado,
+      motivoReprogramacion: visita.motivoReprogramacion,
     });
     return this.aDominio(fila);
   }
@@ -72,6 +73,7 @@ export class TypeOrmVisitaRepository implements VisitaRepository {
       fila.fechaProgramada,
       fila.estadoVisita as EstadoVisita,
       fila.fechaReal,
+      fila.motivoReprogramacion,
     );
   }
 }

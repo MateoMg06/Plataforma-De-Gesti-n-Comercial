@@ -28,4 +28,8 @@ export class VisitaOrmEntity {
 
   @Column({ name: 'estado_visita', length: 20 })
   estadoVisita: string;
+
+  // HU-13: motivo de la última reprogramación.
+  @Column({ name: 'motivo_reprogramacion', type: 'varchar', length: 255, nullable: true })
+  motivoReprogramacion: string | null;
 }
