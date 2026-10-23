@@ -58,7 +58,9 @@ export function LoginPage() {
       setError(
         /invalid email or password/i.test(mensaje)
           ? 'Correo o contraseña incorrectos'
-          : mensaje || 'No se pudo iniciar sesión',
+          : /banned/i.test(mensaje)
+            ? 'Tu usuario está desactivado. Habla con el administrador.'
+            : mensaje || 'No se pudo iniciar sesión',
       );
     } finally {
       setCargando(false);

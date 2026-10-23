@@ -19,6 +19,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { MapaPage } from './pages/MapaPage';
 import { PedidosPage } from './pages/PedidosPage';
 import { PortafolioPage } from './pages/PortafolioPage';
+import { UsuariosPage } from './pages/UsuariosPage';
 
 export default function App() {
   return (
@@ -72,6 +73,7 @@ export default function App() {
           />
           <Route path="/configuracion/zonas" element={<ZonasPage />} />
           <Route path="/configuracion/portafolio" element={<PortafolioPage />} />
+          <Route path="/configuracion/usuarios" element={<UsuariosPage />} />
           <Route path="/configuracion/asesores" element={<AsesoresPage />} />
           <Route path="/agenda/mia" element={<AgendaPage mia />} />
         </Route>
