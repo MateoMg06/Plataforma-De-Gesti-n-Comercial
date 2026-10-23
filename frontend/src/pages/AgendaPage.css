@@ -96,3 +96,11 @@
 .agenda-lista-datos .muted { font-size: 12px; }
 
 @media (max-width: 1200px) { .agenda-layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* HU-13: las visitas pendientes se pueden elegir para reprogramarlas. */
+.agenda-evento-boton { cursor: pointer; }
+.agenda-evento-boton:hover,
+.agenda-evento-boton:focus-visible { border-color: var(--orange-500); }
+.agenda-reprogramar-cliente { margin: -8px 0 12px; }
+.agenda-ayuda { margin: 0; padding: 12px 16px; border: 1px dashed var(--border); border-radius: var(--radius); font-size: 13px; }
+textarea.input { resize: vertical; }

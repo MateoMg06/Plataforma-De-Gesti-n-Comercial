@@ -21,6 +21,8 @@ export class Visita {
     public readonly fechaProgramada: Date,
     public readonly estado: EstadoVisita,
     public readonly fechaReal: Date | null = null,
+    // HU-13: por qué se cambió la fecha. Solo lo tienen las visitas reprogramadas.
+    public readonly motivoReprogramacion: string | null = null,
   ) {
     if (!idCliente || idCliente <= 0) {
       throw new Error('El cliente es obligatorio');
@@ -61,6 +63,31 @@ export class Visita {
       this.fechaProgramada,
       estado,
       fechaReal,
+      this.motivoReprogramacion,
+    );
+  }
+
+  // HU-13: cambia la fecha programada indicando el motivo.
+  // Regla: solo se reprograma una visita pendiente (programada o ya reprogramada).
+  reprogramar(nuevaFecha: Date, motivo: string): Visita {
+    if (this.estado !== 'programada' && this.estado !== 'reprogramada') {
+      throw new Error('Solo se puede reprogramar una visita pendiente');
+    }
+    if (!nuevaFecha || Number.isNaN(nuevaFecha.getTime())) {
+      throw new Error('La nueva fecha es obligatoria');
+    }
+    const texto = (motivo ?? '').trim();
+    if (!texto) throw new Error('El motivo de la reprogramación es obligatorio');
+    if (texto.length > 255) throw new Error('El motivo admite máximo 255 caracteres');
+    return new Visita(
+      this.id,
+      this.idCliente,
+      this.idAsesor,
+      this.idRuta,
+      nuevaFecha,
+      'reprogramada',
+      null,
+      texto,
     );
   }
 }
