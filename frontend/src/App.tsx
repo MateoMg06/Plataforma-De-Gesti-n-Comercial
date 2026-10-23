@@ -15,6 +15,7 @@ import { AsesoresPage } from './pages/AsesoresPage';
 import { AgendaPage } from './pages/AgendaPage';
 import { SeguimientosPage } from './pages/SeguimientosPage';
 import { BitacoraPage } from './pages/BitacoraPage';
+import { ReportesPage } from './pages/ReportesPage';
 import { CotizacionesPage } from './pages/CotizacionesPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { MapaPage } from './pages/MapaPage';
@@ -56,6 +57,8 @@ export default function App() {
                   <PedidosPage />
                 ) : item.path === '/bitacora' ? (
                   <BitacoraPage />
+                ) : item.path === '/reportes' ? (
+                  <ReportesPage />
                 ) : (
                   <PlaceholderPage item={item} />
                 )
