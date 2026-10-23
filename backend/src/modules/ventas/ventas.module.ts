@@ -9,6 +9,7 @@ import { PedidoOrmEntity } from './infrastructure/pedido.orm-entity.js';
 import { TypeOrmCotizacionRepository } from './infrastructure/typeorm-cotizacion.repository.js';
 import { TypeOrmPedidoRepository } from './infrastructure/typeorm-pedido.repository.js';
 import { InMemoryStorageAdapter } from './infrastructure/in-memory-storage.adapter.js';
+import { S3StorageAdapter } from './infrastructure/s3-storage.adapter.js';
 import { COTIZACION_REPOSITORY } from './domain/cotizacion.repository.js';
 import { PEDIDO_REPOSITORY } from './domain/pedido.repository.js';
 import { STORAGE_PORT } from './domain/storage.port.js';
@@ -48,7 +49,13 @@ import { PedidosController } from './presentation/pedidos.controller.js';
     ObtenerPedidoUseCase,
     { provide: COTIZACION_REPOSITORY, useClass: TypeOrmCotizacionRepository },
     { provide: PEDIDO_REPOSITORY, useClass: TypeOrmPedidoRepository },
-    { provide: STORAGE_PORT, useClass: InMemoryStorageAdapter }, //Cambiar InMemory por S3StorageAdapter en despliegue de AWS
+    // HU-29: con S3_BUCKET en el .env (AWS) se usa S3; sin él (desarrollo), memoria.
+    // useFactory se evalúa al arrancar, cuando el .env ya está cargado.
+    {
+      provide: STORAGE_PORT,
+      useFactory: () =>
+        process.env.S3_BUCKET ? new S3StorageAdapter() : new InMemoryStorageAdapter(),
+    },
   ],
   // HU-32: el dashboard lee cotizaciones y pedidos con estos casos de uso.
   exports: [ListarCotizacionesUseCase, ListarPedidosUseCase],

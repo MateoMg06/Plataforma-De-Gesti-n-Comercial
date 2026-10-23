@@ -9,12 +9,18 @@ export class S3StorageAdapter implements StoragePort {
 
   constructor() {
     this.bucket = process.env.S3_BUCKET ?? process.env.AWS_S3_BUCKET ?? '';
+    // En EC2 se usa un rol de IAM: sin llaves en el .env, el SDK toma las
+    // credenciales del rol automáticamente. Las llaves solo se pasan si existen
+    // (por ejemplo, para probar S3 desde un computador local).
+    const conLlaves = Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
     this.client = new S3Client({
-      region: process.env.AWS_REGION ?? 'us-east-1',
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? '',
-      },
+      region: process.env.AWS_REGION ?? 'us-east-2',
+      ...(conLlaves && {
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        },
+      }),
     });
   }
 

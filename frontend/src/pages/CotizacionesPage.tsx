@@ -1,6 +1,6 @@
-import { FileText, Plus, Trash2 } from "lucide-react";
+import { Download, FileText, Paperclip, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
-import { api } from "../api/client";
+import { api, apiDescargarArchivo, apiSubirArchivo } from "../api/client";
 import "./CotizacionesPage.css";
 
 interface Detalle {
@@ -19,6 +19,8 @@ interface Cotizacion {
   estado: string;
   total: number;
   detalles: Detalle[];
+  // HU-29: referencia del documento en S3 (null si aún no tiene).
+  documentoKey: string | null;
 }
 
 interface Linea {
@@ -99,6 +101,29 @@ export function CotizacionesPage() {
     try {
       await api(`/cotizaciones/${c.id}/${accion}`, { method: "PATCH" });
       cargar();
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
+  // HU-29: el documento se sube a S3; la base guarda solo su referencia.
+  const subirDocumento = async (c: Cotizacion, archivo: File | undefined) => {
+    if (!archivo) return;
+    setError("");
+    setMensaje("");
+    try {
+      await apiSubirArchivo(`/cotizaciones/${c.id}/documento`, "archivo", archivo);
+      setMensaje(`Documento de la cotización N.º ${c.numero} guardado.`);
+      cargar();
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
+  const descargarDocumento = async (c: Cotizacion) => {
+    setError("");
+    try {
+      await apiDescargarArchivo(`/cotizaciones/${c.id}/documento`, c.documentoKey?.split("/").pop() ?? "documento");
     } catch (err) {
       setError((err as Error).message);
     }
@@ -202,6 +227,25 @@ export function CotizacionesPage() {
                             <button className="btn btn-sm" onClick={() => void cambiarEstado(c, "rechazar")}>Rechazar</button>
                           </>
                         )}
+                        {/* HU-29: documento de la cotización (PDF o imagen, máximo 10 MB). */}
+                        {c.documentoKey && (
+                          <button className="btn-icon" aria-label={`Descargar documento de la cotización ${c.numero}`} title="Descargar documento" onClick={() => void descargarDocumento(c)}>
+                            <Download size={18} />
+                          </button>
+                        )}
+                        <label className="btn-icon" title={c.documentoKey ? "Reemplazar documento" : "Adjuntar documento"}>
+                          <Paperclip size={18} />
+                          <input
+                            type="file"
+                            accept="application/pdf,image/png,image/jpeg"
+                            hidden
+                            aria-label={`Adjuntar documento a la cotización ${c.numero}`}
+                            onChange={(e) => {
+                              void subirDocumento(c, e.target.files?.[0]);
+                              e.target.value = "";
+                            }}
+                          />
+                        </label>
                       </td>
                     </tr>
                   ))
