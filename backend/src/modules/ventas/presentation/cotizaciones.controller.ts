@@ -53,10 +53,10 @@ export class CotizacionesController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Listar cotizaciones' })
+  @ApiOperation({ summary: 'Listar cotizaciones', description: 'Con rol asesor devuelve solo las suyas (HU-03).' })
   @ApiOkResponse({ schema: { example: [cotizacionEjemplo] } })
-  listar() {
-    return this.listarCotizaciones.ejecutar();
+  listar(@Session() session: UserSession) {
+    return this.listarCotizaciones.ejecutar({ id: session.user.id, role: session.user.role as string });
   }
 
   @Post()

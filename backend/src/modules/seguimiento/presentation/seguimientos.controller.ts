@@ -36,10 +36,10 @@ export class SeguimientosController {
   }
 
   @Get('pendientes')
-  @ApiOperation({ summary: 'Seguimientos pendientes (HU-24)', description: 'Los no completados, ordenados por fecha próxima. vencido = true si la fecha próxima ya pasó.' })
+  @ApiOperation({ summary: 'Seguimientos pendientes (HU-24)', description: 'Los no completados, ordenados por fecha próxima. vencido = true si la fecha próxima ya pasó. Con rol asesor, solo los de sus visitas.' })
   @ApiOkResponse({ description: 'Seguimientos pendientes.' })
-  listarPendientes() {
-    return this.listarPendientesUseCase.ejecutar();
+  listarPendientes(@Session() session: UserSession) {
+    return this.listarPendientesUseCase.ejecutar({ id: session.user.id, role: session.user.role as string });
   }
 
   // HU-24: el usuario que completa sale de la sesión, no del cuerpo de la petición.
