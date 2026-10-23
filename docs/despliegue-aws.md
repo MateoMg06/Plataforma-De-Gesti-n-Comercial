@@ -52,7 +52,7 @@ sudo apt-get install -y nodejs nginx git rsync
 sudo npm install -g pm2
 
 # Código
-git clone https://github.com/MateoMg06/plataforma-de-gestion-comercial.git ~/comercial360
+git clone https://github.com/MateoMg06/Plataforma-De-Gesti-n-Comercial.git ~/comercial360
 cd ~/comercial360
 
 # Certificado de RDS (HU-INF-02)
