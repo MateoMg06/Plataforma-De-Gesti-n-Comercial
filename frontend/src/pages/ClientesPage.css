@@ -1,0 +1,36 @@
+/* La mayoría de estilos vienen de index.css (.toolbar, .table, .form-grid, .pill). */
+.clientes-filtros { margin-bottom: 16px; }
+.clientes-busqueda { flex: 2 1 280px; }
+.clientes-limite { display: flex; align-items: center; gap: 8px; }
+.clientes-limite .input { width: auto; min-height: 32px; padding: 4px 8px; }
+/* El NIT no se parte en dos líneas (en celular es la columna fija de la tabla). */
+.clientes-page .table td:first-child { white-space: nowrap; }
+@media (max-width: 600px) {
+  .clientes-limite .input { min-height: 40px; }
+  /* "Por página" en su fila; Anterior y Siguiente comparten la de abajo. */
+  .clientes-limite { flex-basis: 100%; }
+}
+.clientes-form-cabecera { margin-bottom: 16px; }
+.clientes-form-cabecera .section-title { margin: 0; font-size: 18px; }
+.clientes-seccion { padding-bottom: 10px; border-bottom: 1px solid var(--border); font-size: 15px; }
+.clientes-botones { justify-content: flex-end; }
+
+/* Aviso flotante abajo a la derecha. */
+.clientes-aviso {
+  position: fixed;
+  right: 24px;
+  bottom: 72px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  box-shadow: var(--shadow-lg);
+}
+.clientes-aviso .btn-icon { width: 24px; height: 24px; color: inherit; font-size: 18px; }
+
+/* HU-07: contactos del cliente */
+.contactos { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+.contactos-lista { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; }
+.contactos-lista li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.contactos-principal { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; min-height: 32px; }

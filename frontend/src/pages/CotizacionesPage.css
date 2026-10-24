@@ -1,0 +1,22 @@
+/* HU-27: formulario a la izquierda, lista a la derecha (como rutas). */
+.cotizaciones-layout { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 20px; align-items: start; }
+.cotizaciones-form { display: grid; gap: 12px; }
+/* Producto en su propia fila (ocupa todo el ancho); debajo cantidad, precio y quitar.
+   Así el nombre del producto se puede escribir también en celular. */
+.cotizaciones-linea { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) 32px; gap: 8px; align-items: center; }
+.cotizaciones-linea > input:first-child { grid-column: 1 / -1; }
+
+/* HU-29: el input de archivo queda invisible pero enfocable con el teclado;
+   el foco se ve en el clip. */
+.cotizaciones-adjuntar { position: relative; cursor: pointer; }
+.cotizaciones-archivo { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.cotizaciones-adjuntar:focus-within { outline: 2px solid var(--orange-500); outline-offset: 2px; }
+.cotizaciones-total { margin: 4px 0; text-align: right; }
+.cotizaciones-acciones { display: flex; justify-content: flex-end; align-items: center; gap: 6px; }
+
+/* Los colores de los estados de la cotización (HU-28) están en las pills de index.css. */
+
+/* Hasta 1360 px el formulario va arriba: al lado, la tabla quedaba de 300 px y había que desplazarla. */
+@media (max-width: 1360px) {
+  .cotizaciones-layout { grid-template-columns: minmax(0, 1fr); }
+}

@@ -1,0 +1,46 @@
+/* HU-26: línea de tiempo vertical; cada tipo de evento tiene su icono. */
+.historial {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.historial-evento {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: 16px;
+}
+/* La línea que une los eventos. */
+.historial-evento:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 32px;
+  bottom: 0;
+  left: 15px;
+  width: 2px;
+  background: var(--border);
+}
+.historial-icono {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--navy-700);
+}
+.historial-cotizacion .historial-icono,
+.historial-pedido .historial-icono {
+  background: var(--orange-100);
+  color: var(--orange-600);
+}
+.historial-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}

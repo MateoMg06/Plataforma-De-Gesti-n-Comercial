@@ -1,0 +1,20 @@
+.config-columnas { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: start; }
+.config-lista { margin: 0; padding: 0; list-style: none; }
+.config-lista li + li { border-top: 1px solid var(--border); }
+.config-item { display: flex; align-items: center; gap: 14px; padding: 14px 4px; }
+.config-item:hover strong { color: var(--orange-600); }
+.config-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--orange-100);
+  color: var(--orange-500);
+}
+.config-texto { display: grid; flex: 1; gap: 2px; }
+.config-texto strong { color: var(--navy-900); font-size: 15px; }
+.config-flecha { color: var(--text-muted); }
+@media (max-width: 900px) { .config-columnas { grid-template-columns: minmax(0, 1fr); } }

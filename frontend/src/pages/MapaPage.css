@@ -1,0 +1,27 @@
+.mapa { height: 560px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+
+/* HU-21: filtros del mapa; el contador queda debajo del toolbar. */
+.mapa-filtros { margin-bottom: 8px; }
+
+/* Leyenda con el número de visitas por estado. */
+.mapa-leyenda { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0 0 16px; padding: 0; list-style: none; }
+.mapa-leyenda li { display: flex; align-items: center; gap: 6px; }
+.mapa-estado { text-transform: capitalize; color: var(--text-muted); }
+.mapa-punto { width: 12px; height: 12px; border-radius: 50%; background: var(--info); }
+
+/* Colores por estado: los mismos de las etiquetas (pills) de toda la app.
+   En el mapa se usan con fill y stroke porque los círculos son SVG. */
+.marca { fill-opacity: 0.75; stroke-width: 2; stroke: var(--surface); }
+.punto-programada { background: var(--orange-500); }
+.marca-programada { fill: var(--orange-500); }
+.punto-realizada { background: var(--success); }
+.marca-realizada { fill: var(--success); }
+.punto-reprogramada, .punto-no_atendida { background: var(--danger); }
+.marca-reprogramada, .marca-no_atendida { fill: var(--danger); }
+.punto-cancelada { background: var(--text-muted); }
+.marca-cancelada { fill: var(--text-muted); }
+
+/* La ventana del punto usa la letra de la app. */
+.leaflet-container { font: inherit; }
+.leaflet-popup-content { line-height: 1.6; }
+.leaflet-popup-content .pill { margin-top: 4px; }

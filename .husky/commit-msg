@@ -1,0 +1,15 @@
+# Valida el mensaje del commit (ver CONTRIBUTING.md).
+# Formato: HU-XX: descripción  (ej: "HU-05: agrega validación de NIT único")
+mensaje=$(head -n 1 "$1")
+
+# Los merges y reverts los escribe git solo; se dejan pasar.
+if echo "$mensaje" | grep -Eq '^(Merge|Revert) '; then
+  exit 0
+fi
+
+if ! echo "$mensaje" | grep -Eq '^HU-(INF-)?[0-9]{2}: .+'; then
+  echo "Mensaje de commit inválido: '$mensaje'"
+  echo "Usa: HU-XX: descripción corta en español"
+  echo "Ejemplos: \"HU-05: agrega validación de NIT único\", \"HU-INF-01: configura husky\""
+  exit 1
+fi

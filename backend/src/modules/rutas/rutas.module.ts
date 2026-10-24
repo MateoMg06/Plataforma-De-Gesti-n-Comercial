@@ -1,0 +1,36 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AsesoresModule } from '../asesores/asesores.module.js';
+import { ClientesModule } from '../clientes/clientes.module.js';
+import { VisitasModule } from '../visitas/visitas.module.js';
+import { ActivarRutaUseCase } from './application/activar-ruta.use-case.js';
+import { FinalizarRutaUseCase } from './application/finalizar-ruta.use-case.js';
+import { CrearRutaUseCase } from './application/crear-ruta.use-case.js';
+import { AgregarClienteRutaUseCase } from './application/agregar-cliente-ruta.use-case.js';
+import { ListarRutasUseCase } from './application/listar-rutas.use-case.js';
+import { ReordenarClienteRutaUseCase } from './application/reordenar-cliente-ruta.use-case.js';
+import { SugerirClientesPorFrecuenciaUseCase } from './application/sugerir-clientes-por-frecuencia.use-case.js';
+import { RUTA_REPOSITORY } from './domain/ruta.repository.js';
+import { RutaOrmEntity } from './infrastructure/ruta.orm-entity.js';
+import { RutaClienteOrmEntity } from './infrastructure/ruta-cliente.orm-entity.js';
+import { TypeOrmRutaRepository } from './infrastructure/typeorm-ruta.repository.js';
+import { RutasController } from './presentation/rutas.controller.js';
+
+@Module({
+  // AsesoresModule y ClientesModule exportan los casos de uso para validar
+  // que el asesor y los clientes de la ruta existen.
+  // VisitasModule exporta ProgramarVisitaUseCase para crear las visitas al activar (HU-16).
+  imports: [AsesoresModule, ClientesModule, VisitasModule, TypeOrmModule.forFeature([RutaOrmEntity, RutaClienteOrmEntity])],
+  controllers: [RutasController],
+  providers: [
+    CrearRutaUseCase,
+    ListarRutasUseCase,
+    AgregarClienteRutaUseCase,
+    ReordenarClienteRutaUseCase,
+    ActivarRutaUseCase,
+    FinalizarRutaUseCase,
+    SugerirClientesPorFrecuenciaUseCase,
+    { provide: RUTA_REPOSITORY, useClass: TypeOrmRutaRepository },
+  ],
+})
+export class RutasModule {}
