@@ -1,0 +1,17 @@
+# Valida el nombre de la rama antes de cada commit (ver CONTRIBUTING.md).
+# Formato: feature/HU-XX-descripcion-corta  (ej: feature/HU-05-registrar-cliente, feature/HU-INF-01-repositorio)
+rama=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$rama" = "main" ] || [ "$rama" = "develop" ]; then
+  echo "No hagas commits directo en '$rama'. Crea tu rama:"
+  echo "  git checkout -b feature/HU-XX-descripcion-corta"
+  exit 1
+fi
+
+if ! echo "$rama" | grep -Eq '^feature/HU-(INF-)?[0-9]{2}-[a-z0-9]+(-[a-z0-9]+)*$'; then
+  echo "Nombre de rama inválido: '$rama'"
+  echo "Usa: feature/HU-XX-descripcion-corta (minúsculas, sin tildes, separado por guiones)"
+  echo "Ejemplos: feature/HU-05-registrar-cliente, feature/HU-INF-01-repositorio"
+  echo "Para renombrarla: git branch -m feature/HU-XX-descripcion-corta"
+  exit 1
+fi

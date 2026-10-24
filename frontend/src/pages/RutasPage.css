@@ -1,0 +1,35 @@
+/* diseno_04: datos de la ruta a la izquierda, clientes y orden a la derecha. */
+.rutas-layout { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 20px; align-items: start; }
+.rutas-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.rutas-fechas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.rutas-nota {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--info) 8%, var(--surface));
+  color: var(--navy-700);
+  font-size: 13px;
+}
+.rutas-cabecera { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.rutas-selector { min-width: 240px; }
+.rutas-resumen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-muted);
+}
+.rutas-resumen strong { color: var(--navy-900); }
+.rutas-agregar { margin-bottom: 16px; }
+.rutas-sugerencias { margin: 18px 0 24px; }
+.rutas-sugerencias h3 { margin: 0 0 4px; color: var(--navy-900); }
+.rutas-sugerencias > p { margin: 0 0 12px; color: var(--text-muted); font-size: 14px; }
+.rutas-municipio { display: inline-flex; align-items: center; gap: 4px; }
+@media (max-width: 1100px) { .rutas-layout { grid-template-columns: minmax(0, 1fr); } }

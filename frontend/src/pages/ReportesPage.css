@@ -1,0 +1,50 @@
+/* HU-33: totales del reporte. */
+.reporte-totales {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.reporte-totales .card {
+  display: grid;
+  gap: 4px;
+}
+.reporte-totales strong {
+  color: var(--navy-900);
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+/* HU-35: gráficos en dos columnas; el de valor por asesor ocupa todo el ancho. */
+.reporte-graficos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.reporte-grafico-ancho {
+  grid-column: 1 / -1;
+}
+
+.reporte-pestanas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.reporte-fila-total td {
+  background: var(--bg);
+}
+
+@media (max-width: 600px) {
+  /* Las pestañas del detalle bajan debajo del título en vez de apretarse a su lado. */
+  .reporte-detalle .section-title { flex-wrap: wrap; }
+  .reporte-pestanas { flex-basis: 100%; margin-left: 0; }
+  .reporte-pestanas .btn { flex: 1 1 auto; }
+}
+
+@media (max-width: 760px) {
+  .reporte-totales,
+  .reporte-graficos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

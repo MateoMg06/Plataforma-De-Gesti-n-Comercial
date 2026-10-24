@@ -1,0 +1,132 @@
+/* Calendario a la izquierda y "Agenda del día" a la derecha (diseno_02). */
+.agenda-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+.agenda-vistas { display: flex; gap: 8px; }
+
+.agenda-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.agenda-nav { display: flex; align-items: center; gap: 6px; }
+.agenda-titulo { color: var(--navy-900); font-size: 16px; }
+.agenda-titulo::first-letter { text-transform: uppercase; }
+
+/* 7 columnas, de lunes a domingo. */
+.agenda-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(80px, 1fr));
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.agenda-cabecera {
+  padding: 10px 8px;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  color: var(--navy-900);
+  font-size: 12px;
+  font-weight: 600;
+}
+.agenda-dia {
+  /* min-width: 0 evita que un nombre largo ensanche la columna y pise la de al lado. */
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 8px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.agenda-semana .agenda-dia { min-height: 360px; }
+.agenda-mes .agenda-dia { min-height: 120px; }
+.agenda-numero { color: var(--text-muted); font-size: 12px; font-weight: 600; }
+.agenda-hoy { background: color-mix(in srgb, var(--orange-100) 60%, var(--surface)); }
+.agenda-hoy .agenda-numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--orange-500);
+  color: var(--on-dark);
+}
+.agenda-fuera { background: var(--bg); }
+.agenda-fuera .agenda-numero { opacity: 0.5; }
+
+/* Cada evento lleva un fondo suave del color de su estado. */
+.agenda-evento {
+  display: grid;
+  gap: 2px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 12px;
+  line-height: 1.35;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.agenda-evento strong { color: var(--navy-900); }
+.agenda-evento .pill { justify-self: start; margin-top: 2px; font-size: 11px; padding: 1px 8px; }
+.agenda-asesor { color: var(--text-muted); }
+.evento-programada { background: var(--orange-100); border-color: transparent; }
+.evento-realizada { background: color-mix(in srgb, var(--success) 10%, var(--surface)); border-color: transparent; }
+.evento-reprogramada,
+.evento-no_atendida { background: color-mix(in srgb, var(--danger) 8%, var(--surface)); border-color: transparent; }
+
+/* Panel "Agenda del día". */
+.agenda-hoy-panel .section-title { flex-wrap: wrap; }
+.agenda-fecha-hoy { margin-left: auto; color: var(--orange-600); font-size: 14px; font-weight: 600; }
+.agenda-fecha-hoy::first-letter { text-transform: uppercase; }
+.agenda-lista { margin: 0; padding: 0; list-style: none; }
+.agenda-lista li {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.agenda-lista li:last-child { border-bottom: none; }
+.agenda-lista-hora { color: var(--navy-900); font-weight: 700; font-variant-numeric: tabular-nums; }
+.agenda-lista-datos { display: grid; min-width: 0; }
+.agenda-lista-datos strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--navy-900); }
+.agenda-lista-datos .muted { font-size: 12px; }
+
+/* El panel lateral solo cabe en pantallas grandes; si no, el calendario quedaba con scroll. */
+@media (max-width: 1400px) { .agenda-layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* El nombre del día dentro de la celda solo se usa en celular (abajo). */
+.agenda-dia-nombre { display: none; }
+
+/* Celular: los días van uno debajo del otro, como una lista, en vez de 7 columnas con scroll. */
+@media (max-width: 600px) {
+  .agenda-grid { grid-template-columns: minmax(0, 1fr); }
+  .agenda-cabecera { display: none; }
+  .agenda-semana .agenda-dia,
+  .agenda-mes .agenda-dia { min-height: 0; }
+  /* En el mes, solo los días del mes que tienen visitas. */
+  .agenda-mes .agenda-fuera,
+  .agenda-mes .agenda-dia-vacio { display: none; }
+  .agenda-numero { display: flex; align-items: center; gap: 8px; }
+  .agenda-dia-nombre { display: inline; color: var(--navy-900); font-size: 13px; }
+  /* Hoy: sin el círculo (ahora la fila también lleva el nombre del día), en naranja. */
+  .agenda-hoy .agenda-numero { width: auto; height: auto; justify-content: flex-start; border-radius: 0; background: none; color: var(--orange-600); }
+  .agenda-hoy .agenda-dia-nombre { color: var(--orange-600); }
+  /* En "Agenda del día" el nombre del cliente puede ir en dos líneas en vez de cortarse. */
+  .agenda-lista-datos strong { white-space: normal; overflow-wrap: anywhere; }
+}
+
+/* HU-13: las visitas pendientes se pueden elegir para reprogramarlas. */
+.agenda-evento-boton { cursor: pointer; }
+.agenda-evento-boton:hover,
+.agenda-evento-boton:focus-visible { border-color: var(--orange-500); }
+.agenda-reprogramar-cliente { margin: -8px 0 12px; }
+.agenda-ayuda { margin: 0; padding: 12px 16px; border: 1px dashed var(--border); border-radius: var(--radius); font-size: 13px; }
+textarea.input { resize: vertical; }
