@@ -141,6 +141,10 @@ Preparar el código por sí solo no acredita esas comprobaciones.
 
 Guía paso a paso en [docs/despliegue-aws.md](docs/despliegue-aws.md): EC2 con nginx y pm2, RDS y S3 con rol IAM. Archivos en `deploy/`.
 
+## Jenkins (HU-INF-05)
+
+Pipeline **pull → build → test → deploy** que corre en la misma EC2 y se dispara solo cuando cambia `main` (revisión cada 5 minutos). El `Jenkinsfile` de la raíz orquesta `deploy/desplegar.sh` (HU-INF-03). Instalación, job y demo en [docs/jenkins.md](docs/jenkins.md).
+
 ## Datos de prueba (seed)
 
 `npm run seed` (en `backend/`) carga datos para la demo:
